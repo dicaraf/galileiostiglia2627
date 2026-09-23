@@ -42,8 +42,9 @@ Informatica — Classe Quinta, Istituto Tecnico
 3. Limiti dell'organizzazione convenzionale (file-based)
 4. Basi di dati: definizione e produttività
 5. Il DBMS e le sue funzioni: integrità, consistenza, sicurezza
-6. Modelli per il database e approfondimento sul modello relazionale
-7. Architettura a 3 livelli e indipendenza dei dati
+6. Modelli dei dati per livelli di generalità: concettuale, logico, fisico
+7. Il modello relazionale: approfondimento e approccio dichiarativo
+8. Architettura a 3 livelli e indipendenza dei dati
 8. Database distribuiti
 9. Linguaggi per database: DDL, DML, QL, DCL, TCL
 10. Utenti, transazioni e proprietà ACID
@@ -220,16 +221,65 @@ La **consistenza** è la proprietà per cui il database si trova sempre in uno *
 
 ---
 
-## I modelli per il database
+## I modelli dei dati: livelli di generalità
 
-Il **modello dei dati** è il formalismo con cui si rappresenta la struttura logica dei dati.
+Un **modello dei dati** è il formalismo con cui si rappresenta la realtà da memorizzare. Si distinguono **tre livelli**, coerenti con le fasi di progettazione già viste, che vanno da un livello più **astratto e generale** a uno più **concreto e specifico**:
 
-- **Modello gerarchico**: dati organizzati ad **albero** (relazioni 1:N)
-- **Modello reticolare (a rete)**: generalizza il gerarchico, ammette relazioni N:N tramite puntatori
-- **Modello relazionale**: dati organizzati in **tabelle (relazioni)**, oggi il più diffuso
+| Livello | Cosa rappresenta | Unità di base |
+|---|---|---|
+| **Modello concettuale** | La realtà in modo astratto, indipendente da ogni tecnologia | **oggetto** (entità) |
+| **Modello logico** | La struttura dei dati secondo un formalismo implementabile in un DBMS | **record** |
+| **Modello fisico** | Come i dati sono effettivamente memorizzati su memoria di massa | file, blocchi, indici |
+
+> Man mano che si scende di livello, il modello diventa più **specifico** e più legato alla tecnologia: dal "cosa" (concettuale) al "come" (fisico).
+
+---
+
+## Il modello concettuale: livello di oggetti
+
+Al **livello concettuale** la realtà viene rappresentata attraverso **oggetti** (entità) dotati di proprietà e collegati da legami logici, **senza alcun riferimento** a come i dati verranno poi implementati.
+
+- Lo strumento standard per costruire il modello concettuale è il **modello Entità/Associazioni (E/R)**, già approfondito nella progettazione concettuale: entità, associazioni, attributi, cardinalità
+- Il risultato è lo **schema concettuale** (diagramma ER), indipendente dal DBMS che verrà scelto in seguito
+
+> A questo livello ci si chiede *"quali oggetti esistono nella realtà e come sono collegati?"*, non ancora *"come li memorizzo?"*.
+
+---
+
+## Il modello logico: livello di record
+
+Al **livello logico** i dati vengono organizzati secondo un **formalismo implementabile** da un DBMS: l'unità di base non è più l'oggetto astratto, ma il **record**, cioè la struttura concreta con cui il dato viene rappresentato e manipolato.
+
+Il modello logico può essere realizzato secondo diversi **modelli dei dati**:
+
+- **Modello gerarchico**: record organizzati ad **albero** (relazioni 1:N)
+- **Modello reticolare (a rete)**: generalizza il gerarchico, ammette relazioni N:N tramite puntatori tra record
+- **Modello relazionale**: record organizzati in **tabelle (relazioni)**, oggi il più diffuso
 - **Modello a oggetti**: dati rappresentati come **oggetti** con attributi e metodi (usato in contesti OOP)
 
-> Dalla quinta in poi ci si concentra soprattutto sul **modello relazionale** (tabelle, chiavi, SQL, algebra relazionale).
+> Il passaggio dal modello concettuale (E/R) al modello logico si chiama **progettazione logica**: ad esempio, ogni entità del diagramma ER diventa una tabella nel modello relazionale.
+
+---
+
+## Il modello fisico
+
+Al **livello fisico** si definisce **come** i record vengono effettivamente memorizzati sulla memoria di massa: organizzazione dei file (sequenziale, a indice, hash), tipi di indice, allocazione dei blocchi.
+
+- È il livello più vicino alla macchina e dipende dal **DBMS specifico** utilizzato
+- Le scelte fisiche (es. creare un indice su una colonna) **non modificano** lo schema logico, grazie all'**indipendenza fisica dei dati** già vista nell'architettura a 3 livelli
+
+> **Esempio:** decidere di indicizzare la colonna `Cognome` per velocizzare le ricerche è una scelta di livello **fisico**, trasparente per chi scrive query SQL a livello logico.
+
+---
+
+## Il modello gerarchico e reticolare (cenni storici)
+
+Prima dell'affermazione del modello relazionale, i DBMS si basavano su altri modelli logici, oggi in gran parte superati ma utili per comprenderne l'evoluzione:
+
+- **Modello gerarchico**: i record sono organizzati come un **albero**; ogni record "figlio" ha un solo record "padre" (relazioni **1:N**). Limite: difficoltà a rappresentare relazioni **N:N** in modo naturale
+- **Modello reticolare (CODASYL)**: generalizza il gerarchico introducendo **puntatori** tra record che permettono relazioni **N:N**, ma con **navigazione esplicita** tra i record da parte del programmatore
+
+> Entrambi i modelli richiedono che il programmatore **conosca il percorso di accesso** ai dati (navigazione tra puntatori): è un approccio **procedurale**, come vedremo tra poco a confronto col modello relazionale.
 
 ---
 
@@ -256,6 +306,23 @@ Il **modello dei dati** è il formalismo con cui si rappresenta la struttura log
 
 ---
 
+## Modello relazionale: approccio dichiarativo vs procedurale
+
+Il vero salto di qualità del modello relazionale rispetto a gerarchico e reticolare è il passaggio da un approccio **procedurale** a uno **dichiarativo**:
+
+| | Approccio **procedurale** (gerarchico/reticolare) | Approccio **dichiarativo** (relazionale) |
+|---|---|---|
+| Cosa specifica il programmatore | **Come** ottenere il dato (percorso di accesso passo-passo, navigazione tra puntatori) | **Cosa** si vuole ottenere (il risultato desiderato) |
+| Chi decide il percorso di accesso | Il programmatore | Il **DBMS**, tramite l'ottimizzatore di query |
+| Esempio di linguaggio | Istruzioni di navigazione record-per-record | `SELECT` in **SQL** |
+
+> **Esempio pratico:** per ottenere "tutti gli studenti con media voto ≥ 8", in un modello procedurale il programmatore dovrebbe scrivere un ciclo che scorre manualmente i record; in SQL basta dichiarare **cosa** si vuole:
+> `SELECT Cognome FROM Studenti JOIN Esami ... GROUP BY ... HAVING AVG(Voto) >= 8;`
+
+> Questa caratteristica rende il modello relazionale più semplice da usare e **indipendente dai dettagli di accesso fisico** ai dati.
+
+---
+
 ## Vincoli di integrità relazionale
 
 - **Integrità di entità**: la chiave primaria di ogni tupla deve essere **non nulla** e **unica**
@@ -271,34 +338,6 @@ CREATE TABLE Esami (
 ```
 
 > Questi vincoli sono il fondamento della **consistenza** vista in precedenza: il DBMS li verifica automaticamente ad ogni operazione.
-
----
-
-## Algebra relazionale: operatori principali
-
-L'**algebra relazionale** è il fondamento teorico delle interrogazioni SQL. Operatori principali:
-
-| Operatore | Significato | Equivalente SQL |
-|---|---|---|
-| **Selezione (σ)** | Filtra le righe secondo una condizione | `WHERE` |
-| **Proiezione (π)** | Seleziona un sottoinsieme di colonne | `SELECT col1, col2` |
-| **Congiunzione (⋈, Join)** | Combina righe di tabelle diverse secondo una condizione | `JOIN ... ON` |
-| **Unione (∪)** | Unisce i risultati di due interrogazioni compatibili | `UNION` |
-| **Differenza (−)** | Righe presenti in una relazione ma non nell'altra | `EXCEPT` / `MINUS` |
-
-> **Esempio:** σ(Voto ≥ 8)(Esami) ⋈ Studenti → equivalente a `SELECT * FROM Esami JOIN Studenti ON ... WHERE Voto >= 8;`
-
----
-
-## Cenni di normalizzazione
-
-La **normalizzazione** è il processo che elimina ridondanze e anomalie organizzando gli attributi in tabelle ben progettate, tramite le **forme normali**:
-
-- **1FN (1NF)**: ogni attributo contiene un valore **atomico** (non ripetuto, non composito)
-- **2FN (2NF)**: rispetta la 1FN e ogni attributo non chiave dipende dall'**intera** chiave primaria (non da una sua parte)
-- **3FN (3NF)**: rispetta la 2FN e non esistono **dipendenze transitive** tra attributi non chiave
-
-> **Esempio:** se in `Ordini(NumOrdine, CodCliente, NomeCliente)` il `NomeCliente` dipende da `CodCliente` e non dalla chiave `NumOrdine`, si ha una dipendenza transitiva da eliminare separando `Clienti` in una tabella a parte.
 
 ---
 
@@ -511,7 +550,11 @@ ARCHIVI (file-based)
 BASI DI DATI (DBMS) -- produttivita', condivisione, sicurezza
    |-- Funzioni DBMS: DDL/DML/QL, integrita', concorrenza,
    |                  sicurezza, backup&recovery, dizionario dati
-   |-- Modello relazionale: tabelle, chiavi, vincoli, algebra relazionale
+   |-- Livelli di generalita': concettuale (oggetti, E/R) --
+   |                            logico (record: gerarchico/reticolare/relazionale) --
+   |                            fisico (file, indici)
+   |-- Modello relazionale: tabelle, chiavi, vincoli, algebra relazionale,
+   |                         approccio dichiarativo (vs procedurale)
    |-- Architettura a 3 livelli --> Indipendenza dei dati (fisica/logica)
    |-- Database distribuiti: frammentazione, replicazione, trasparenza
    |-- Linguaggi: DDL, DML, QL, DCL, TCL (SQL)
@@ -528,6 +571,8 @@ BASI DI DATI (DBMS) -- produttivita', condivisione, sicurezza
 - Perché il modello file-based genera ridondanza e inconsistenza? Come lo risolve un database?
 - Elenca le funzioni principali di un DBMS con un esempio per ciascuna
 - Qual è la differenza tra integrità e consistenza dei dati?
+- Descrivi i tre livelli di generalità di un modello dei dati (concettuale, logico, fisico) e cosa rappresenta l'unità di base di ciascuno
+- Spiega la differenza tra approccio procedurale e dichiarativo, con un esempio riferito al modello relazionale
 - Descrivi chiavi primarie, candidate ed esterne nel modello relazionale
 - Quali sono i tre livelli dell'architettura ANSI-SPARC e a cosa serve ciascuno?
 - Cos'è un database distribuito e quali sono i suoi vantaggi/svantaggi?
