@@ -21,7 +21,7 @@ int main() {
         if(array1[i] > array1[i - 1]) {
             i++;
         }
-    }while(i < DIM);
+    } while(i < DIM);
     i = 0;
     printf("Inserisci il primo elemento dell'array1: ");
     scanf("%d", &array2[0]);
@@ -32,5 +32,5 @@ int main() {
         if(array2[i] > array2[i - 1]) {
             i++;
         }
-    }while(i < DIM);
+    } while(i < DIM);
 }

@@ -341,6 +341,34 @@ CREATE TABLE Esami (
 
 ---
 
+## Algebra relazionale: operatori principali
+
+L'**algebra relazionale** è il fondamento teorico delle interrogazioni SQL. Operatori principali:
+
+| Operatore | Significato | Equivalente SQL |
+|---|---|---|
+| **Selezione (σ)** | Filtra le righe secondo una condizione | `WHERE` |
+| **Proiezione (π)** | Seleziona un sottoinsieme di colonne | `SELECT col1, col2` |
+| **Congiunzione (⋈, Join)** | Combina righe di tabelle diverse secondo una condizione | `JOIN ... ON` |
+| **Unione (∪)** | Unisce i risultati di due interrogazioni compatibili | `UNION` |
+| **Differenza (−)** | Righe presenti in una relazione ma non nell'altra | `EXCEPT` *(MySQL 8.0.31+)* |
+
+> **Esempio:** σ(Voto ≥ 8)(Esami) ⋈ Studenti → equivalente a `SELECT * FROM Esami JOIN Studenti ON ... WHERE Voto >= 8;`
+
+---
+
+## Cenni di normalizzazione
+
+La **normalizzazione** è il processo che elimina ridondanze e anomalie organizzando gli attributi in tabelle ben progettate, tramite le **forme normali**:
+
+- **1FN (1NF)**: ogni attributo contiene un valore **atomico** (non ripetuto, non composito)
+- **2FN (2NF)**: rispetta la 1FN e ogni attributo non chiave dipende dall'**intera** chiave primaria (non da una sua parte)
+- **3FN (3NF)**: rispetta la 2FN e non esistono **dipendenze transitive** tra attributi non chiave
+
+> **Esempio:** se in `Ordini(NumOrdine, CodCliente, NomeCliente)` il `NomeCliente` dipende da `CodCliente` e non dalla chiave `NumOrdine`, si ha una dipendenza transitiva da eliminare separando `Clienti` in una tabella a parte.
+
+---
+
 ## Architettura a 3 livelli (ANSI-SPARC)
 
 Il DBMS è organizzato secondo tre livelli di astrazione, per garantire **indipendenza dei dati**:
@@ -417,18 +445,18 @@ Definisce e modifica la **struttura** del database: tabelle, vincoli, indici.
 
 ```sql
 CREATE TABLE Studenti (
-  Matricola INT PRIMARY KEY,
+  Matricola INT AUTO_INCREMENT PRIMARY KEY,
   Cognome   VARCHAR(30) NOT NULL,
   Nome      VARCHAR(30) NOT NULL,
   Classe    VARCHAR(5)
-);
+) ENGINE=InnoDB;
 
 ALTER TABLE Studenti ADD Email VARCHAR(50);
 
 DROP TABLE Studenti;
 ```
 
-> **Da ricordare per l'esame:** `CREATE` definisce, `ALTER` modifica la struttura esistente, `DROP` elimina l'oggetto (tabella, vincolo, indice).
+> **Da ricordare per l'esame:** `CREATE` definisce, `ALTER` modifica la struttura esistente, `DROP` elimina l'oggetto (tabella, vincolo, indice). In MySQL, `AUTO_INCREMENT` genera automaticamente un valore progressivo per la chiave primaria e `ENGINE=InnoDB` è il motore di archiviazione predefinito (supporta chiavi esterne e transazioni).
 
 ---
 
@@ -477,18 +505,20 @@ HAVING AVG(Voto) >= 7;
 **DCL (Data Control Language)** — gestisce i **privilegi** di accesso:
 
 ```sql
-GRANT SELECT, INSERT ON Studenti TO utente_docente;
-REVOKE INSERT ON Studenti FROM utente_docente;
+GRANT SELECT, INSERT ON scuola.Studenti TO 'docente'@'localhost';
+REVOKE INSERT ON scuola.Studenti FROM 'docente'@'localhost';
 ```
 
 **TCL (Transaction Control Language)** — gestisce l'esito delle **transazioni**:
 
 ```sql
-BEGIN TRANSACTION;
+START TRANSACTION;
 UPDATE Conti SET Saldo = Saldo - 100 WHERE IdConto = 1;
 UPDATE Conti SET Saldo = Saldo + 100 WHERE IdConto = 2;
 COMMIT;   -- oppure ROLLBACK; in caso di errore
 ```
+
+> In MySQL i privilegi si assegnano a un **utente identificato da nome e host** (`'utente'@'host'`); `START TRANSACTION` avvia esplicitamente una transazione (in alternativa è disponibile anche `BEGIN;`).
 
 ---
 
