@@ -477,17 +477,17 @@ STUDENTE ===(1,1)=== FREQUENTA ---(0,N)--- CORSO
 
 La notazione **crow's foot** ("zampa di gallina") è molto usata negli strumenti CASE moderni e nei diagrammi UML/ERD:
 
-- **Tratto singolo perpendicolare** (`—|—`) → cardinalità massima **1**
 - **Zampa di gallina** (`—<`) → cardinalità massima **N** (molti)
-- **Cerchio (○)** vicino all'entità → cardinalità minima **0** (opzionale)
-- **Tratto singolo** vicino all'entità → cardinalità minima **1** (obbligatoria)
+- **Tratto singolo perpendicolare** (`—|—`) → cardinalità massima **1**
+- **Linea tratteggiata (- - -)** → cardinalità minima **0** (partecipazione **opzionale**)
+- **Linea continua (───)** → cardinalità minima **1** (partecipazione **obbligatoria**)
 
 ```
-STUDENTE  |------<  FREQUENTA  >------O  CORSO
-         (1,N: molti studenti)     (0,N: zero o più corsi)
+STUDENTE  ────<  FREQUENTA  - - - <  CORSO
+        (continua = obbligatoria)  (tratteggiata = opzionale)
 ```
 
-> **Combinazioni frequenti nei testi d'esame:** `○<` = (0,N); `|<` = (1,N); `○|` = (0,1); `||` = (1,1).
+> **Combinazioni frequenti nei testi d'esame:** tratteggiata + zampa = (0,N); continua + zampa = (1,N); tratteggiata + tratto singolo = (0,1); continua + tratto singolo = (1,1).
 
 ---
 
@@ -495,10 +495,10 @@ STUDENTE  |------<  FREQUENTA  >------O  CORSO
 
 | Cardinalità | Notazione Chen | Notazione crow's foot |
 |---|---|---|
-| (1,1) obbligatoria, singola | linea doppia + (1,1) | `\|\|` |
-| (0,1) opzionale, singola | linea singola + (0,1) | `○\|` |
-| (1,N) obbligatoria, multipla | linea doppia + (1,N) | `\|<` |
-| (0,N) opzionale, multipla | linea singola + (0,N) | `○<` |
+| (1,1) obbligatoria, singola | linea doppia + (1,1) | linea **continua** + tratto singolo |
+| (0,1) opzionale, singola | linea singola + (0,1) | linea **tratteggiata** + tratto singolo |
+| (1,N) obbligatoria, multipla | linea doppia + (1,N) | linea **continua** + zampa di gallina |
+| (0,N) opzionale, multipla | linea singola + (0,N) | linea **tratteggiata** + zampa di gallina |
 
 > Entrambe le notazioni esprimono **gli stessi concetti**: nei compiti/simulazioni è importante saper riconoscere e usare **almeno una** delle due in modo coerente, dichiarando la legenda se necessario.
 
