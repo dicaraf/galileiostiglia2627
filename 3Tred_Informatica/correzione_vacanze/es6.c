@@ -25,4 +25,5 @@ int main() {
             printf("Il numero %d non è presente nell'array!\n", num);
         }
     }
+    return 0;
 }
