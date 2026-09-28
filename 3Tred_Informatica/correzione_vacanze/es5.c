@@ -20,6 +20,8 @@ int main() {
         scanf("%d", &array1[i]);
         if(array1[i] > array1[i - 1]) {
             i++;
+        } else {
+            printf("Il numero inserito non è maggiore del precedente\n");
         }
     } while(i < DIM);
     i = 0;
@@ -31,6 +33,25 @@ int main() {
         scanf("%d", &array2[i]);
         if(array2[i] > array2[i - 1]) {
             i++;
+        } else {
+            printf("Il numero inserito non è maggiore del precedente\n");
         }
     } while(i < DIM);
+    int conta1 = 0, conta2 = 0;
+    for(int z = 0; z < DIM2; z++) {
+        if(array1[conta1] < array2[conta2]) {
+            array3[conta1+conta2] = array1[conta1];
+            //array3[z] = array1[conta1];
+            conta1++;
+        } else {
+            array3[conta1+conta2] = array2[conta2];
+            //array3[z] = array1[conta1];
+            conta2++;
+        }
+    }
+
+    for(int puzzetta = 0; puzzetta < DIM2; puzzetta++){
+        printf("%d \n", array3[puzzetta]);
+    }
+    return 0;
 }
