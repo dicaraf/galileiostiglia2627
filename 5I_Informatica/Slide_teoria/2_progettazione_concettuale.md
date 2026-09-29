@@ -97,8 +97,8 @@ Il modello **Entità/Associazioni** (Entity/Relationship, **E/R**), proposto da 
 
 Rappresenta la realtà attraverso tre costrutti fondamentali:
 
-- **Entità**: oggetti o concetti del mondo reale, distinguibili l'uno dall'altro (es. `Studente`, `Corso`)
-- **Associazioni** (relationship): legami logici tra due o più entità (es. `Studente` **frequenta** `Corso`)
+- **Entità**: oggetto (concreto o astratto) che ha un signifi cato anche quando viene considerato in modo isolato ed è di interesse per la realtà che si vuole modellare (es. `Studente`, `Corso`)
+- **Associazioni** (relationship): legami logici che stabilisce un'interazione tra due o più entità (es. `Studente` **frequenta** `Corso`)
 - **Attributi**: proprietà che descrivono entità o associazioni (es. `Cognome`, `DataNascita`)
 
 > È detto anche **modello Entità/Relazioni**: attenzione a non confondere il termine "relazione" qui usato con la "relazione" del modello relazionale (che indica una tabella) — sono concetti diversi con lo stesso nome!
@@ -136,12 +136,12 @@ Lo **schema ER** (o **diagramma ER**) è la rappresentazione grafica del modello
 
 ```
    +-----------+        frequenta        +-----------+
-   |  Studente |----------<>-------------|   Corso   |
+   |  Studente |-----------------------|   Corso   |
    +-----------+                         +-----------+
 ```
 
 - Le **entità** si rappresentano con **rettangoli**
-- Le **associazioni** si rappresentano con **rombi**
+- Le **associazioni** si rappresentano linee che uniscono due o più entità (oppure con **rombi**)
 - Gli **attributi** si rappresentano con **ellissi** (o, in notazioni semplificate, elencati in un riquadro)
 
 > Lo schema ER è il documento di riferimento condiviso tra progettista e committente durante l'analisi.
@@ -150,7 +150,7 @@ Lo **schema ER** (o **diagramma ER**) è la rappresentazione grafica del modello
 
 ## Le entità
 
-Una **entità** rappresenta una classe di oggetti (concreti o astratti) della realtà di interesse, con **esistenza autonoma** e proprietà comuni.
+Una **entità** un oggetto (concreto o astratto) che ha un signifi cato anche quando viene considerato in modo isolato ed è di interesse per la realtà che si vuole modellare.
 
 - Si rappresenta con un **rettangolo**, etichettato con un nome **singolare** e in **maiuscolo** (convenzione)
 - Ogni **occorrenza** (istanza) dell'entità corrisponde a un oggetto specifico del mondo reale
