@@ -11,47 +11,22 @@ Ad esempio, per 12, 5, 9, 3, 7, 4, 6, 2 il programma stampa 12, 9, 7, 6, 2.*/
 #define DIM 8
 
 int main() {
-    int v[DIM];
-    int i, j;
-    int maggiore;
-
+    int array[DIM];
     srand(time(NULL));
-
-    // Riempimento dell'array con numeri casuali tra 1 e 30
-    for (i = 0; i < DIM; i++) {
-        v[i] = rand() % 30 + 1;
+    for(int i = 0; i < DIM; i++){
+        array[i] = rand() % (30-1+1) + 1;
     }
 
-    // Stampa dell'array generato
-    printf("Array: ");
-    for (i = 0; i < DIM; i++) {
-        printf("%d ", v[i]);
-    }
-
-    printf("\nElementi richiesti: ");
-
-    /*
-     * Per ogni elemento controlliamo tutti quelli
-     * che si trovano alla sua destra.
-     */
-    for (i = 0; i < DIM; i++) {
-
-        maggiore = 1;  // Supponiamo inizialmente che sia maggiore di tutti
-
-        for (j = i + 1; j < DIM; j++) {
-
-            // Se troviamo un elemento maggiore o uguale,
-            // la condizione non è rispettata.
-            if (v[j] >= v[i]) {
-                maggiore = 0;
+    for(int i = 0; i < DIM; i++) {
+        int conta = 0;
+        for(int j = i + 1; j < DIM; j++) {
+            if(array[j] > array[i]) {
+                conta++;
             }
         }
-
-        if (maggiore != 0)
-            printf("%d ", v[i]);
+        if(conta == 0) {
+            printf("%d ", array[i]);
+        }
     }
-
-    printf("\n");
-
     return 0;
 }
