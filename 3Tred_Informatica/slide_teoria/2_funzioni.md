@@ -154,9 +154,9 @@ Dopo la chiamata:      x = 10
 
 ```
   main            raddoppia
- ┌─────┐          ┌─────┐
- │x=10 │  copia →  │n=10→20│
- └─────┘          └─────┘
+ ┌─────┐          ┌───────┐
+ │x=10 │  copia → │n=10→20│
+ └─────┘          └───────┘
  indirizzo A      indirizzo B (diverso!)
 ```
 
@@ -211,7 +211,7 @@ Dopo la chiamata:      x = 20
 
 ```
   main               raddoppia
- ┌───────┐           ┌────────────┐
+ ┌───────┐            ┌────────────┐
  │x=10→20│ <───────── │n = &x      │
  └───────┘  stesso    └────────────┘
  indirizzo A indirizzo   n contiene A

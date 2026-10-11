@@ -277,9 +277,7 @@ int *p;        // p contiene un indirizzo A CASO (memoria non inizializzata)
 
 ```c
 int *p = NULL;     // esplicitamente "non punta a niente"
-if (p != NULL) {   // controllo prima di usarlo
-    *p = 10;
-}
+
 ```
 
 ---
