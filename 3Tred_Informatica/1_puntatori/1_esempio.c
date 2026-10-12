@@ -9,5 +9,10 @@ int main(void) {
     printf("Indirizzo di x (&x): %p\n", (void*)&x);
     printf("Valore di p (indirizzo):%p\n", (void*)p);
     printf("Valore puntato da p: %d\n", *p); // dereferenziazione -> 42
+    *p = 10;
+    printf("Valore di x: %d\n", x);
+    printf("Indirizzo di x (&x): %p\n", (void*)&x);
+    printf("Valore di p (indirizzo):%p\n", (void*)p);
+    printf("Valore puntato da p: %d\n", *p); // dereferenziazione -> 42
     return 0;
 }
