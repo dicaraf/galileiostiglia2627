@@ -108,13 +108,13 @@ Il **Network Layer** garantisce che i pacchetti viaggino correttamente dal compu
 - determina tramite quale interfaccia inoltrare ogni pacchetto ricevuto.
 
 ```
-        CONTROL PLANE                 DATA PLANE
-   (routing, "il cervello")      (forwarding, "i riflessi")
-   Routing Table  ───calcola───▶  Forwarding Table
-   (globale, complessa)          (locale, rapida da consultare)
+        CONTROL PLANE                     DATA PLANE
+   (routing, "il cervello")         (forwarding, "i riflessi")
+   Routing Table       ───calcola───▶  Forwarding Table
+   (globale, complessa)             (locale, rapida da consultare)
 ```
 
-> 💡 È la stessa distinzione tra **routing** e **forwarding** vista prima, ma applicata all'architettura hardware/software del router.
+> 💡 È la stessa distinzione tra **routing** e **forwarding**, ma applicata all'architettura hardware/software del router.
 
 ---
 
@@ -266,7 +266,7 @@ A volte serve dividere un datagram in pacchetti più piccoli, per attraversare u
 
 ---
 
-## La struttura degli indirizzi IP e la metodologia CIDR
+## La struttura degli indirizzi IP e la metodologiac classfull
 
 **Gli indirizzi IPv4:**
 - sono numeri a **32 bit**, divisi in **4 ottetti** (8 bit ciascuno);
@@ -280,102 +280,6 @@ A volte serve dividere un datagram in pacchetti più piccoli, per attraversare u
    192      .    168      .     1      .     12
 11000000    . 10101000    . 00000001   . 00001100
 ```
-
----
-
-## Subnet e metodologia CIDR
-
-I computer della stessa LAN hanno i **primi 3 ottetti** (i primi 24 bit) dell'indirizzo IP uguali:
-
-| LAN | Prefisso |
-|---|---|
-| LAN1 | `192.168.1.x` |
-| LAN2 | `192.168.2.x` |
-| LAN3 | `192.168.3.x` |
-
-- Anche l'indirizzo dell'interfaccia del **router** segue la numerazione della specifica LAN.
-- La rete che interconnette l'interfaccia del router e i computer si chiama **subnet**: una porzione isolata (più semplice da gestire) di una rete IP.
-- Dato che i primi 24 bit indicano la subnet, il valore (24) si scrive in fondo all'indirizzo separato da uno **slash** (*slash notation*): es. `192.168.1.0/24`.
-
-```
-              [Router]
-           /      |      \
-      LAN1 .1   LAN2 .1   LAN3 .1
-   192.168.1.0/24  192.168.2.0/24  192.168.3.0/24
-```
-
----
-
-## Network ID e Host ID
-
-Ogni indirizzo IPv4 è composto da **due parti**:
-- **Network ID**: identifica la rete (es. `192.168.1`);
-- **Host ID**: identifica l'host nella rete (es. `12`).
-
-La pianificazione del confine tra Network ID e Host ID è **fondamentale**:
-- più bit al Network ID → **piccole subnet** (pochi host ciascuna);
-- meno bit al Network ID → **grandi subnet** (molti host ciascuna).
-
-**Lo standard CIDR** (*Classless Inter-Domain Routing*):
-- del **1993** (RFC 1519, aggiornato con RFC 4632);
-- supera il vecchio indirizzamento **a classi** (*classful*);
-- permette di allocare **blocchi contigui** di indirizzi (es. `192.168.1.0–192.168.1.255`);
-- usa la *slash notation* per indicare la dimensione (**prefix**, *network prefix* o *prefix length*) del Network ID: es. `192.168.1.0/24` → prefix = 24 bit, i primi 24 bit identificano la rete.
-
----
-
-## Subnet mask
-
-- Sinonimo di **prefix**, a volte chiamata anche *netmask* o *mask* (termini ereditati dal classful).
-- È una sequenza di **32 bit**: `1` = parte Network ID; `0` = parte Host ID.
-- Copre la parte host e lascia visibile la parte rete; scritta in notazione decimale puntata (es. `255.255.255.0`).
-
-**Esempio con prefix /24:**
-
-```
-Subnet mask (binario): 11111111.11111111.11111111.00000000
-Subnet mask (decimale):     255  .    255  .    255   .   0
-```
-
-La subnet mask permette di ottenere l'**indirizzo di rete** applicando l'operatore logico **AND bit per bit** (*AND bitwise*) tra IP e subnet mask. Svolta in **hardware**, questa operazione permette ai router di instradare i pacchetti verso la rete corretta in modo velocissimo.
-
----
-
-## Limite massimo di host per una subnet
-
-**Calcolo dei bit disponibili** (esempio con prefix /24):
-- n° bit totali IPv4: **32**
-- n° bit subnet (prefix): **24**
-- bit per gli host: $32 - 24 = 8$ bit
-
-**Possibili combinazioni:**
-- con 8 bit → $2^8 = 256$ indirizzi;
-- **ma 2 indirizzi sono riservati**: `0` (indirizzo della subnet) e `255` (broadcast, es. `192.168.1.255`).
-
-**Numero massimo di host utilizzabili:** $256 - 2 = \mathbf{254}$ host per subnet.
-
-**La gerarchia degli indirizzi — Route summarization** (o *IP aggregation*/*supernetting*):
-- meccanismo fondamentale del CIDR;
-- organizza Internet in **blocchi gerarchici**: ogni blocco prende gli indirizzi da un blocco superiore più ampio;
-- le reti più piccole possono essere viste come un'**unica rete più grande** ai fini del routing → riduce il numero di rotte da gestire, per un routing più semplice ed efficiente.
-
----
-
-## La carenza degli indirizzi IPv4
-
-- Numero massimo teorico: $2^{32} = \mathbf{4.294.967.296}$ indirizzi — ma non tutti sono utilizzabili, e lo spazio è diventato presto insufficiente con la crescita di Internet.
-
-**Soluzioni intermedie — Indirizzi privati e Subnetting:**
-- **FLSM** (maschera fissa);
-- **VLSM** (maschera variabile);
-- soluzioni nate negli anni '80 per ottimizzare l'uso degli indirizzi IP, poi rivelatesi insufficienti (le vedremo in dettaglio più avanti).
-
-**La soluzione definitiva — IPv6:**
-- nuovo protocollo per sostituire IPv4;
-- indirizzi lunghi **128 bit**, espressi in esadecimale;
-- $2^{128} \approx 3,4 \times 10^{38}$ indirizzi: uno spazio di indirizzamento vastissimo, con nuove funzionalità.
-
-> 🧮 Per farsi un'idea della differenza: $2^{128}$ indirizzi equivalgono a più di **50 miliardi di miliardi** di indirizzi per ogni granello di sabbia sulla Terra.
 
 ---
 
@@ -460,6 +364,100 @@ Consentono il **riutilizzo** degli stessi indirizzi in LAN diverse, senza confli
 
 ---
 
+## Subnet e metodologia CIDR (*Classless Inter-Domain Routing*)
+
+Ad esempio, computer della stessa LAN possono avere i **primi 3 ottetti** (i primi 24 bit) dell'indirizzo IP uguali:
+
+| LAN | Prefisso |
+|---|---|
+| LAN1 | `192.168.1.x` |
+| LAN2 | `192.168.2.x` |
+| LAN3 | `192.168.3.x` |
+
+- Anche l'indirizzo dell'interfaccia del **router** segue la numerazione della specifica LAN.
+- La rete che interconnette l'interfaccia del router e i computer si chiama **subnet**: una porzione isolata (più semplice da gestire) di una rete IP.
+- Dato che i primi 24 bit indicano la subnet, il valore (24) si scrive in fondo all'indirizzo separato da uno **slash** (*slash notation*): es. `192.168.1.0/24`.
+
+```
+              [Router]
+           /      |      \
+      LAN1 .1   LAN2 .1   LAN3 .1
+   192.168.1.0/24  192.168.2.0/24  192.168.3.0/24
+```
+
+---
+
+## Network ID e Host ID
+
+Ogni indirizzo IPv4 è composto da **due parti**:
+- **Network ID**: identifica la rete (es. `192.168.1`);
+- **Host ID**: identifica l'host nella rete (es. `12`).
+
+La pianificazione del confine tra Network ID e Host ID è **fondamentale**:
+- più bit al Network ID → **piccole subnet** (pochi host ciascuna);
+- meno bit al Network ID → **grandi subnet** (molti host ciascuna).
+
+**Lo standard CIDR** (*Classless Inter-Domain Routing*):
+- del **1993** (RFC 1519, aggiornato con RFC 4632);
+- supera il vecchio indirizzamento **a classi** (*classful*);
+- permette di allocare **blocchi contigui** di indirizzi (es. `192.168.1.0–192.168.1.255`);
+- usa la *slash notation* per indicare la dimensione (**prefix**, *network prefix* o *prefix length*) del Network ID: es. `192.168.1.0/24` → prefix = 24 bit, i primi 24 bit identificano la rete.
+
+---
+
+## Subnet mask
+
+- Sinonimo di **prefix**, a volte chiamata anche *netmask* o *mask* (termini ereditati dal classful).
+- È una sequenza di **32 bit**: `1` = parte Network ID; `0` = parte Host ID.
+- Copre la parte host e lascia visibile la parte rete; scritta in notazione decimale puntata (es. `255.255.255.0`).
+
+**Esempio con prefix /24:**
+
+```
+Subnet mask (binario): 11111111.11111111.11111111.00000000
+Subnet mask (decimale):     255  .    255  .    255   .   0
+```
+
+La subnet mask permette di ottenere l'**indirizzo di rete** applicando l'operatore logico **AND bit per bit** (*AND bitwise*) tra IP e subnet mask. Svolta in **hardware**, questa operazione permette ai router di instradare i pacchetti verso la rete corretta in modo velocissimo.
+
+---
+
+## Limite massimo di host per una subnet
+
+**Calcolo dei bit disponibili** (esempio con prefix /24):
+- n° bit totali IPv4: **32**
+- n° bit subnet (prefix): **24**
+- bit per gli host: $32 - 24 = 8$ bit
+- **Possibili combinazioni:** con 8 bit → $2^8 = 256$ indirizzi;
+- **ma 2 indirizzi sono riservati**: `0` (indirizzo della subnet) e `255` (broadcast, es. `192.168.1.255`).
+
+**Numero massimo di host utilizzabili:** $256 - 2 = \mathbf{254}$ host per subnet.
+
+**La gerarchia degli indirizzi — Route summarization** (o *IP aggregation*/*supernetting*):
+- meccanismo fondamentale del CIDR;
+- organizza Internet in **blocchi gerarchici**: ogni blocco prende gli indirizzi da un blocco superiore più ampio;
+- le reti più piccole possono essere viste come un'**unica rete più grande** ai fini del routing → riduce il numero di rotte da gestire, per un routing più semplice ed efficiente.
+
+---
+
+## La carenza degli indirizzi IPv4
+
+- Numero massimo teorico: $2^{32} = \mathbf{4.294.967.296}$ indirizzi — ma non tutti sono utilizzabili, e lo spazio è diventato presto insufficiente con la crescita di Internet.
+
+**Soluzioni intermedie — Indirizzi privati e Subnetting:**
+- **FLSM** (maschera fissa);
+- **VLSM** (maschera variabile);
+- soluzioni nate negli anni '80 per ottimizzare l'uso degli indirizzi IP, poi rivelatesi insufficienti (le vedremo in dettaglio più avanti).
+
+**La soluzione definitiva — IPv6:**
+- nuovo protocollo per sostituire IPv4;
+- indirizzi lunghi **128 bit**, espressi in esadecimale;
+- $2^{128} \approx 3,4 \times 10^{38}$ indirizzi: uno spazio di indirizzamento vastissimo, con nuove funzionalità.
+
+> 🧮 Per farsi un'idea della differenza: $2^{128}$ indirizzi equivalgono a più di **50 miliardi di miliardi** di indirizzi per ogni granello di sabbia sulla Terra.
+
+---
+
 <!-- _class: lead -->
 
 # Pianificazione di reti IP
@@ -501,9 +499,7 @@ Consentono il **riutilizzo** degli stessi indirizzi in LAN diverse, senza confli
 
 - Operazione **AND bitwise** per ottenere l'indirizzo di rete, sovrapponendo la subnet mask all'indirizzo IP — effettuata dal router in **hardware**.
 
-**Proprietà dell'AND:**
-- se entrambi i valori sono `1` → risultato `1`;
-- se **almeno uno** dei due valori è `0` → risultato `0`.
+**Proprietà dell'AND:** se **entrambi** i valori sono `1` → risultato `1`; **altrimenti** → risultato `0`.
 
 **Esempio pratico:**
 
@@ -580,8 +576,6 @@ Per segmentare una rete servono il **numero di subnet** e il **numero massimo di
 3. Quanti host nella subnet **più grande oggi**?
 4. Quanti host nella subnet **più grande in futuro**?
 
-> ⚠️ In conclusione, il subnetting statico **non ottimizza** l'uso degli indirizzi e limita flessibilità e scalabilità della rete — da qui la necessità del VLSM.
-
 ---
 
 ## La tecnica VLSM (Variable Length Subnet Mask)
@@ -594,6 +588,10 @@ Per segmentare una rete servono il **numero di subnet** e il **numero massimo di
 - **ottimizzazione** dello spazio IP → evita sprechi;
 - **flessibilità**: si adatta alle esigenze reali di ciascuna subnet;
 - soluzione moderna per **reti complesse**.
+
+---
+
+## FLSM vs VLSM
 
 **Confronto:**
 
