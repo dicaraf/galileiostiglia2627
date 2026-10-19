@@ -1,4 +1,4 @@
-Esercizi sulle funzioni in C++ con passaggio di parametri per valore
+Esercizi sulle funzioni in C con passaggio di parametri per valore
 Ecco alcuni esercizi in cui si richiede di creare e testare delle funzioni con passaggio di parametri per valore.
 
 Es. 0 Creare una funzione che calcola e restituisce il valore assoluto di un numero intero.
