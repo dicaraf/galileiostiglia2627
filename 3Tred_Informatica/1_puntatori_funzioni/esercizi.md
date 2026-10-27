@@ -81,7 +81,7 @@ Ad esempio se viene passato 3 il programma stampa:
 Nuovo esercizio. Scrivere una funzione che ricevuti la lunghezza di un percorso in km, quanti kilometri effettua un’auto con un litro e il costo al litro del carburante, calcolo il costo per il viggio.
 Nel main, chiedere all’utente di inserire il consumo dell’auto e il prezzo del carburante, poi calcola il costo di tre viaggi con tre lunghezze inserite dall’utente.
 
-Esercizi sulle funzioni in C++ con passaggio di parametri per riferimento
+Esercizi sulle funzioni in C con passaggio di parametri per riferimento
 es 16. Creare una funzione che scambia il contenuto di due variabili che le sono passate; poi creare un programma che fatti inserire tre numeri da parte dell’utente li ordina in ordine crescente usando la funzione precedentemente creata.
 
 
@@ -125,41 +125,8 @@ Il sottogioco 1 consiste nel fatto che tutti e tre i giocatori estraggono un num
 Il sottogioco 2 consiste nel fatto che tutti e tre i giocatori estraggano casualmente 3 numeri compresi tra 1 e 10 e il giocatore che ha la combinazione migliore aumenta il suo punteggio del valore della combinazione, i valori delle combinazioni sono così determinati: se c’è un tris la combinazione vale il numero che compare tre volte moltiplicato per 4; se c’è una coppia vale il numero che compare due volte moltiplicato per 2; altrimenti se non ci sono tris o coppie il valore della combinazione è quello del numero più altro della combinazione.
 Realizzare delle funzioni per i sottogiochi, il gioco complessivo termina quando un giocatore raggiunge o supera i 100 punti oppure dopo 5 round.
 
-Esercizi sulle FUNZIONI in C++ CON PARAMETRI OPZIONALI
-Es 27. Creare una funzione che riceve (come parametri) tra 2 e 4 numeri naturali (diversi da zero) e restituisce il numero che tra questi ha il divisore (diverso dal numero stesso) più grande.
-(Se viene passato un numero primo il suo divisore più grande diverso dal numero stesso è 1, se viene passato 1 si faccia un’eccezione e si consideri come suo divisore più grande 1)
 
-
-Es 28. Creare una funzione che riceve (come parametri) tra 2 e 3 numeri naturali e restituisce il minimo comune multiplo dei numeri ricevuti.
-Creare un programma che lancia una moneta e, se viene testa, estrae due numeri naturali compresi tra 1 e 100 e, se viene croce, ne estrae tre tra 1 e 50; poi usando la funzione creata in precedenza il programma calcola il minimo comune multiplo dei numeri estratti.
-
-
-Es 29. Creare un funzione che riceve (come parametri) tra 3 e 5 numeri interi e restituisce il maggiore dei valori assoluti.
-
-
-Es 30. Creare una funzione dado che restituisce il valore di un lancio di un dado a 6 facce se non le vengono passati parametri, di un dado a n facce dove n è il valore del parametro se le viene passato un parametro, qualora il valore del parametro sia negativo restituisce sempre zero.
-
-
-es 31. Creare la funzione potenza che calcola una potenza di un numero naturale n che le viene passato, nel caso le venga passato solo un numero calcola il quadrato, altrimenti se le viene passato un secondo numero intero calcola il primo elevato al secondo (attenzione l’esponente può essere un numero negativo!).
-
-
-Es 32. Creare una funzione che dati 2 o 3 numeri restituisce il più grande divisore primo di almeno uno di essi.
-
-
-Es 33. Creare una funzione che se riceve un numero n1 stampa una riga di n1 “+”, se riceve anche un numero n2, stampa n2 righe di n1 “+”, se riceve anche un carattere c stampa stampa n2 righe di n1 caratteri c.
-
-
-Es 34. Scrivere una funzione che riceve tra tre e cinque numeri interi e ne restituisce la somma, poi creare un main in cui chiedere all’utente quanti numeri vuole inserire (tra 3 e 5) e poi fargli inserire detti numeri interi e calcolarne la somma
-
-
-Es 35. Scrivere una funzione che permette di calcolare quanti punti di campionato fa una squadra con una partita di calcio (3 per la vittoria, 1 per il pareggio, 0 per la sconfitta), il programma riceve il numero di goal fatti in ordine dalla squadra che gioca in casa e da quella che gioca fuoricasa e la lettera ‘c’ se la squadra di cui ci interessa sapere il punteggio realizzato è quella in casa, o ‘f’ se è quella fuoricasa.
-Far sì che se vengono passati solo due paramentri la funzione restituisca il numero di punti realizzati dalla squadra che gioca in casa.
-
-
-Es 36. Creare una funzione che può ricevere da 1 a 5 numeri e restituisce quanti numeri ricevuti sono minori della loro posizione tra i parametri, le posizioni dei parametri si contino a partire da 1, il primo parametro è in posizione 1, il secondo in posizione 2 eccetera.
-
-
-Esercizi sulle FUNZIONI in C++ E VARIABILI GLOBALI
+Esercizi sulle FUNZIONI in c E VARIABILI GLOBALI
 Es 37. Dichiara una variabile globale di tipo intero chiamata conto e assegnale un valore iniziale di 100. Scrivere una funzione chiamata deposita che prende un parametro intero importo e aggiunge questo importo alla variabile globale conto, scrivere poi una funzione chiamata preleva che prende un parametro intero importo e sottrae questo importo alla variabile globale conto restituendo un valore booleano che conterrà se il conto aveva un valore sufficiente per prelevare l”importo o se con il prelievo il conto è andato in rosso (cioè ha un saldo negativo).
 Infine, nel main, creare un ciclo con un menu che continua a chiedere all’utente cosa fare, se depositare un importo, prelevarlo o terminare il programma; dopo ogni scelta stampare il nuovo valore della variabile conto.
 
@@ -174,3 +141,13 @@ Creare un programma in cui si chiede all’utente il pianeta in cui ci si trova,
 
 
 Es 39. Scrivere una funzione void, a cui si passano due numeri naturali diversi da zero, che calcoli e memorizza in una variabile globale la potenza del
+
+FUNZIONI E ARRAY IN C
+Es 40. creare una funzione che scambia il minore elemento di un array di interi con il maggiore, poi provarla.
+Es 41. creare una funzione che calcola il quadrato di tutti gli elementi di un array di interi, poi provarla.
+Es 42. creare una funzione che riceve un array di interi, un numero intero n e memorizza nelle prime n celle dell’array dei numeri casuali tra 0 e 10, poi provarla.
+
+Es 43. creare una funzione per leggere un array di interi di n elementi; in un main usando la precedente funzione leggere 3 array a, b, c, e poi con un’ulteriore funzione che confronta due array dire quanti array uguali tra loro ci sono tra i tre.
+
+Es 44. creare una funzione per stampare il contenuto di una porzione array di interi, indicata da due indici, creare una seconda funzione che riutilizzando la prima stampa interamente un array, provare entrambe le funzioni.
+Creare un array di interi, leggerlo e per tre volte richiamare una funzione che aumenta il valore minore presente nell’array di 10, in seguito stampare il contenuto dell’array.
