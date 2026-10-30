@@ -1,0 +1,1 @@
+Rappresenta con uno schema E/R la frase Un Comune appartiene a una sola Regione, ogni Regione comprende più Comuni indicando la molteplicità delle associazioni individuate e l’obbligatorietà od opzionalità delle partecipazioni alle associazioni.

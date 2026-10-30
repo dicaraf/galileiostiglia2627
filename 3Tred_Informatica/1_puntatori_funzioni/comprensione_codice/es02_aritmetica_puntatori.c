@@ -7,7 +7,7 @@ int main() {
     int *p = v;
 
     printf("%d\n", *p);
-    p += 2;
+    p += 2; //p=p+2;
     printf("%d\n", *p);
     printf("%d\n", *(p + 1));
     printf("%d\n", *p++);

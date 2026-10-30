@@ -1,0 +1,1 @@
+Rappresenta con uno schema E/R la frase Una materia può essere insegnata da più docenti, un docente deve insegnare una sola materia indicando la molteplicità delle associazioni individuate e l’obbligatorietà od opzionalità delle partecipazioni alle associazioni.

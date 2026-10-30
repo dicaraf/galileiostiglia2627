@@ -1,0 +1,1 @@
+Rappresenta con uno schema E/R la frase Un attore può fare molti film, ogni film ha come interpreti molti attori indicando la molteplicità delle associazioni individuate e l’obbligatorietà od opzionalità delle partecipazioni alle associazioni.
