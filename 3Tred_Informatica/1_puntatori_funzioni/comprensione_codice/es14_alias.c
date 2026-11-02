@@ -10,10 +10,8 @@ void f(int *a, int *b) {
 
 int main() {
     int x = 3, y = 1;
-
     f(&x, &x);
     printf("%d\n", x);
-
     f(&x, &y);
     printf("%d %d\n", x, y);
     return 0;

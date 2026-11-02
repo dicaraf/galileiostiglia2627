@@ -8,15 +8,12 @@ void ruota(int *v, int n) {
         *p = *(p + 1);
     v[n - 1] = primo;
 }
-
 void stampa(int *v, int n) {
     for (int *p = v; p != v + n; p++) printf("%d ", *p);
     printf("\n");
 }
-
 int main() {
     int v[5] = {1, 2, 3, 4, 5};
-
     ruota(v, 5);
     stampa(v, 5);
     ruota(v + 1, 3);

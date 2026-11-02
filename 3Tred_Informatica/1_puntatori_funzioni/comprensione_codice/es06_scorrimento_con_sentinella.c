@@ -10,14 +10,11 @@ int conta(int *p) {
     }
     return n;
 }
-
 int *salta(int *p, int k) {
     return p + k;
 }
-
 int main() {
     int v[7] = {5, 8, 0, 3, -1, 7, -2};
-
     printf("%d\n", conta(v));
     printf("%d\n", conta(v + 2));
     printf("%d\n", conta(v + 4));

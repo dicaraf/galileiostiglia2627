@@ -15,12 +15,12 @@ void rev(int *a, int *b) {
 void stats(int *v, int n, int *sum, int *cnt) {
     *sum = 0;
     *cnt = 0;
-    while (n--) {
+    while (n>0) {
         if (*v % 2 == 0) {
-            *sum += *v;
+            *sum += *v; //*sum = *sum+*v;
             (*cnt)++;
         }
-        v++;
+        v++; n--;
     }
 }
 
@@ -30,7 +30,8 @@ int main() {
 
     rev(v, v + 5);
     rev(v + 1, v + 3);
-    for (int i = 0; i < 6; i++) printf("%d ", v[i]);
+    for (int i = 0; i < 6; i++) 
+        printf("%d ", v[i]);
     printf("\n");
 
     stats(v, 6, &s, &c);

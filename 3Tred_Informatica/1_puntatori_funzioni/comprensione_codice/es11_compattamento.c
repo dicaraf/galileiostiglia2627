@@ -6,10 +6,9 @@ int compatta(int *v, int n) {
     int *w = v;
     for (int *r = v; r < v + n; r++)
         if (*r != 0)
-            *w++ = *r;
+            *w++ = *r; //*w = *r; w++;
     return (int)(w - v);
 }
-
 int main() {
     int v[8] = {0, 3, 0, 0, 5, 7, 0, 2};
 

@@ -1,0 +1,4 @@
+Individuare le entità, gli attributi e le associazioni relativi ai ricoveri ospedalieri, motivando le scelte effettuate. Disegnare il modello E/R con il verso delle associazioni e verifi care lo schema con le regole di lettura.
+Riconoscere la chiave di ogni entità (se esiste). Per ogni attributo identificare il formato.
+I pazienti di un reparto di chirurgia sono ricoverati in stanze singole con differenti dotazioni (telefono,televisore, aria condizionata). I pazienti vengono operati da un chirurgo. Si devono registrare anche data, ora e sala operatoria nella quale il paziente è operato. Bisogna inoltre tenere conto delle date di inizio e fine del ricovero.
+Per semplicità si ipotizzi che un paziente possa essere ricoverato una sola volta nel periodo di tempo considerato, che durante il ricovero non cambi la stanza e che ogni stanza sia riservata a un solo paziente.
