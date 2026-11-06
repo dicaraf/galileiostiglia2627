@@ -95,7 +95,7 @@ Sulla strada c'è **almeno un oggetto per tipo**.
 ## Vittoria e sconfitta
 
 - All'inizio si sceglie la difficoltà:
-  **facile 120 mosse** · **medio 90** · **difficile 65**
+  **facile 80 mosse** · **medio 50** · **difficile 30**
 - **Vittoria**: raccolti tutti gli 8 oggetti
   → punteggio = mosse rimaste × 10
 - **Sconfitta**: mosse finite prima di raccoglierli tutti
