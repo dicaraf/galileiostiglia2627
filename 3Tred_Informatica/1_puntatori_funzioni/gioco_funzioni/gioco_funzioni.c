@@ -43,8 +43,10 @@ int  vuoleRigiocare();
 
 int main()
 {
-    /* dichiarare qui: strada, posizione, mosse,
-       raccolti, potere, abbandono */
+    char strada[LUNGHEZZA_STRADA];
+    int posizione, mosse, raccolti, abbandono;
+    char potere;
+
     mostraIstruzioni();
     srand(time(NULL));
     do {
