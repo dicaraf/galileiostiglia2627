@@ -123,8 +123,6 @@ Con 3 bit: `000` = +0 e `100` = −0. Esistono **due zeri**: è uno **spreco** e
 
 Con *n* bit: da **−(2ⁿ⁻¹ − 1)** a **+(2ⁿ⁻¹ − 1)**.
 
-![h:150](images/06_esempi_range.png)
-
 | Bit | Range | Valori distinti |
 |:-:|:-:|:-:|
 | 3 | −3 … +3 | 7 (2ⁿ − 1) |
@@ -237,15 +235,15 @@ L'MSB ha **peso negativo −2ⁿ⁻¹**; gli altri i pesi positivi.
 
 # Errori tipici con il CA2
 
-![h:90](images/23_errore_tipico.png)
+![h:70](images/23_errore_tipico.png)
 
 **Primo errore: dimenticare il numero di bit.**
 
-![h:200](images/24_primo_errore.png)
+![h:180](images/24_primo_errore.png)
 
 **Procedimento corretto:**
 
-![h:130](images/25_procedimento_corretto.png)
+![h:110](images/25_procedimento_corretto.png)
 
 ---
 
@@ -289,14 +287,8 @@ Per ogni riga il bit di segno del risultato è quello "sbagliato" rispetto al se
 
 # Esempio: 127 + 1 su 8 bit
 
-![h:180](images/29_esempio_127_piu_1.png)
+![h:280](images/29_esempio_127_piu_1.png)
 
-```
-  0111 1111   (+127)
-+ 0000 0001   (+1)
------------
-  1000 0000   → in CA2 = −128   ✘  overflow!
-```
 
 Due positivi hanno prodotto un risultato con bit di segno 1.
 
@@ -304,10 +296,7 @@ Due positivi hanno prodotto un risultato con bit di segno 1.
 
 # Esempio: 100 + 25 e 100 + 50
 
-![h:180](images/30_esempio_100_piu_25.png)
-
-- **100 + 25 = 125** → sta in −128…+127 → **nessun overflow**;
-- **100 + 50 = 150** → `0110 0100 + 0011 0010 = 1001 0110` = **−106** ✘ → **overflow**.
+![h:280](images/30_esempio_100_piu_25.png)
 
 > Ricorda: **carry ≠ overflow** con i numeri con segno. Un carry può esserci senza overflow (−1 + 1 = `1111 1111 + 1 = 1 0000 0000` → 0, corretto).
 
@@ -363,10 +352,6 @@ Esempi corretti: −8 → `0000`; −1 → `0111`; 0 → `1000`; +3 → `1011`; 
 
 **Procedura:** si legge il numero come binario normale e **si sottrae 2ⁿ⁻¹**.
 
-- `111` (3 bit): 7 − 4 = **3**
-- `0111` (4 bit): 7 − 8 = **−1**
-- `1011` (4 bit): 11 − 8 = **3**
-- `01011` (5 bit): 11 − 16 = **−5**
 
 > **Curiosità:** l'eccesso coincide con il CA2 **con il bit di segno invertito**. Si usa per **l'esponente dei numeri in virgola mobile** (Lezione 3).
 

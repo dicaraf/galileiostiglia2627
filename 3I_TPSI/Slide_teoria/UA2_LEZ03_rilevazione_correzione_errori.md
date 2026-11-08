@@ -189,24 +189,20 @@ Come si calcola: si esegue lo **XOR** bit a bit e si **contano gli 1** del risul
 
 # Calcolare la distanza con lo XOR
 
+| A | B | Output
+|---|---|---|
+| 0 | 0 | 0 |
+| 1 | 0 | 1 |
+| 0 | 1 | 1 |
+| 1 | 1 | 0 |
+
 **Esempio:** D(0100, 1010)
 
 ```
-  0100
+   0100
 ⊕ 1010
 ------
-  1110   → tre 1  ⇒  D = 3
-```
-
-**Esempio:** D(0110, 0000) → `0110 ⊕ 0000 = 0110` → due 1 → **D = 2**.
-
-**In Python:**
-```python
-def hamming_distance(a, b):
-    return bin(a ^ b).count("1")
-
-print(hamming_distance(0b0100, 0b1010))   # 3
-print(hamming_distance(0b1000, 0b1010))   # 1
+   1110   → tre 1  ⇒  D = 3
 ```
 
 ---
@@ -215,7 +211,7 @@ print(hamming_distance(0b1000, 0b1010))   # 1
 
 Nel caso di un codice a **3 bit** la distanza tra due codici si individua visivamente sul **reticolo di Hamming** (un **cubo**): è il **minor numero di lati** da percorrere per andare dal primo codice al secondo.
 
-![h:360](images/07_reticolo_hamming_cubo.png)
+![h:320](images/07_reticolo_hamming_cubo.png)
 
 In rosso il percorso da **000** a **101**: la strada più breve è formata da **due segmenti** → le due configurazioni hanno distanza **D = 2**.
 
@@ -439,24 +435,6 @@ I vertici **triangolari** sono le parole di codice (numero **pari** di 1: 000, 0
 
 ---
 
-# Parità in Python
-
-```python
-def bit_parita(dati: str) -> str:
-    """Restituisce il bit che rende PARI il numero di 1."""
-    return str(dati.count("1") % 2)
-
-def verifica(parola: str) -> bool:
-    return parola.count("1") % 2 == 0
-
-d = "0101010"
-p = bit_parita(d)          # '1'  (3 uno -> parità 1)
-parola = d + p             # '01010101'
-print(verifica(parola))    # True
-print(verifica("01010111"))# False  -> errore rilevato
-```
-
----
 
 <!-- _class: lead -->
 
@@ -626,29 +604,6 @@ Messaggio **M = 1011**, generatore **G = 101** (grado 2).
 
 ---
 
-# CRC in Python
-
-```python
-def crc_resto(msg: str, gen: str, aggiungi_zeri: bool = True) -> str:
-    r = len(gen) - 1
-    a = [int(b) for b in msg + ("0" * r if aggiungi_zeri else "")]
-    g = [int(b) for b in gen]
-    for i in range(len(a) - r):
-        if a[i] == 1:
-            for j in range(len(g)):
-                a[i + j] ^= g[j]       # sottrazione modulo 2 = XOR
-    return "".join(map(str, a[-r:]))
-
-print(crc_resto("1011", "101"))                  # '01'
-print(crc_resto("11001001", "1001"))             # '011'
-print(crc_resto("101101", "101", False))         # '00'  -> nessun errore
-print(crc_resto("101111", "101", False))         # '10'  -> errore rilevato
-```
-
-Per usare un CRC-32 vero: `import zlib; zlib.crc32(b"ciao")`.
-
----
-
 <!-- _class: lead -->
 
 # Parte E
@@ -675,7 +630,7 @@ Il destinatario **non si accorgerebbe** dell'errore (il numero di 1 resta pari) 
 
 Sul reticolo di Hamming (cubo) le parole legittime sono i **punti azzurri**. Se un bit si sporca si passa da un vertice a quello **adiacente**, che **non è legittimo** (freccia da 000 a 100): l'errore viene individuato.
 
-![h:280](images/37_reticolo_errore.png)
+![h:240](images/37_reticolo_errore.png)
 
 ---
 
@@ -843,7 +798,7 @@ Bit 1 controlla: **1, 3, 5, 7, 9, 11**.
 
 # Secondo, terzo e quarto bit di controllo
 
-![h:420](images/46_hamming_parita_1_2.png)
+![h:400](images/46_hamming_parita_1_2.png)
 
 - **Secondo bit**: parità delle posizioni con il **2° bit = 1** → **2, 3, 6, 7, 10, 11, …**
 - **Terzo bit**: posizioni con il **3° bit = 1** → **4, 5, 6, 7, 12, …**
@@ -942,7 +897,7 @@ Trasmesso: `100001011101`. Ricevuto: `100000011101` (il bit 6 è passato da 1 a 
 
 # Verifica di ogni parità
 
-![h:330](images/52_hamming_verifica_parita.png)
+![h:300](images/52_hamming_verifica_parita.png)
 
 | Controllo | Bit verificati | Somma | Esito |
 |:-:|---|:-:|:-:|
@@ -1071,38 +1026,6 @@ Se vale l'**uguaglianza** (es. Hamming 7,4: 8 = 8) il codice è anche detto **pe
 | 8 | 4 | 8 + 4 + 1 = 13 ≤ 2⁴ = 16 | ottimo |
 | 3 | 3 | 3 + 3 + 1 = 7 ≤ 8 | ottimo (ma 1 config. libera) |
 | 8 | 3 | 8 + 3 + 1 = 12 > 8 | **non basta**: servono 4 bit |
-
----
-
-# Hamming in Python
-
-```python
-def hamming_codifica(dati: str) -> str:
-    k = len(dati)
-    r = 0
-    while 2**r < k + r + 1:
-        r += 1
-    n = k + r
-    cw = [0] * (n + 1)              # indici da 1 a n
-    it = iter(dati)
-    for pos in range(1, n + 1):
-        if pos & (pos - 1):         # non è potenza di 2 -> dato
-            cw[pos] = int(next(it))
-    for j in range(r):
-        c = 1 << j
-        cw[c] = sum(cw[p] for p in range(1, n + 1) if p & c and p != c) % 2
-    return "".join(map(str, cw[1:]))
-
-def sindrome(cw: str) -> int:
-    s = 0
-    for pos, bit in enumerate(cw, 1):
-        if bit == "1":
-            s ^= pos                # XOR delle posizioni degli 1
-    return s
-
-print(hamming_codifica("00101101"))    # 100001011101
-print(sindrome("100000011101"))        # 6  -> bit 6 da correggere
-```
 
 ---
 

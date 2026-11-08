@@ -97,9 +97,9 @@ Ogni dato (testo, immagine, suono, video) deve essere trasformato in **sequenze 
 
 # Dal mondo analogico al digitale RIPASSO
 
-![h:300](images/01_conversione_analogico_digitale.png)
+![h:260](images/01_conversione_analogico_digitale.png)
 
-Una **scheda di conversione analogico/digitale** acquisisce il segnale di un giradischi o di una videocamera e lo trasforma in dati che il PC può memorizzare (ed eventualmente comprimere, per esempio su DVD).
+Una **scheda di conversione analogico/digitale** acquisisce il segnale di un giradischi o di una videocamera e lo trasforma in dati che il PC può memorizzare.
 
 Le fasi principali sono tre:
 1. **Campionamento**: si misura il segnale a intervalli di tempo regolari;
@@ -200,11 +200,10 @@ Se **C** è la **cardinalità** di Σ (numero di simboli), il numero **n** di bi
 
 ![h:80](images/04_formula_C_2n.png)
 
-cioè, **n** deve essere almeno pari a:
+cioè, **n** deve essere almeno pari a (**arrotondamento per eccesso** all'intero superiore):
 
 ![h:80](images/05_formula_n_log2C.png)
 
-Il simbolo ⌈ ⌉ indica l'**arrotondamento per eccesso** all'intero superiore. Il valore **m** è il **minimo numero di bit** necessario.
 
 ---
 
@@ -321,7 +320,7 @@ Il codice è **NON ridondante**: ogni configurazione corrisponde a un simbolo.
 
 # La tabella ASCII
 
-![h:520](images/12_tabella_ascii.png)
+![h:480](images/12_tabella_ascii.png)
 
 Le **colonne** indicano i 3 bit più significativi, le **righe** i 4 bit meno significativi. *(Nella riga 1001, colonna 111, il carattere corretto è **y**.)*
 
@@ -341,7 +340,6 @@ Otteniamo:
 
 **A = 0 100 0001₂ = 41₁₆ = 65₁₀**
 
-*(Il risultato corretto in decimale è 65, non 64: 4·16 + 1 = 65.)*
 
 ---
 
@@ -356,7 +354,6 @@ Otteniamo:
 
 `01001000 01100101 01101100 01101100 01101111 00101110` → **H e l l o .**
 
-> **Seconda prova.** `01101001 01101100 00000000 01110000 01101111 00101110` → **i, l, NUL, p, o, .** Il byte `00000000` è il carattere di controllo **NUL**: non stampabile.
 
 ---
 
@@ -364,7 +361,6 @@ Otteniamo:
 
 ![h:480](images/15_prova_adesso_ascii.png)
 
-*Prendi carta e penna: le soluzioni sono alla fine della lezione.*
 
 ---
 
@@ -414,7 +410,7 @@ L'ASCII esteso non basta: 256 caratteri non coprono **cinese, giapponese, arabo,
 - Si basa sulla codifica dell'ASCII esteso (i primi 256 caratteri coincidono con Latin-1);
 - invece degli 8 bit dell'ASCII esteso (256 caratteri) usa un codice a **32 bit**.
 
-![h:60](images/16_codepoint_range.png)
+![h:50](images/16_codepoint_range.png)
 
 ---
 
@@ -528,12 +524,6 @@ Nel caso in cui il primo byte inizi per **110** si deduce che:
 | bit del carattere | `00011` · `101000` |
 | **risultato** | `11000011` `10101000` = **C3 A8** |
 
-**Verifica in Python:**
-```python
->>> "è".encode("utf-8")
-b'\xc3\xa8'
-```
-
 ---
 
 <!-- _class: small -->
@@ -551,7 +541,6 @@ Stampo a 3 byte: `1110xxxx 10yyyyyy 10zzzzzz`
 
 Altri esempi: **A** → `41` (1 byte) · **è** → `C3 A8` (2 byte) · **😀** U+1F600 → `F0 9F 98 80` (4 byte).
 
-> **Per esercizio:** codifica "ñ" (U+00F1) in UTF-8. *(Soluzione a fine lezione.)*
 
 ---
 
@@ -602,7 +591,7 @@ I calcolatori operano su **parole di 32–64 bit** (4–8 byte). Per memorizzare
 
 # Esempio: la parola AB C2 EF 03
 
-![h:300](images/20_endian_esempio.png)
+![h:260](images/20_endian_esempio.png)
 
 La parola **0xABC2EF03** viene inserita nei byte con indirizzi da 4 a 7:
 
@@ -612,123 +601,6 @@ La parola **0xABC2EF03** viene inserita nei byte con indirizzi da 4 a 7:
 | 5 | C2 | EF |
 | 6 | EF | C2 |
 | 7 | 03 | AB |
-
----
-
-# Endianness in pratica (Python)
-
-```python
-import sys
-print(sys.byteorder)            # 'little' sui PC x86/x64
-
-n = 0xABC2EF03
-print(n.to_bytes(4, "big").hex(" "))      # ab c2 ef 03
-print(n.to_bytes(4, "little").hex(" "))   # 03 ef c2 ab
-```
-
-Per questo i file di testo UTF-16 e UTF-32 iniziano spesso con un **BOM** (*Byte Order Mark*, U+FEFF):
-- `FE FF` → big-endian
-- `FF FE` → little-endian
-
----
-
-# UTF-16: i piani Unicode
-
-Lo spazio di codice Unicode è diviso in **17 "piani"** di 2¹⁶ = **65 536** codepoint ciascuno.
-
-- I codepoint di ogni piano hanno valori esadecimali da **xx0000** a **xxFFFF**.
-- **xx** è un valore esadecimale **00–10** che indica il **piano** di appartenenza; la parte restante si ripete nei vari piani.
-- Il **piano 0**, quello dei codepoint U+0000…U+FFFF, si chiama **BMP** (*Basic Multilingual Plane*): contiene quasi tutte le lingue di uso comune.
-
-**Regola UTF-16:**
-- codepoint nel **BMP** → **1 unità da 16 bit** (2 byte);
-- codepoint **oltre** il BMP → **2 unità da 16 bit** (*surrogate pair*, 4 byte).
-
----
-
-<!-- _class: small -->
-
-# UTF-16 · Esempio 1: la lettera "A"
-
-Codepoint (UCS a 32 bit): **U+0x00000041**
-`0000-0000-0000-0000-0000-0000-0100-0001`
-
-I 16 bit più significativi sono tutti a 0 → ricade nel **BMP** → UTF-16: **0x0041** (`0000-0000-0100-0001`).
-
-Si ottengono due rappresentazioni, a seconda dell'ordine dei byte:
-
-| Codifica | Byte in memoria |
-|---|---|
-| **UTF-16BE** | `00 41` |
-| **UTF-16LE** | `41 00` |
-
----
-
-<!-- _class: small -->
-
-# UTF-16 · Esempio 2: la lettera "è"
-
-Codepoint (UCS a 32 bit): **U+0x000000E8**
-`0000-0000-0000-0000-0000-0000-1110-1000`
-
-16 bit alti a 0 → **BMP** → UTF-16: **0x00E8** (`0000-0000-1110-1000`).
-
-| Codifica | Byte in memoria |
-|---|---|
-| **UTF-16BE** | `00 E8` |
-| **UTF-16LE** | `E8 00` |
-
-> **Attenzione:** "è" (accento grave) è U+00E8; "é" (accento acuto) è U+00E9. Sono due caratteri diversi!
-
----
-
-<!-- _class: small -->
-
-# UTF-16 · Esempio 3: il simbolo "€"
-
-Codepoint (UCS a 32 bit): **U+0x000020AC**
-`0000-0000-0000-0000-0010-0000-1010-1100`
-
-16 bit alti a 0 → **BMP** → UTF-16: **0x20AC** (`0010-0000-1010-1100`).
-
-| Codifica | Byte in memoria |
-|---|---|
-| **UTF-16BE** | `20 AC` |
-| **UTF-16LE** | `AC 20` |
-
----
-
-<!-- _class: small -->
-
-# UTF-16 · Oltre il BMP: surrogate pair
-
-Per un codepoint **> U+FFFF** (per esempio l'emoji 😀, U+1F600):
-
-1. si sottrae 0x10000: `0x1F600 − 0x10000 = 0xF600`
-2. si prendono i **10 bit alti** (0x3D) e i **10 bit bassi** (0x200);
-3. **high surrogate** = 0xD800 + 0x3D = **0xD83D**;
-   **low surrogate** = 0xDC00 + 0x200 = **0xDE00**.
-
-Risultato: 😀 = **D83D DE00** (UTF-16BE: `D8 3D DE 00`).
-
-> Per questo i valori da D800 a DFFF **non** sono assegnati a caratteri: sono riservati ai surrogati.
-
----
-
-# UTF-32
-
-**UTF-32** è una codifica a **lunghezza fissa di 4 byte**.
-
-- I codici dei caratteri **coincidono con i codici UCS**.
-- Consente la **rappresentazione contemporanea** dei codici di tutte le lingue.
-- Anche in UTF-32 sono possibili le due varianti **little-endian** e **big-endian**.
-
-| Carattere | UTF-32BE | UTF-32LE |
-|:-:|:-:|:-:|
-| A | `00 00 00 41` | `41 00 00 00` |
-| € | `00 00 20 AC` | `AC 20 00 00` |
-
-**Pro:** il *k*-esimo carattere sta sempre all'offset 4·*k*. **Contro:** uno spreco di memoria enorme per testi latini (3 byte su 4 sono zeri).
 
 ---
 
@@ -763,9 +635,9 @@ Si **codifica ogni cifra separatamente**, su 4 bit.
 
 # BCD non è binario!
 
-![h:200](images/23_bcd_vs_binario.png)
+![h:170](images/23_bcd_vs_binario.png)
 
-Il codice BCD codifica **singolarmente ogni cifra**, non l'insieme delle cifre: solo le prime dieci configurazioni coincidono con la codifica binaria.
+Il codice BCD codifica **singolarmente ogni cifra**, non l'insieme delle cifre.
 
 | Decimale | Binario puro | BCD |
 |:-:|:-:|:-:|
@@ -775,4 +647,194 @@ Il codice BCD codifica **singolarmente ogni cifra**, non l'insieme delle cifre: 
 | 127 | 1111111 | **0001 0010 0111** |
 
 **Dove si usa?** Display a 7 segmenti, orologi digitali, calcolatrici, sistemi finanziari: dove si deve mostrare o stampare il numero cifra per cifra senza conversioni complesse.
+
+---
+
+# Ripasso: pesato o non pesato?
+
+| | Codice **pesato** | Codice **non pesato** |
+|---|---|---|
+| Valore della cifra | somma dei pesi dei bit a 1 | **non** si ottiene con pesi fissi |
+| Esempi | BCD (8-4-2-1) | 7 segmenti |
+| Perché si usa | calcoli aritmetici semplici | proprietà particolari (distanza, complemento, errori) |
+
+**Esempio.** In BCD `0111` = 0 + 4 + 2 + 1 = **7** (calcolo diretto). In eccesso 3 `0111` vale **4** (perché 4 + 3 = 7): nessun insieme di pesi fissi spiega tutte le cifre.
+
+> Filo conduttore: *non sempre conviene un codice "pesato" come il BCD. A volte servono codici pensati per evitare errori, per pilotare un display o per essere letti da una macchina.*
+
+---
+
+<!-- _class: lead -->
+
+# Parte E
+## Codice a sette segmenti
+
+---
+
+# Il codice a sette segmenti
+
+Per consentire la **rappresentazione grafica delle cifre decimali** si utilizza il codice a **sette segmenti**.
+
+- Usa **7 bit**;
+- a ogni bit è associato **un segmento** del display (acceso = 1, spento = 0).
+
+![h:260](images/15_sette_segmenti_display.png)
+
+Diffusi in orologi digitali, calcolatrici, forni, contatori, bilance…
+
+---
+
+# I segmenti: a, b, c, d, e, f, g
+
+I sette segmenti sono indicati con le **prime sette lettere dell'alfabeto** (a, b, c, d, e, f, g).
+
+![h:420](images/16_sette_segmenti_pinout.png)
+
+A destra il display reale e i **piedini** (*pinout*) di un display a **catodo comune**: tutti i LED condividono il catodo (−); per accendere un segmento si porta a livello alto il suo piedino.
+
+---
+
+# Catodo comune e anodo comune
+
+| Tipo | Pin comune | Segmento acceso quando… |
+|---|---|---|
+| **Catodo comune** | collegato a massa (0 V) | il pin del segmento è **1** (alto) |
+| **Anodo comune** | collegato a +V | il pin del segmento è **0** (basso) |
+
+Con l'anodo comune i bit della tabella vanno **invertiti**.
+
+> Ogni segmento è un LED: serve sempre una **resistenza di limitazione** (tipicamente 220 Ω – 330 Ω con 5 V) per non danneggiarlo.
+
+---
+
+# Sette segmenti: esempio con la cifra 1
+
+![h:300](images/17_segmenti_cifra1.png)
+
+Per scrivere **1** si accendono solo **b** e **c**:
+
+| a | b | c | d | e | f | g |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| 0 | 1 | 1 | 0 | 0 | 0 | 0 |
+
+Codice: **abcdefg = 0110000**
+
+---
+
+# Sette segmenti: esempio con la cifra 9
+
+![h:300](images/18_segmenti_cifra9.png)
+
+Per scrivere **9** si accendono **a, b, c, d, f, g**:
+
+| a | b | c | d | e | f | g |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| 1 | 1 | 1 | 1 | 0 | 1 | 1 |
+
+Codice: **abcdefg = 1111011**
+
+---
+
+<!-- _class: small -->
+
+# Tabella completa del sette segmenti
+
+| Cifra | BCD (8421) | a | b | c | d | e | f | g | abcdefg |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| 0 | 0000 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | `1111110` |
+| 1 | 0001 | 0 | 1 | 1 | 0 | 0 | 0 | 0 | `0110000` |
+| 2 | 0010 | 1 | 1 | 0 | 1 | 1 | 0 | 1 | `1101101` |
+| 3 | 0011 | 1 | 1 | 1 | 1 | 0 | 0 | 1 | `1111001` |
+| 4 | 0100 | 0 | 1 | 1 | 0 | 0 | 1 | 1 | `0110011` |
+| 5 | 0101 | 1 | 0 | 1 | 1 | 0 | 1 | 1 | `1011011` |
+| 6 | 0110 | 1 | 0 | 1 | 1 | 1 | 1 | 1 | `1011111` |
+| 7 | 0111 | 1 | 1 | 1 | 0 | 0 | 0 | 0 | `1110000` |
+| 8 | 1000 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | `1111111` |
+| 9 | 1001 | 1 | 1 | 1 | 1 | 0 | 1 | 1 | `1111011` |
+
+---
+
+# Il decodificatore BCD → sette segmenti
+
+Nei circuiti reali un contatore o un microcontrollore fornisce la cifra in **BCD (4 bit)**; un **decodificatore** (per esempio il **CD4511** per display a catodo comune o il **74LS47** per anodo comune) la converte nei **7 bit** dei segmenti.
+
+```
+   BCD (4 bit)                 7 segmenti
+  ┌───────────┐              ┌──────────────┐
+  │ 0 1 1 1   │ ──► decod ──►│ 1 1 1 0 0 0 0│ → "7"
+  └───────────┘              └──────────────┘
+```
+
+**In Python:**
+```python
+SEG = {0:"1111110", 1:"0110000", 2:"1101101", 3:"1111001", 4:"0110011",
+       5:"1011011", 6:"1011111", 7:"1110000", 8:"1111111", 9:"1111011"}
+print(SEG[7])     # 1110000
+```
+
+Le configurazioni BCD 1010–1111 non sono cifre: il decodificatore le gestisce spegnendo il display o mostrando simboli speciali.
+
+---
+
+<!-- _class: lead -->
+
+# Parte F
+## Codice a matrice di punti
+
+---
+
+# Il codice a matrice di punti
+
+Con i sette segmenti si rappresentano bene le **cifre**, ma male le **lettere** (la M, la W, la X sono difficili). Per ottenere **lettere, numeri e simboli** si usa una **matrice di punti** (*dot matrix*).
+
+- Il carattere è disegnato su una griglia di **righe × colonne** di punti (pixel);
+- ogni punto è **acceso (1)** o **spento (0)**;
+- ogni riga della griglia si codifica con una **stringa di bit**.
+
+![h:230](images/19_matrice_lettera_A.png)
+
+---
+
+# Matrice di punti: la lettera "A"
+
+Matrice **8 × 8**: ogni riga è un byte, scritto con 1 per i punti accesi.
+
+| Riga | Bit | Esadecimale |
+|:-:|:-:|:-:|
+| 1 | `00000000` | 00 |
+| 2 | `00011000` | 18 |
+| 3 | `00100100` | 24 |
+| 4 | `00100100` | 24 |
+| 5 | `00111100` | 3C |
+| 6 | `00100100` | 24 |
+| 7 | `00100100` | 24 |
+| 8 | `00000000` | 00 |
+
+Quindi la lettera "A" occupa **8 byte**: `00 18 24 24 3C 24 24 00`.
+
+---
+
+# Matrice di punti: perché 8 bit per riga
+
+Nell'esempio è stata impiegata una **matrice con 8 bit per ogni riga**, in modo da utilizzare un **intero byte** e decodificarlo semplicemente.
+
+In sistemi dedicati la dimensione è comunque **variabile** e dipende unicamente dalla **qualità delle informazioni** che si devono visualizzare.
+
+| Matrice | Uso tipico |
+|---|---|
+| 5 × 7 | display LCD alfanumerici (es. HD44780, 16×2) |
+| 8 × 8 | piccoli moduli LED, esempi didattici |
+| 9 × 5 | alfabeto completo della slide seguente |
+| più grande | pannelli informativi, insegne |
+
+**Memoria necessaria** per un carattere 8 × 8: 8 byte; per 128 caratteri → 128 × 8 = **1024 byte (1 KiB)** di "font" in ROM.
+
+---
+
+# Matrice 9 × 5: l'alfabeto completo
+
+![h:430](images/20_alfabeto_matrice_punti.png)
+
+Esempio di alfabeto completo codificato con una **matrice di punti 9 × 5** (9 righe, 5 colonne): ogni lettera richiede **9 righe da 5 bit**.
+
 

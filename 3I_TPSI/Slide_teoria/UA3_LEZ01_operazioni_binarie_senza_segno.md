@@ -301,9 +301,9 @@ Aggiungiamo **2 zeri a destra** (shift a sinistra di 2).
 
 Nel caso della divisione per 2 non serve dividere: basta **togliere uno 0 a destra**, oppure, in ogni caso, **il bit meno significativo** (shift a destra).
 
-![h:150](images/11_divisione_per2_a.png)
+![h:130](images/11_divisione_per2_a.png)
 
-![h:260](images/12_divisione_per2_b.png)
+![h:230](images/12_divisione_per2_b.png)
 
 Il bit eliminato è il **resto** (0 o 1).
 

@@ -73,7 +73,6 @@ Classe 3ª · Istituto Tecnico – Informatica
 | **D** | I codici 2D: QR Code, Maxi Code, Aztec, Data Matrix |
 | **E** | Lettura dei codici: architettura diretta e indiretta |
 | **F** | Struttura interna del QR Code |
-| **G** | HCCB (Microsoft Tag): il codice a colori |
 
 ---
 
@@ -117,7 +116,6 @@ I codici a barre si dividono in due grandi tipologie:
 
 ![h:330](images/01_lettore_barcode_smartphone.png)
 
-A sinistra un **lettore dedicato** (laser) con alcuni esempi di codici; a destra uno **smartphone** con applicazione per QR Code.
 
 ---
 
@@ -229,11 +227,6 @@ Il prefisso identifica il **paese di registrazione** del codice, non necessariam
 
 ![h:420](images/07_ean13_esempio.png)
 
-Dal codice **8032089001236** si ricava:
-- **Nazione:** Italia (**80**)
-- **Ditta:** **32089**
-- **Prodotto:** **00123**
-- **Cifra di controllo:** **6**
 
 ---
 
@@ -289,25 +282,6 @@ Codice **803208900123?**
 Somma = 8+0+3+6+0+24+9+0+0+3+2+9 = **64** → multiplo di 10 successivo 70 → **70 − 64 = 6**.
 
 Codice completo: **8032089001236** ✔
-
----
-
-# Verificare un EAN-13 ricevuto
-
-Per **controllare** un codice già completo basta applicare i pesi **1, 3, 1, 3, …** a **tutte e 13** le cifre (l'ultima ha peso 1): la somma deve essere un **multiplo di 10**.
-
-```python
-def check_ean13(d12: str) -> int:
-    s = sum(int(c) * (1 if i % 2 == 0 else 3) for i, c in enumerate(d12))
-    return (10 - s % 10) % 10
-
-def ean13_valido(codice: str) -> bool:
-    return len(codice) == 13 and check_ean13(codice[:12]) == int(codice[12])
-
-print(check_ean13("803208900123"))     # 6
-print(ean13_valido("8032089001236"))   # True
-print(ean13_valido("8032089001237"))   # False
-```
 
 ---
 
@@ -516,33 +490,6 @@ I codici QR possono memorizzare fino a un massimo di **4296 caratteri alfanumeri
 
 ---
 
-# Altri codici 2D: Maxi Code
-
-![h:250](images/12_scheda_maxicode.png)
-
-Il **Maxi Code** (1992) è studiato per **letture ad alta velocità**: è usato nella **logistica** e nel **trasporto merci** (è stato sviluppato per l'azienda di spedizioni UPS). Simbolo a **dimensione fissa** di 1 pollice quadrato, con **33 × 30 moduli esagonali** e un pattern centrale a "occhio di bue" (*bullseye*) per posizionare il lettore. Contiene al massimo **93 caratteri alfanumerici** o **138 numeri**.
-
----
-
-# Altri codici 2D: Aztec e Data Matrix
-
-![h:420](images/13_scheda_aztec_datamatrix.png)
-
----
-
-# Aztec e Data Matrix: confronto
-
-| | **Aztec Code** | **Data Matrix** |
-|---|---|---|
-| Anno | 1995 | 2005 |
-| Pattern guida | **centrale** (piramide azteca) | a "L" ai bordi |
-| Dimensioni | da 15 × 15 a 151 × 151 moduli | matrici di moduli di dimensione variabile |
-| Capacità | fino a 1914 byte | circa 2335 caratteri alfanumerici o 3116 numeri |
-| Correzione errori | **Reed-Solomon**, fino al 95 % di sensibilità | Reed-Solomon |
-| Uso tipico | biglietti, carte d'imbarco | componenti elettronici, farmaci |
-
----
-
 # Tipi di codici 2D: quale scegliere?
 
 | Esigenza | Codice adatto |
@@ -574,10 +521,6 @@ La **codifica** e la relativa **decodifica** dei codici a barre possono essere e
 
 ![h:380](images/14_lettura_diretta.png)
 
-1. **Scansione** del barcode con la fotocamera;
-2. **decodifica** sul dispositivo;
-3. **richiesta** al *content provider* (es. un sito web);
-4. **risposta** al servizio: la pagina si apre.
 
 **Esempio:** un QR Code che contiene direttamente l'indirizzo `https://www.scuola.it`.
 
@@ -632,12 +575,6 @@ Utilizzano il metodo di codifica e decodifica **Reed-Solomon**, che permette di 
 
 ![h:80](images/17_nota_livello_dimensione.png)
 
-| Livello | Significato | Dati ripristinabili |
-|:-:|---|:-:|
-| **L** | *Low* | circa 7 % |
-| **M** | *Medium* | circa 15 % |
-| **Q** | *Quartile* (nelle slide "Quality") | circa 25 % |
-| **H** | *High* | circa 30 % |
 
 ---
 
@@ -809,118 +746,3 @@ I dati sono scritti con una **matrice 4 × 2** (*QR matrix*) che rappresenta **1
 | 4ª | b1 b0 = **1 1** | ⬛ ⬛ |
 
 Poiché la sequenza cambia al variare della modalità, il lettore deve **sapere** quale si usa: lo ricava dalle informazioni di formato.
-
----
-
-<!-- _class: lead -->
-
-# Parte G
-## HCCB o Microsoft Tag
-
----
-
-# HCCB: il codice a colori
-
-La tecnologia **HCCB** (*High Capacity Color Barcode*) è la proposta di **Microsoft Research** come variante del QR Code.
-
-- Al posto dei quadratini monocromatici si usano **gruppi di triangoli** inseriti in una griglia **5 × 10** o più grande;
-- ciascun triangolo può avere **quattro possibili colori**.
-
-> Con **4 colori** ogni triangolo porta **2 bit** (log₂ 4); con **8 colori**, **3 bit** (log₂ 8). Più colori ⇒ più informazioni per lo stesso spazio.
-
----
-
-# HCCB: i colori come bit
-
-![h:260](images/21_hccb_colori_bit.png)
-
-![h:90](images/22_hccb_esempi_piccoli.png)
-
-Con **8 colori** si possono generare **2000 byte binari** o **3500 caratteri alfabetici** in un **pollice quadrato**, equivalenti a **due pagine di testo**.
-
-> **Limite pratico:** servono fotocamere a colori e una buona illuminazione, mentre i codici in bianco e nero sono più robusti. Per questo il QR Code è rimasto lo standard più diffuso.
-
----
-
-# HCCB: struttura del tag
-
-La tecnologia HCCB posiziona intorno al tag un **confine nero**, circondato da un **bordo bianco spesso**.
-
-- il **contorno nero** individua i **bordi** dell'etichetta;
-- il **bordo inferiore** si riconosce per la sua **dimensione doppia**, così da poter individuare l'**orientamento** per la corretta decodifica.
-
----
-
-# HCCB: esempi di etichette
-
-![h:420](images/23_hccb_etichette.png)
-
-Due etichette HCCB di **dimensioni diverse**: l'etichetta più grande contiene molti più triangoli e quindi più dati.
-
----
-
-<!-- _class: small -->
-
-# Confronto tra i codici ottici
-
-| Codice | Tipo | Dati | Controllo / correzione | Uso |
-|---|:-:|---|---|---|
-| **EAN-13** | 1D | 13 cifre | cifra di controllo (pesi 1-3) | prodotti al dettaglio |
-| **ISBN** | 1D | 13 cifre | stessa cifra dell'EAN-13 | libri |
-| **QR Code** | 2D | fino a 7089 cifre | **Reed-Solomon** (7–30 %) | web, pagamenti, biglietti |
-| **Maxi Code** | 2D | 93 caratteri | correzione | logistica |
-| **Aztec** | 2D | fino a 1914 byte | Reed-Solomon | biglietti |
-| **Data Matrix** | 2D | 2335 car. | correzione | componenti |
-| **HCCB** | 2D a colori | 2000 byte / pollice² | — | prototipo Microsoft |
-
----
-
-# Riepilogo: i punti chiave
-
-- Il **codice a barre** traduce in forma **ottica** un codice numerico: barre e spazi di larghezza 1–4 moduli.
-- **1D** (EAN, ISBN): dati solo in orizzontale; **2D** (QR, Aztec, Data Matrix): dati in due direzioni, capacità molto maggiore.
-- **EAN-13:** nazione (2) + ditta (5) + articolo (5) + **cifra di controllo** (pesi 1 e 3, multiplo di 10); 95 moduli.
-- **ISBN-13:** prefisso 978/979, gruppo, editore, titolo, controllo (come EAN-13).
-- **QR Code:** Denso Wave, 1994; versioni 1–40 (lato = 17 + 4V); correzione **Reed-Solomon** (L 7 %, M 15 %, Q 25 %, H 30 %).
-- **Strutture del QR:** quiet zone, finder, timing, alignment, format information, area dati ed errori.
-- Lettura **diretta** o **indiretta** (con Service Platform).
-- **HCCB:** variante a colori con triangoli.
-
----
-
-<!-- _class: small -->
-
-# Verifica: esercizi
-
-1. Quanti moduli occupa un EAN-13? Da quante barre e spazi è formata ogni cifra?
-2. Calcola la cifra di controllo di **590123412345?** (prime 12 cifre dell'EAN-13).
-3. Calcola la cifra di controllo dell'EAN-8 **9638507?**.
-4. Verifica che l'ISBN **978-88-203-4824-3** sia coerente con la cifra di controllo.
-5. Quale lato (in moduli) ha un QR Code di versione 7?
-6. Codifica in modalità numerica la stringa **123456**.
-7. Qual è la differenza tra lettura **diretta** e **indiretta**? Fai un esempio per ciascuna.
-8. Perché un QR Code con livello **H** occupa più spazio di uno con livello **L** a parità di dati?
-
----
-
-<!-- _class: tiny -->
-
-# Verifica: soluzioni
-
-1. **95** moduli; ogni cifra occupa 7 moduli ed è formata da **2 barre e 2 spazi**.
-2. Pesi 1,3,1,3…: 5+27+0+3+2+9+4+3+2+9+4+15 = **83** → 90 − 83 = **7** → codice **5901234123457**.
-3. Pesi 3,1,3,1,3,1,3: 27+6+9+8+15+0+21 = **86** → 90 − 86 = **4** → **96385074**.
-4. Calcolo già svolto in slide: somma 127 → 130 − 127 = **3** ✔.
-5. lato = 17 + 4·7 = **45** moduli.
-6. 123 → `0001111011` (10 bit), 456 → `0111001000` (10 bit): **20 bit**.
-7. **Diretta:** il codice contiene già l'informazione (es. un URL scritto nel QR). **Indiretta:** contiene un ID che rimanda a un server (Service Platform), che fornisce il contenuto.
-8. Perché ha più **byte di correzione** (fino al 30 % dei dati) e quindi servono più moduli per contenere anche i dati.
-
----
-
-<!-- _class: lead -->
-<!-- _paginate: false -->
-
-# Grazie per l'attenzione
-
-## Domande?

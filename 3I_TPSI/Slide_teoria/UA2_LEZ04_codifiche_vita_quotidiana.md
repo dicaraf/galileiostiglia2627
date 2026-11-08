@@ -159,9 +159,8 @@ Per l'identificazione servono:
 
 # La tabella dei mesi
 
-![h:170](images/01_cf_tabella_mesi.png)
 
-Una **lettera** identifica ogni mese. L'immagine ne mostra una parte; la tabella completa è questa:
+Una **lettera** identifica ogni mese.
 
 | Mese | Lettera | Mese | Lettera | Mese | Lettera |
 |---|:-:|---|:-:|---|:-:|
@@ -220,51 +219,20 @@ Il **resto della divisione per 26** (da 0 a 25) si converte in una lettera: 0 �
 
 # Calcolo guidato: RSSMRA85T10A562
 
-| # | Carattere | Pos. | Valore (tabella) |
-|:-:|:-:|:-:|:-:|
-| 1 | R | dispari | 8 |
-| 2 | S | pari | 18 |
-| 3 | S | dispari | 12 |
-| 4 | M | pari | 12 |
-| 5 | R | dispari | 8 |
-| 6 | A | pari | 0 |
-| 7 | 8 | dispari | 19 |
+| # | Carattere | Pos. | Valore (tabella) | # | Carattere | Pos. | Valore (tabella) |
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| 1 | R | dispari | 8 | 9 | T | dispari | 14 |
+| 2 | S | pari | 18 | 10 | 1 | pari | 1 |
+| 3 | S | dispari | 12 | 11 | 0 | dispari | 1 |
+| 4 | M | pari | 12 | 12 | A | pari | 0 |
+| 5 | R | dispari | 8 | 13 | 5 | dispari | 13 |
+| 6 | A | pari | 0 | 14 | 6 | pari | 6 |
+| 7 | 8 | dispari | 19 | 15 | 2 | dispari | 5 |
 | 8 | 5 | pari | 5 |
-
-| # | Carattere | Pos. | Valore (tabella) |
-|:-:|:-:|:-:|:-:|
-| 9 | T | dispari | 14 |
-| 10 | 1 | pari | 1 |
-| 11 | 0 | dispari | 1 |
-| 12 | A | pari | 0 |
-| 13 | 5 | dispari | 13 |
-| 14 | 6 | pari | 6 |
-| 15 | 2 | dispari | 5 |
 
 Somma = 8+18+12+12+8+0+19+5+14+1+1+0+13+6+5 = **122** → 122 mod 26 = **18** → lettera **S**.
 
 Codice fiscale completo: **RSSMRA85T10A562S** ✔
-
----
-
-# Codice fiscale in Python
-
-```python
-DISPARI_CIFRE = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21]
-DISPARI_LETT  = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21, 2, 4, 18, 20, 11,
-                 3, 6, 8, 12, 14, 16, 10, 22, 25, 24, 23]   # A..Z
-
-def controllo(cf15: str) -> str:
-    tot = 0
-    for i, c in enumerate(cf15.upper()):
-        if i % 2 == 0:      # posizione dispari (1ª, 3ª, ...)
-            tot += DISPARI_CIFRE[int(c)] if c.isdigit() else DISPARI_LETT[ord(c) - 65]
-        else:               # posizione pari
-            tot += int(c) if c.isdigit() else ord(c) - 65
-    return chr(65 + tot % 26)
-
-print(controllo("RSSMRA85T10A562"))   # S
-```
 
 ---
 
@@ -364,26 +332,6 @@ Partita IVA completa: **02342520158**
 
 ---
 
-# Partita IVA in Python
-
-```python
-def cifra_controllo_piva(prime10: str) -> int:
-    x = sum(int(c) for c in prime10[0::2])          # posizioni dispari
-    y = sum(int(c) for c in prime10[1::2]) * 2      # posizioni pari, ×2
-    z = sum(1 for c in prime10[1::2] if int(c) >= 5)
-    return (10 - (x + y + z) % 10) % 10
-
-def piva_valida(p: str) -> bool:
-    return (len(p) == 11 and p.isdigit()
-            and cifra_controllo_piva(p[:10]) == int(p[10]))
-
-print(cifra_controllo_piva("0234252015"))   # 8
-print(piva_valida("02342520158"))           # True
-print(piva_valida("02342520159"))           # False  (una cifra sbagliata)
-```
-
----
-
 <!-- _class: lead -->
 
 # Parte C
@@ -403,8 +351,6 @@ A partire dal **1° gennaio 2008** viene introdotto l'**International Bank Accou
 ---
 
 # Struttura dell'IBAN italiano
-
-![h:140](images/07_iban_struttura.png)
 
 L'IBAN italiano è lungo **27 caratteri**:
 
@@ -509,18 +455,6 @@ Per **controllare** un IBAN completo (invece di calcolare il check digit):
 2. si convertono le lettere in numeri (A = 10 … Z = 35);
 3. si calcola **Mod 97**: se il resto è **1** l'IBAN è **valido**.
 
-```python
-def conv(s: str) -> str:
-    return "".join(str(int(c, 36)) if c.isalpha() else c for c in s)
-
-def iban_valido(iban: str) -> bool:
-    iban = iban.replace(" ", "").upper()
-    return int(conv(iban[4:] + iban[:4])) % 97 == 1
-
-print(iban_valido("IT93F0306910904100000004549"))   # True
-```
-
-Python gestisce **numeri interi di qualsiasi lunghezza**: non serve spezzare in blocchi.
 
 ---
 
@@ -581,7 +515,6 @@ Se si riportano solo **8 caratteri** si indica la **sede principale**.
 
 > **Nota:** `BCIT` identifica **Intesa Sanpaolo**; `IT` è l'Italia; la località è codificata con due caratteri; `XXX` indica la sede o una filiale generica.
 
-*(Nell'immagine il BIC è **BCITITMMXXX**, quindi la località è **MM**; nel testo accanto compare "M3", probabile refuso.)*
 
 ---
 
@@ -621,41 +554,3 @@ Tutti sono **codici a lunghezza fissa**, **alfanumerici**, con una forma di **ri
 - **Partita IVA:** 11 cifre; l'ultima si calcola con la **formula di Luhn**.
 - **IBAN:** 27 caratteri in Italia; **check digit** europeo con **Mod 97-10** e **CIN** italiano (lettera).
 - **BIC/SWIFT:** 8 o 11 caratteri; identifica la **banca** nei pagamenti internazionali.
-
-
----
-
-<!-- _class: small -->
-
-# Verifica: esercizi
-
-1. Quanti caratteri ha un codice fiscale, e quali dati anagrafici contiene?
-2. Ricava le prime 6 lettere del codice fiscale di **Anna Verdi**. Per una donna nata il **5 marzo 1990**, quali sono i caratteri per anno, mese e giorno?
-3. Calcola la cifra di controllo della partita IVA **1234567890?** (prime 10 cifre).
-4. Che cosa indicano le cifre 8–10 di una partita IVA?
-5. Scomponi l'IBAN italiano **IT93F0306910904100000004549** nelle sue parti (paese, check digit, CIN, ABI, CAB, conto).
-6. Spiega perché per verificare un IBAN valido il resto della divisione per 97 deve essere **1**.
-7. Quanto è lungo un BIC? Che cosa significa **XXX** in fondo?
-
----
-
-<!-- _class: tiny -->
-
-# Verifica: soluzioni
-
-1. **16** caratteri: cognome, nome, anno, mese, giorno (+40 per le donne), comune di nascita, carattere di controllo.
-2. Cognome **VRD** (V, R, D); nome **NNA** (consonanti N, N + vocale A). Per la donna nata il 5 marzo 1990: anno **90**, mese **C**, giorno **45** (05 + 40).
-3. X = 1+3+5+7+9 = 25; Y = (2+4+6+8+0)·2 = 40; Z = 2 (cifre pari ≥ 5: 6 e 8). Totale = 67 → complemento a 10 = **3** → partita IVA **12345678903**.
-4. Il **codice dell'ufficio provinciale** che ha rilasciato la matricola (codice ISTAT della provincia).
-5. **IT** (paese), **93** (check digit), **F** (CIN), **03069** (ABI), **10904** (CAB), **100000004549** (conto corrente).
-6. Perché il check digit è scelto in modo che il numero complessivo diventi **congruente a 1 modulo 97**: se un carattere cambia, il resto cambia e il controllo fallisce.
-7. **8 o 11** caratteri; **XXX** indica la sede principale (filiale generica).
-
----
-
-<!-- _class: lead -->
-<!-- _paginate: false -->
-
-# Grazie per l'attenzione
-
-## Domande?

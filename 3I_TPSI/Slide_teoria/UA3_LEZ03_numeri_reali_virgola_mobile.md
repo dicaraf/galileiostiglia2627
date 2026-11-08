@@ -166,13 +166,6 @@ In **base 2**: **N = ± 1,f × 2ᵉˢᵖ**, dove **f** è la **parte frazionaria
 
 ![h:140](images/11_legenda_struttura.png)
 
-Il numero viene memorizzato in tre campi:
-
-| Campo | Contenuto |
-|---|---|
-| **S** | segno (0 = +, 1 = −) |
-| **E** | esponente |
-| **M** | parte frazionaria della mantissa |
 
 ---
 
@@ -293,13 +286,8 @@ Su 32 bit: **bit 31** = S; **bit 30…23** = E (8 bit); **bit 22…0** = M (23 b
 
 ![h:170](images/29_codifica_1_0.png)
 
-![h:120](images/30_testo_codifica_1_0.png)
+![h:250](images/30_testo_codifica_1_0.png)
 
-1. S = 0 (positivo);
-2. 1,0 = `1,0 × 2⁰` → esp = 0 → E = 0 + 127 = 127 = `0111 1111`;
-3. M = 0 (23 zeri).
-
-`0 | 01111111 | 000…0` → ![h:50](images/31_hex_3F800000.png) **0x3F800000**
 
 ---
 
@@ -307,11 +295,8 @@ Su 32 bit: **bit 31** = S; **bit 30…23** = E (8 bit); **bit 22…0** = M (23 b
 
 ![h:150](images/32_codifica_8_5.png)
 
-![h:120](images/33_testo_codifica_8_5.png)
+![h:250](images/33_testo_codifica_8_5.png)
 
-8,5 = `1000,1₂` = `1,0001 × 2³` → E = 3 + 127 = 130 = `1000 0010`; M = `0001 000…`
-
-`0 | 10000010 | 00010000000000000000000` → ![h:50](images/34_hex_41080000.png) **0x41080000**
 
 ---
 
@@ -490,11 +475,6 @@ Sotto 2⁻¹⁴⁹ il numero viene approssimato a 0: **underflow**.
 
 Con E = 0 non c'è hidden bit: il valore è **(−1)ˢ · 0,M · 2⁻¹²⁶**. Riempiono il vuoto tra 0 e il più piccolo normalizzato (**underflow graduale**).
 
-```python
-import struct
-print(struct.unpack(">f", bytes.fromhex("00000001"))[0])  # 1.4e-45
-print(struct.unpack(">f", bytes.fromhex("7F800000"))[0])  # inf
-```
 
 ---
 
@@ -528,10 +508,6 @@ L'errore **assoluto** cresce con la grandezza del numero; l'errore **relativo** 
 
 0,1 in binario è **periodico**: `0,0001 1001 1001 1001…`. Con 23 bit non si può scrivere esattamente.
 
-```python
-print(0.1 + 0.2 == 0.3)   # False!
-print(0.1 + 0.2)          # 0.30000000000000004
-```
 
 ---
 
@@ -595,46 +571,3 @@ Per 0,15: **troncamento** → `0x3E199999`; **arrotondamento** → **0x3E19999A*
 - **Errori:** i numeri come 0,1 non sono esatti; si **tronca** o si **arrotonda**.
 - **Errore relativo** ≈ costante; **assoluto** cresce con l'ordine di grandezza.
 
----
-
-![h:100](images/74_titolo_verifica.png)
-
-<!-- _class: small -->
-
-# Verifica: esercizi
-
-![h:260](images/75_esercizi_verifica.png)
-
-Esercizi da svolgere in singola precisione:
-
-1. Codifica **−4,5** in esadecimale.
-2. Codifica **11,876** con troncamento e con arrotondamento.
-3. Codifica **12,6** con troncamento e con arrotondamento.
-4. Decodifica **0x40490FDB** (suggerimento: è circa π).
-
----
-
-<!-- _class: tiny -->
-
-# Verifica: soluzioni
-
-1. −4,5: **0xC0900000** (S=1, E=129, M=`001…`).
-2. 11,876 = `1,01111100000010000011001… × 2³` (E = 130): troncamento **0x413E0418**; arrotondamento **0x413E0419**.
-3. 12,6: troncamento **0x41499999**; arrotondamento **0x4149999A**.
-4. 0x40490FDB → S=0; E=`1000 0000`=128 → esp=1; 1,5707964 · 2 = **3,1415927** (π).
-
-Verifica in Python:
-```python
-import struct
-for x in (-4.5, 11.876, 12.6): print(struct.pack(">f", x).hex().upper())
-print(struct.unpack(">f", bytes.fromhex("40490FDB"))[0])
-```
-
----
-
-<!-- _class: lead -->
-<!-- _paginate: false -->
-
-# Grazie per l'attenzione
-
-## Domande?
