@@ -1,8 +1,10 @@
-Individua le entità, gli attributi e le associazioni, motivando le scelte effettuate. Disegna il modello E/R con i versi delle associazioni e verifica lo schema con le regole di lettura.
-
-GESTIONE DI PROPRIETÀ IMMOBILIARI
-
-Costruisci il modello di dati per la gestione delle informazioni riguardanti gli immobili e i loro proprietari; un immobile può essere intestato anche a più proprietari e naturalmente una persona può possedere uno o più immobili. Gli immobili sono di diverse tipologie: abitazioni, uffici, negozi. La gestione deve poter ottenere:
-- le informazioni anagrafiche dei proprietari di un determinato immobile;
-- l’elenco degli immobili con i relativi proprietari di una via prefissata della città;
-- le caratteristiche degli immobili di una certa tipologia con metratura, piano, numero locali.
+Premessa
+Ogni immobile presente sul territorio nazionale è registrato al Catasto, che lo identifica mediante i dati catastali: il foglio, la particella (o mappale) e il subalterno, che individua la singola unità all'interno di un edificio. A ciascun immobile è inoltre attribuita una categoria catastale che ne indica la destinazione d'uso (ad esempio A/2 per le abitazioni civili, A/10 per gli uffici, C/1 per i negozi) e una rendita, utilizzata come base per il calcolo delle imposte.
+Un immobile può appartenere a più persone contemporaneamente: è il caso, ad esempio, di una casa acquistata da due coniugi o ricevuta in eredità da più fratelli. In questi casi ciascun intestatario possiede una quota dell'immobile, espressa in frazione o in percentuale (ad esempio 1/2 o 50%), e può essere titolare di diritti diversi, come la piena proprietà, la nuda proprietà o l'usufrutto.
+Caso professionale
+L'Ufficio Tributi di un Comune ha commissionato a una società informatica lo sviluppo di un sistema informativo per la gestione delle informazioni riguardanti gli immobili presenti sul territorio comunale e i loro proprietari, anche ai fini del calcolo delle imposte locali.
+Il Comune dispone di uno stradario, nel quale ogni via è identificata da un codice ed è caratterizzata dal tipo (via, viale, piazza, corso, ecc.), dalla denominazione e dal quartiere di appartenenza.
+Di ciascun immobile si memorizzano i dati catastali (foglio, particella e subalterno), la categoria catastale, la rendita, la via in cui si trova con il numero civico e l'eventuale interno, il piano, la metratura in metri quadrati, il numero di locali e l'anno di costruzione. Gli immobili sono di diverse tipologie: abitazioni, uffici e negozi. Per le abitazioni si indicano anche il numero di bagni e la presenza di un box auto; per i negozi il numero di vetrine; per gli uffici la presenza di un accesso per persone con disabilità.
+Dei proprietari si memorizzano il codice fiscale, il nome, il cognome, la data e il luogo di nascita, l'indirizzo di residenza, il telefono e l'email. Un immobile può essere intestato a più proprietari e, naturalmente, una persona può possedere uno o più immobili. Per ogni intestazione occorre registrare il tipo di diritto ("proprietà", "nuda proprietà", "usufrutto"), la quota posseduta e la data di acquisizione.
+Il sistema dovrà consentire, tra l'altro, di ottenere le informazioni anagrafiche dei proprietari di un determinato immobile, l'elenco degli immobili situati in una via prefissata con i relativi proprietari, e le caratteristiche (metratura, piano, numero di locali) degli immobili di una certa tipologia.
+Il candidato, effettuate le opportune ipotesi aggiuntive, sviluppi un'analisi della realtà di riferimento, giungendo alla definizione dello schema concettuale della base di dati relazionale che, a suo motivato giudizio, sia idoneo a gestire le proprietà immobiliari del Comune, motivando le scelte effettuate.

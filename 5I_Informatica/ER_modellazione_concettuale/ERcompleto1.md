@@ -1,9 +1,13 @@
-Individua le entità, gli attributi e le associazioni, motivando le scelte effettuate. Disegna il modello E/R con i versi delle associazioni e verifica lo schema con le regole di lettura.
-
-GESTIONE DI PRESTAZIONI SPECIALISTICHE
-
-Progetta un modello di dati per la gestione automatizzata delle prestazioni specialistiche del Servizio Sanitario per consentire le prenotazioni agli sportelli, con controllo della disponibilità e registrazione della prenotazione. I dati da organizzare riguardano:
-- i medici che operano presso il Servizio Sanitario;
-- i diversi tipi di visite specialistiche;
-- le informazioni anagrafiche dei pazienti che richiedono le visite;
-- le prenotazioni delle visite da parte dei pazienti.
+Premessa
+Il Servizio Sanitario Nazionale garantisce ai cittadini l'accesso alle prestazioni specialistiche ambulatoriali (visite cardiologiche, dermatologiche, oculistiche, ortopediche, ecc.) attraverso un sistema di prenotazione centralizzato, detto CUP (Centro Unico di Prenotazione). Il CUP consente di prenotare una visita presso uno qualsiasi degli ambulatori dell'Azienda Sanitaria, scegliendo tra le disponibilità offerte dai diversi medici specialisti.
+Per accedere a una prestazione specialistica il paziente deve essere in possesso di un'impegnativa (ricetta) rilasciata dal proprio medico di base, identificata da un codice univoco (NRE – Numero di Ricetta Elettronica), che riporta il tipo di prestazione richiesta e la classe di priorità. La classe di priorità indica entro quanto tempo la prestazione deve essere erogata: U (urgente, entro 72 ore), B (breve, entro 10 giorni), D (differibile, entro 30 giorni), P (programmata, entro 120 giorni).
+Caso professionale
+Un'Azienda Sanitaria Locale ha commissionato a una società informatica lo sviluppo di una piattaforma web per la gestione automatizzata delle prenotazioni delle prestazioni specialistiche, che dovrà essere utilizzata dagli operatori degli sportelli CUP dislocati sul territorio.
+L'Azienda dispone di più presidi sanitari (ospedali, poliambulatori), ciascuno caratterizzato da un nome e da un indirizzo; all'interno di ogni presidio sono presenti uno o più ambulatori, identificati da un codice e dal piano/stanza in cui si trovano.
+Presso l'Azienda operano medici specialisti, di cui occorre memorizzare i dati anagrafici, il numero di iscrizione all'Albo e la branca specialistica di appartenenza (cardiologia, dermatologia, oculistica, ecc.). Un medico può svolgere la propria attività in ambulatori diversi, anche di presidi differenti, in giorni diversi della settimana.
+Le prestazioni erogabili sono descritte da un catalogo dei tipi di visita: per ciascun tipo si conoscono un codice, la descrizione (ad esempio "Prima visita cardiologica", "Visita oculistica di controllo"), la branca specialistica a cui appartiene, la durata prevista in minuti e l'importo del ticket a carico del paziente.
+Ogni medico mette a disposizione la propria agenda, costituita da un insieme di fasce orarie (slot): ciascuna fascia è relativa a una certa data e ora di inizio, a un ambulatorio e a un tipo di visita. Una fascia oraria può essere assegnata ad un solo paziente.
+Dei pazienti si memorizzano il codice fiscale, i dati anagrafici, la residenza, un recapito telefonico, l'indirizzo email ed un eventuale codice di esenzione dal ticket.
+Allo sportello, l'operatore CUP riceve dal paziente l'impegnativa, verifica le fasce orarie disponibili per il tipo di visita richiesto e, in accordo con il paziente, registra la prenotazione. Di ogni prenotazione si memorizzano il codice NRE dell'impegnativa, la classe di priorità, la data e l'ora in cui è stata effettuata e l'operatore che l'ha registrata. Una prenotazione può trovarsi in uno dei seguenti stati: "prenotata", "erogata", "disdetta", "paziente non presentato".
+Il candidato, effettuate le opportune ipotesi aggiuntive, sviluppi:
+1. un'analisi della realtà di riferimento, giungendo alla definizione dello schema concettuale della base di dati relazionale che, a suo motivato giudizio, sia idoneo a gestire la piattaforma web, motivando le scelte effettuate;

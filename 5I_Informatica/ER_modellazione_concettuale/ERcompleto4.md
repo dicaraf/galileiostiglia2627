@@ -1,9 +1,11 @@
-Individua le entità, gli attributi e le associazioni, motivando le scelte effettuate. Disegna il modello E/R con i versi delle associazioni e verifica lo schema con le regole di lettura.
-
-AUTONOLEGGIO
-
-Un’azienda di noleggio con conducente opera con diversi veicoli e diversi conducenti e vuole organizzare le informazioni sui veicoli, i conducenti e le tratte percorse. Progetta un modello di dati per rispondere alle seguenti esigenze:
-- produrre elenchi dei veicoli con tipologia o numero di posti a sedere;
-- produrre elenchi di conducenti;
-- controllare le tratte con date e orari di partenza e arrivo, località di partenza e arrivo, km percorsi;
-- ottenere il numero di noleggi effettuati nei diversi giorni di una settimana.
+Premessa
+Il servizio di noleggio con conducente (NCC) è un servizio di trasporto di persone che, a differenza del taxi, non viene richiesto per strada ma prenotato in anticipo presso la sede dell'azienda, per telefono o tramite il web. Viene utilizzato, ad esempio, per trasferimenti da e verso aeroporti e stazioni, per viaggi di lavoro, per escursioni turistiche o in occasione di eventi e cerimonie.
+I veicoli impiegati sono di diverse tipologie (berline, monovolume, minibus) e i conducenti, oltre alla patente di guida, devono possedere un certificato di abilitazione professionale (CAP) che va rinnovato periodicamente. Un singolo servizio può comprendere più spostamenti, detti tratte: un trasferimento con andata e ritorno, ad esempio, è composto da due tratte distinte.
+Caso professionale
+Un'azienda di noleggio con conducente, che opera con diversi veicoli e diversi conducenti, ha commissionato a una società informatica lo sviluppo di un sistema per organizzare le informazioni sui veicoli, sui conducenti, sui noleggi effettuati e sulle tratte percorse.
+Di ciascun veicolo si memorizzano la targa, la marca, il modello, la tipologia (berlina, monovolume, minibus, ecc.), il numero di posti a sedere, l'anno di immatricolazione e i chilometri complessivamente percorsi.
+Dei conducenti si memorizzano il codice fiscale, il nome, il cognome, il recapito telefonico, il numero della patente e il numero e la data di scadenza del certificato di abilitazione professionale.
+I clienti possono essere privati oppure aziende, alberghi e agenzie di viaggio; di ciascuno si memorizzano un codice, il nominativo o la ragione sociale, il codice fiscale o la partita IVA, il telefono e l'email.
+Ogni noleggio è richiesto da un cliente ed è caratterizzato da un codice, dalla data in cui è stata effettuata la prenotazione, dal numero di passeggeri e dal prezzo concordato. A ciascun noleggio vengono assegnati un veicolo e un conducente. Un noleggio comprende una o più tratte: di ogni tratta si registrano la data e l'ora di partenza, la data e l'ora di arrivo, la località di partenza, la località di arrivo e i chilometri percorsi.
+Il sistema dovrà consentire, tra l'altro, di produrre elenchi dei veicoli in base alla tipologia o al numero di posti a sedere, produrre l'elenco dei conducenti, controllare le tratte percorse e ottenere il numero di noleggi effettuati in ciascun giorno di una settimana.
+Il candidato, effettuate le opportune ipotesi aggiuntive, sviluppi un'analisi della realtà di riferimento, giungendo alla definizione dello schema concettuale della base di dati relazionale che, a suo motivato giudizio, sia idoneo a gestire l'attività dell'azienda di noleggio, motivando le scelte effettuate.

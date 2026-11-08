@@ -1,10 +1,10 @@
-Individua le entità, gli attributi e le associazioni, motivando le scelte effettuate. Disegna il modello E/R con i versi delle associazioni e verifica lo schema con le regole di lettura.
-
-INFORMAZIONI DI EVENTI
-
-Progetta un modello di dati per la gestione delle informazioni sugli spettacoli teatrali e cinematografici che si svolgono nelle diverse città di una Regione, in modo da fornire alla cittadinanza informazioni su:
-- date nelle quali si svolgono gli spettacoli;
-- prezzo dei biglietti;
-- tipologia di spettacoli tra i quali scegliere;
-- opportunità di scelta tra spettacoli diversi in una città;
-- sale e indirizzo delle sedi degli spettacoli.
+Premessa
+Molte amministrazioni pubbliche mettono a disposizione dei cittadini e dei turisti portali informativi dedicati all'offerta culturale del territorio, che raccolgono in un unico punto la programmazione di teatri, cinema e altri luoghi di spettacolo, consentendo di confrontare le proposte e di scegliere l'evento a cui partecipare.
+Uno stesso spettacolo, ad esempio un film o una commedia, viene generalmente proposto più volte: un film è proiettato in più cinema, in sale diverse e in più orari, mentre una compagnia teatrale in tournée porta lo stesso spettacolo in teatri di città diverse. Ogni singola rappresentazione (o proiezione) avviene quindi in una certa sala, in una data e in un orario precisi. Il prezzo del biglietto può variare in base alla rappresentazione e al tipo di biglietto (intero, ridotto, platea, galleria, ecc.).
+Caso professionale
+L'assessorato alla cultura di una Regione ha commissionato a una società informatica lo sviluppo di un sistema informativo per la gestione delle informazioni sugli spettacoli teatrali e cinematografici che si svolgono nelle diverse città del territorio regionale, da rendere disponibili alla cittadinanza.
+Delle città si memorizzano il codice ISTAT, il nome e la provincia. In ogni città sono presenti una o più sedi di spettacolo (teatri, cinema, multisala, auditorium), di cui si conoscono il nome, il tipo, l'indirizzo, il telefono e l'eventuale sito web. Ogni sede dispone di una o più sale, identificate da un nome o da un numero all'interno della sede e caratterizzate dal numero di posti disponibili.
+Gli spettacoli sono classificati per tipologia (film, prosa, commedia, musical, opera lirica, danza, ecc.). Di ciascuno spettacolo si memorizzano un codice, il titolo, la tipologia, una breve descrizione, la durata in minuti, il regista e l'eventuale limitazione di età; per gli spettacoli teatrali si indica anche la compagnia che li mette in scena.
+Ogni spettacolo può essere rappresentato più volte: di ogni rappresentazione si registrano la data, l'ora di inizio e la sala in cui si svolge. Per ciascuna rappresentazione sono previsti uno o più tipi di biglietto, scelti da un elenco predefinito (intero, ridotto, studenti, platea, galleria, ecc.), ciascuno con il proprio prezzo.
+Il sistema dovrà consentire ai cittadini di conoscere, tra l'altro, le date in cui si svolgono gli spettacoli, il prezzo dei biglietti, le tipologie di spettacolo tra le quali scegliere, gli spettacoli in programma in una determinata città, e le sale e gli indirizzi delle sedi in cui si svolgono.
+Il candidato, effettuate le opportune ipotesi aggiuntive, sviluppi un'analisi della realtà di riferimento, giungendo alla definizione dello schema concettuale della base di dati relazionale che, a suo motivato giudizio, sia idoneo a gestire il portale regionale degli spettacoli, motivando le scelte effettuate.
