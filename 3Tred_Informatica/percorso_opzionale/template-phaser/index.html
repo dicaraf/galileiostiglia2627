@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ✏️ STUDENTI: cambiate il titolo del vostro gioco qui! -->
+  <title>Il Mio Videogioco</title>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d0d1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: monospace;
+    }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Phaser.js dalla CDN — NON modificare questa riga -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+
+  <!--
+    ╔══════════════════════════════════════════╗
+    ║  FILE DEL GIOCO — caricati in ordine!   ║
+    ║  Non cambiate l'ordine di questi script  ║
+    ╚══════════════════════════════════════════╝
+  -->
+
+  <!-- 1. Impostazioni, stato globale e dati della storia -->
+  <script src="js/config.js"></script>
+  <script src="js/GameState.js"></script>
+  <script src="js/dialoghi.js"></script>
+  <script src="js/obiettivi.js"></script>
+
+  <!-- 2. Sistema di dialoghi (con scelte) -->
+  <script src="js/DialogManager.js"></script>
+
+  <!-- 3. Le scene del gioco (MappaBaseScene prima delle mappe che la estendono) -->
+  <script src="js/scenes/PreloadScene.js"></script>
+  <script src="js/scenes/TitleScene.js"></script>
+  <script src="js/scenes/MappaBaseScene.js"></script>
+  <script src="js/scenes/Mappa1Scene.js"></script>
+  <script src="js/scenes/Mappa2Scene.js"></script>
+  <script src="js/scenes/UIScene.js"></script>
+
+  <!-- 4. Configurazione e avvio di Phaser (deve essere ULTIMO) -->
+  <script src="js/main.js"></script>
+
+</body>
+</html>
