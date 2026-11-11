@@ -114,17 +114,17 @@ const DIALOGHI = {
         testo: 'Grazie ancora per il Cristallo, viandante. Il Villaggio non lo dimenticherà.'
       },
       L_FINE_BELLO: {
-        testo: "Bruto mi ha raccontato che l'hai consolato. Oltre al Cristallo, hai ridato il sorriso al nostro fabbro. Sei una persona rara!"
+        testo: "Bruto mi ha raccontato che l'hai consolato. Oltre al Cristallo, hai ridato il sorriso al nostro cavaliere. Sei una persona rara!"
       }
     }
   },
 
 
   // ═══════════════════════════════════════════════════════════
-  //  BRUTO — il fabbro (Villaggio). Una scelta cambia il finale!
+  //  BRUTO — il cavaliere (Villaggio). Una scelta cambia il finale!
   // ═══════════════════════════════════════════════════════════
   bruto: {
-    nome: 'Bruto il Fabbro',
+    nome: 'Bruto il Cavaliere',
 
     ingressi: [
       { se: 'flag:haConsolatoBruto', nodo: 'B_GRATO' },
@@ -133,7 +133,7 @@ const DIALOGHI = {
 
     nodi: {
       B1: {
-        testo: "Mah... Ho rovinato l'ultima spada che mi hanno ordinato. Il cliente sarà furioso.",
+        testo: "Mah... Ho rovinato la spada che mi aveva affidato il capitano. Sarà furioso.",
         scelte: [
           { testo: 'Non preoccuparti, capita a tutti.', vai: 'B2' },
           { testo: 'Dovevi stare più attento.',         vai: 'B3' },
@@ -157,11 +157,56 @@ const DIALOGHI = {
 
 
   // ═══════════════════════════════════════════════════════════
-  //  SPIRITO DELLA FORESTA (Foresta). Domande che non cambiano
+  //  PIP — il ragazzino del Villaggio. Dà indizi diversi a seconda
+  //  di ciò che è già successo; una scelta compare solo se Bruto
+  //  non è ancora stato consolato (scelta condizionata).
+  // ═══════════════════════════════════════════════════════════
+  pip: {
+    nome: 'Pip',
+
+    ingressi: [
+      { se: 'flag:questCompletata',  nodo: 'P_FINE' },
+      { se: 'ha:cristallo',          nodo: 'P_CRISTALLO' },
+      { se: 'flag:haParlatoConLuna', nodo: 'P_FORESTA' },
+      { nodo: 'P1' }
+    ],
+
+    nodi: {
+      P1: {
+        testo: 'Ehi, tu! Sei appena arrivato? Io sono Pip e conosco ogni angolo del Villaggio.',
+        scelte: [
+          { testo: 'Dove posso trovare aiuto?',  vai: 'P2' },
+          { testo: 'Sai qualcosa di Bruto?',     vai: 'P3', se: '!flag:haConsolatoBruto' },
+          { testo: 'Grazie, a dopo!',            vai: 'FINE' }
+        ]
+      },
+      P2: {
+        testo: 'Parla con Luna, la ragazza con il codino. Ha sempre una missione per i viandanti!',
+        vai: 'P1'
+      },
+      P3: {
+        testo: "Dicono che abbia rovinato la sua spada migliore. Un po' di gentilezza lo aiuterebbe, credo.",
+        vai: 'P1'
+      },
+      P_FORESTA: {
+        testo: 'Il sentiero a ovest ora è libero! Nella Foresta cerca il mago: sa dove si trova il Cristallo.'
+      },
+      P_CRISTALLO: {
+        testo: 'Hai il Cristallo! Corri da Luna, sarà felicissima.'
+      },
+      P_FINE: {
+        testo: 'Hai salvato il Villaggio! Da grande voglio essere come te.'
+      }
+    }
+  },
+
+
+  // ═══════════════════════════════════════════════════════════
+  //  MAGO DELLA FORESTA (Foresta). Domande che non cambiano
   //  la storia ma danno informazioni: ogni risposta torna al menu.
   // ═══════════════════════════════════════════════════════════
-  spirito: {
-    nome: 'Spirito della Foresta',
+  mago: {
+    nome: 'Mago della Foresta',
 
     ingressi: [
       { se: 'ha:cristallo', nodo: 'S_HAI' },
@@ -182,7 +227,7 @@ const DIALOGHI = {
         vai: 'S1'
       },
       S3: {
-        testo: 'Sono lo spirito di questi alberi. Veglio sul Cristallo da tanto tempo.',
+        testo: 'Sono il mago di questo bosco. Veglio sul Cristallo da tanto tempo.',
         vai: 'S1'
       },
       S_HAI: {

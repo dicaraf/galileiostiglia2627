@@ -5,12 +5,12 @@
  * ║  La mappa è in  assets/tilemaps/foresta.json  (Tiled).       ║
  * ║                                                              ║
  * ║  In questa scena (tutto nel livello "Objects" della mappa):  ║
- * ║   • lo Spirito della Foresta, con un dialogo a domande       ║
+ * ║   • il Mago della Foresta, con un dialogo a domande          ║
  * ║   • il Cristallo, un OGGETTO RACCOGLIBILE                    ║
  * ║   • la porta di ritorno verso il Villaggio, che si apre solo ║
  * ║     se si ha il Cristallo (condizione: ha:cristallo)         ║
  * ║                                                              ║
- * ║  ✏️  PER AGGIUNGERE UNA TERZA MAPPA:                        ║
+ * ║  ✏️  PER AGGIUNGERE UNA TERZA MAPPA:                         ║
  * ║   1. Disegnatela in Tiled e salvatela in assets/tilemaps/    ║
  * ║   2. In PreloadScene.js caricatela con tilemapTiledJSON(...) ║
  * ║   3. Copiate questo file in Mappa3Scene.js e cambiate i nomi ║

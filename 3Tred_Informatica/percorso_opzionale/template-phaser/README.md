@@ -1,9 +1,9 @@
-# Template di base con Phaser.js
+# Template di base — Il tuo videogioco con Phaser.js
 
 Questo è il punto di partenza del vostro progetto. Il gioco **funziona già**:
 aprite `index.html` con **Live Server** e giocateci prima di leggere oltre.
 
-> Aprite il gioco con **Live Server** di VS Code (tasto destro su `index.html` →
+> ⚠️ Aprite il gioco con **Live Server** di VS Code (tasto destro su `index.html` →
 > *Open with Live Server*), **non** con il doppio click: il browser non permette di
 > leggere mappe e immagini da file locali. Se lo fate comparirà una schermata rossa che lo spiega.
 
@@ -25,7 +25,7 @@ quaderno ha un posto preciso nel template (vedi la tabella più sotto).
 - Un **oggetto da raccogliere** (il Cristallo) e un **inventario** a schermo.
 - Un **obiettivo** che cambia durante la storia, in alto a destra.
 - Una piccola **missione completa**: parla con Luna → vai nella Foresta → trova il Cristallo →
-  torna da Luna → missione compiuta. Se hai consolato Bruto, Luna lo sa e il finale cambia!
+  torna da Luna → missione compiuta. Se hai consolato Bruto, Luna lo sa e il finale cambia! Pip, il ragazzino del villaggio, ti dà indizi diversi a seconda di ciò che hai già fatto.
 
 **Comandi:** frecce o WASD = muoversi · **E** = parlare / avanti · **↑ ↓** (o W S) oppure **1 2 3** =
 scegliere · **E** o **INVIO** = confermare.
@@ -42,14 +42,14 @@ template-phaser/
 │   ├── tilemaps/           ← le MAPPE (.json, si aprono con Tiled)
 │   ├── tilesets/           ← le immagini con le "tessere" delle mappe
 │   ├── atlas/              ← il personaggio: immagine + file con i nomi dei fotogrammi
-│   ├── sprites/            ← altre vostre immagini (oggetti, personaggi...)
+│   ├── sprites/            ← i personaggi fermi (una PNG ciascuno) e altre immagini
 │   ├── audio/              ← musica ed effetti sonori
 │   └── CREDITS.md          ← crediti e licenze delle risorse
 └── js/
     ├── dialoghi.js         ← ✏️ TUTTI I DIALOGHI (Scheda 6)   ← lavorerete soprattutto qui
     ├── GameState.js        ← ✏️ inventario e FLAG della storia (Scheda 7)
     ├── obiettivi.js        ← ✏️ i testi dell'obiettivo a schermo (Scheda 7)
-    ├── config.js           ← impostazioni del personaggio (atlas, velocità)
+    ├── config.js           ← ✏️ elenco degli sprite dei personaggi + impostazioni del giocatore
     ├── DialogManager.js    ← il sistema che mostra dialoghi e scelte
     ├── main.js             ← configurazione di Phaser e elenco delle scene
     └── scenes/
@@ -88,7 +88,7 @@ la posizione indica dove **poggiano i piedi**.
 
 ---
 
-## Le mappe con Tiled
+## 🗺️ Le mappe con Tiled
 
 Aprite `assets/tilemaps/tuxemon-town.json` con **Tiled** (gratuito, mapeditor.org): vedrete
 la mappa del villaggio con i suoi livelli.
@@ -113,8 +113,8 @@ personalizzate** (pulsante **+** nel pannello Proprietà). Si usano gli strument
 |---|---|---|
 | `partenza` | punto | — (nome: `Spawn Point`: dove appare il giocatore all'inizio) |
 | `arrivo` | punto | — (nome libero, es. `da_foresta`: dove appare chi arriva da un'altra mappa) |
-| `npc` | punto | `dialogo` (chiave in `dialoghi.js`, es. `luna`) · `tinta` *(facoltativa, colore es. `#ffb0dc`)* · `raggio` *(facoltativa)* |
-| `porta` | rettangolo | `destinazione` (es. `Mappa2Scene`) · `condizione` *(facoltativa)* · `messaggio` (se chiusa) · `arrivo` (nome del punto nella mappa di destinazione) · `etichetta` *(facoltativa, scritta vicino alla porta)* |
+| `npc` | punto | `dialogo` (chiave in `dialoghi.js`, es. `luna`) · `sprite` *(facoltativa, nome della sua immagine, es. `luna`)* · `tinta` *(facoltativa, colore es. `#ffb0dc`, per chi usa lo sprite di Misa)* · `raggio` *(facoltativa)* |
+| `porta` | rettangolo | `destinazione` (es. `Mappa2Scene`) · `condizione` *(facoltativa)* · `messaggio` (se chiusa) · `arrivo` (nome del punto nella mappa di destinazione) · `etichetta` *(facoltativa, scritta vicino alla porta)* · `visibile` *(facoltativa, `no` nasconde il rettangolo)* · `tasto` *(facoltativa, `sì` = si apre premendo E)* |
 | `oggetto` | punto | `oggetto` (nome nell'inventario) · `texture` (immagine) · `messaggio` *(facoltativa)* |
 
 ### Prima di salvare da Tiled
@@ -133,7 +133,7 @@ condizioni che decidono da quale nodo parte la conversazione.
 
 ```javascript
 bruto: {
-  nome: 'Bruto il Fabbro',
+  nome: 'Bruto il Cavaliere',
 
   ingressi: [                                   // si legge dall'alto: vale il primo vero
     { se: 'flag:haConsolatoBruto', nodo: 'B_GRATO' },
@@ -159,7 +159,7 @@ bruto: {
 ```
 
 - `vai: 'FINE'` (o niente) chiude il dialogo.
-- Una scelta può ricollegarsi a un nodo precedente (vedi Luna e lo Spirito della Foresta).
+- Una scelta può ricollegarsi a un nodo precedente (vedi Luna e il Mago della Foresta).
 - Una scelta può comparire solo a certe condizioni: `{ testo: '...', vai: '...', se: 'ha:chiave' }`.
 - Le battute stanno in 2-3 righe di schermo (max ~200 caratteri); le scelte max ~60.
 - Un nodo con `testo: ['Pagina 1', 'Pagina 2']` mostra più pagine.
@@ -185,17 +185,30 @@ nella console del browser compare un avviso.
 
 ---
 
-## Come si fa...
+## Ricette: come si fa...
 
 **...ad aggiungere un personaggio?**
 1. Scrivete il suo dialogo in `dialoghi.js` (chiave, ingressi, nodi).
-2. In Tiled, nel livello `Objects`, inserite un **punto**: Tipo `npc`, proprietà `dialogo` = la chiave scelta.
-   Se usa lo stesso sprite del giocatore, date una `tinta` per distinguerlo.
-3. Salvate: ricaricate il gioco.
+2. Mettete la sua immagine (PNG, circa 32-50 pixel di altezza, sfondo trasparente) in `assets/sprites/`,
+   per esempio `assets/sprites/elio.png`, e scrivete `'elio'` nell'elenco `SPRITE_PERSONAGGI` in `config.js`.
+3. In Tiled, nel livello `Objects`, inserite un **punto**: Tipo `npc`, proprietà `dialogo` = la chiave scelta
+   e `sprite` = `elio`. Il punto indica dove poggiano i **piedi**.
+4. Salvate: ricaricate il gioco.
+
+Ogni personaggio ha il **suo file PNG**, e potete aggiungerne quanti ne servono. Se avete una sola immagine con
+più personaggi, ritagliateli prima in file separati (uno per personaggio, con lo sfondo trasparente).
+
+Se non avete ancora l'immagine, lasciate vuota la proprietà `sprite`: il personaggio userà lo sprite di Misa
+(con una `tinta` per distinguerlo). Se vedete un avviso «sprite non caricato» in console, controllate il nome nell'elenco.
 
 **...a bloccare un passaggio finché non succede qualcosa?**
 Inserite un **rettangolo** di tipo `porta` e scrivete `destinazione`, `condizione`, `messaggio` e `arrivo`.
 Se la condizione è vera la porta diventa verde e si attraversa; altrimenti compare il messaggio.
+Una porta può stare **anche in mezzo alla mappa**, per esempio davanti all'ingresso di un edificio: basta disegnare il
+rettangolo su tile che il giocatore può raggiungere (non sul livello `World` con `collides = true`).
+Per la porta di una casa conviene aggiungere `visibile = no` (nasconde il rettangolo grigio/verde) e `tasto = sì`
+(la porta si apre premendo **E** mentre ci si sta davanti, e compare la scritta `[E]`).
+L'interno dell'edificio è una scena a parte (vedi sotto): il punto d'arrivo del ritorno va messo accanto alla porta, non sopra.
 
 **...a far raccogliere un oggetto?**
 Inserite un **punto** di tipo `oggetto` con `oggetto` (nome nell'inventario) e `messaggio`.
@@ -209,7 +222,7 @@ Per usarlo, scrivete una condizione `ha:nome` in una porta o in un dialogo; per 
 5. Collegatela con una **porta** nella mappa precedente (`destinazione` = `Mappa3Scene`)
    e prevedete in `caverna.json` un punto di tipo `arrivo` con il nome scritto nella porta.
 
-**...a usare il vostro personaggio?**
+**...a cambiare lo sprite del personaggio che si muove?**
 Create un atlas (immagine PNG + file JSON, ad esempio con *TexturePacker* o *free-tex-packer*) con
 questi nomi di fotogrammi, dove `eroe` è il vostro prefisso: `eroe-front`, `eroe-back`, `eroe-left`,
 `eroe-right` (fermo) e `eroe-front-walk.000` … `.003` (e lo stesso per back, left, right). Mettete i file in `assets/atlas/`,
@@ -252,4 +265,4 @@ fotogramma). Vedete l'esempio del messaggio di benvenuto in `Mappa1Scene.js`.
   se è vera. Attenzione alle maiuscole nei nomi delle flag!
 - **Un avviso "Flag sconosciuta"** → aggiungi la flag a `FLAG_INIZIALI` o correggi l'ortografia.
 
-Buon lavoro, e soprattutto: **divertite chi giocherà al vostro gioco**. 🎮
+Buon lavoro, e soprattutto: **divertitevi pensando a divertire chi giocherà al vostro gioco**.

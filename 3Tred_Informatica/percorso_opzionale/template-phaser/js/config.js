@@ -14,6 +14,11 @@
  * ╚══════════════════════════════════════════════════════════════╝
  */
 
+// ✏️ Sprite dei personaggi fermi (uno per personaggio). Per ogni nome scritto qui
+// il gioco carica  assets/sprites/<nome>.png.  In Tiled, nell'oggetto "npc",
+// si scrive la proprietà  sprite = <nome>.  (Scheda 8 del Quaderno)
+const SPRITE_PERSONAGGI = ['luna', 'bruto', 'mago', 'pip'];
+
 const PLAYER = {
   atlas:    'atlas',    // chiave dell'atlas caricato in PreloadScene
   prefisso: 'misa',     // prefisso dei nomi dei fotogrammi nell'atlas

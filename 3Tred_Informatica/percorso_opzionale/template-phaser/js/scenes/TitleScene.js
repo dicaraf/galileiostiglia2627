@@ -21,7 +21,7 @@ class TitleScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#0d0d1a');
 
     // ✏️ STUDENTI: il titolo e il sottotitolo del vostro gioco!
-    const TITOLO      = 'Il Nome del Tuo Gioco';
+    const TITOLO      = 'Il Cristallo del Villaggio';
     const SOTTOTITOLO = 'una avventura nel Villaggio';
 
     this.add.text(W / 2, H / 2 - 80, TITOLO, {

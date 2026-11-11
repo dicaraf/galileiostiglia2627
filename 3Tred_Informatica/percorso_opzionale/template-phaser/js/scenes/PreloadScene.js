@@ -62,6 +62,15 @@ class PreloadScene extends Phaser.Scene {
     this.load.atlas(PLAYER.atlas, 'assets/atlas/atlas.png', 'assets/atlas/atlas.json');
 
     // ═════════════════════════════════════════════════════════
+    //  🧑‍🤝‍🧑  SPRITE DEI PERSONAGGI FERMI (un'immagine PNG ciascuno)
+    //      L'elenco dei nomi è in config.js (SPRITE_PERSONAGGI).
+    //      Per aggiungerne uno: mettete il file in assets/sprites/,
+    //      scrivete il nome nell'elenco e usate la proprietà
+    //      "sprite" nell'oggetto npc in Tiled.
+    // ═════════════════════════════════════════════════════════
+    SPRITE_PERSONAGGI.forEach(nome => this.load.image(nome, `assets/sprites/${nome}.png`));
+
+    // ═════════════════════════════════════════════════════════
     //  🔊  AUDIO (facoltativo)
     // ═════════════════════════════════════════════════════════
     // this.load.audio('musica_villaggio', 'assets/audio/villaggio.mp3');

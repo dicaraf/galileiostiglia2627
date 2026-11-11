@@ -33,8 +33,10 @@
  *
  *  Tipo "npc"       (punto)   Un personaggio che parla.
  *      dialogo   (testo)      chiave del dialogo in dialoghi.js, es. luna
+ *      sprite    (testo)      facoltativo: nome dell'immagine PNG del personaggio, tra quelli
+ *                             elencati in SPRITE_PERSONAGGI (config.js), es. luna
  *      tinta     (testo)      facoltativo: colore, es. #ffb0dc  (per distinguere i personaggi
- *                             che usano lo stesso sprite)
+ *                             che usano lo stesso sprite di Misa)
  *      raggio    (numero)     facoltativo: distanza di interazione (default 64)
  *      atlas, frame (testo)   facoltativo: per usare uno sprite diverso da quello del giocatore
  *
@@ -45,6 +47,10 @@
  *      messaggio    (testo)   cosa dice il gioco se la porta è chiusa
  *      arrivo       (testo)   nome del punto "arrivo" nella mappa di destinazione
  *      etichetta    (testo)   facoltativo: scritta mostrata vicino alla porta
+ *      visibile     (sì/no)   facoltativo: "no" nasconde il rettangolo grigio/verde
+ *                             (utile per la porta di una casa). Default: sì
+ *      tasto        (sì/no)   facoltativo: "sì" = la porta si apre premendo E mentre
+ *                             ci si sta sopra, invece di scattare camminandoci. Default: no
  *
  *  Tipo "oggetto"   (punto)   Un oggetto che si raccoglie camminandoci sopra.
  *      oggetto   (testo)      nome nell'inventario, es. cristallo
@@ -216,14 +222,25 @@ class MappaBaseScene extends Phaser.Scene {
   // ----- PERSONAGGI -----
   _creaNPC(o) {
     const p = this._prop(o);
-    const atlas = p.atlas || PLAYER.atlas;
-    const frame = p.frame || `${PLAYER.prefisso}-front`;
-    const c = PLAYER.corpo;
-
-    const sprite = this.physics.add.sprite(o.x, o.y, atlas, frame)
-      .setOrigin(0.5, 1)
-      .setDepth(5 + o.y / 10000);
-    sprite.body.setSize(c.larghezza, c.altezza).setOffset(c.offsetX, c.offsetY);
+    let sprite;
+    if (p.sprite) {
+      // Personaggio con la sua immagine PNG (proprietà "sprite" = nome in SPRITE_PERSONAGGI)
+      if (!this.textures.exists(p.sprite)) {
+        console.warn(`[${this.scene.key}] ⚠️ Lo sprite "${p.sprite}" non è stato caricato: scrivilo in SPRITE_PERSONAGGI (config.js) e controlla assets/sprites/.`);
+      }
+      sprite = this.physics.add.sprite(o.x, o.y, p.sprite).setOrigin(0.5, 1).setDepth(5 + o.y / 10000);
+      // Area fisica = i piedi: tutta la larghezza (un po' ridotta) e la metà bassa dell'immagine
+      const bw = Math.round(sprite.width * 0.8), bh = Math.round(sprite.height * 0.45);
+      sprite.body.setSize(bw, bh).setOffset((sprite.width - bw) / 2, sprite.height - bh);
+    } else {
+      const atlas = p.atlas || PLAYER.atlas;
+      const frame = p.frame || `${PLAYER.prefisso}-front`;
+      const c = PLAYER.corpo;
+      sprite = this.physics.add.sprite(o.x, o.y, atlas, frame)
+        .setOrigin(0.5, 1)
+        .setDepth(5 + o.y / 10000);
+      sprite.body.setSize(c.larghezza, c.altezza).setOffset(c.offsetX, c.offsetY);
+    }
     sprite.setImmovable(true);
     sprite.body.moves = false;
     if (p.tinta) sprite.setTint(Phaser.Display.Color.HexStringToColor(p.tinta).color);
@@ -232,7 +249,7 @@ class MappaBaseScene extends Phaser.Scene {
 
     if (!p.dialogo) console.warn(`[${this.scene.key}] ⚠️ Il personaggio "${o.name}" non ha la proprietà "dialogo".`);
 
-    const label = this.add.text(o.x, o.y - 68, '[E]', {
+    const label = this.add.text(o.x, o.y - sprite.displayHeight - 4, '[E]', {
       fontSize: '11px', fontFamily: 'monospace', color: '#f5c842',
       backgroundColor: '#000000aa', padding: { x: 3, y: 1 }
     }).setOrigin(0.5, 1).setDepth(6).setVisible(false);
@@ -240,7 +257,7 @@ class MappaBaseScene extends Phaser.Scene {
     this.npcs.push({
       nome: o.name, dialogo: p.dialogo, sprite, label,
       raggio: Number(p.raggio) || 64,
-      puoGirarsi: !p.atlas && !p.frame          // si volta verso il giocatore solo se usa l'atlas standard
+      puoGirarsi: !p.sprite && !p.atlas && !p.frame   // si volta verso il giocatore solo se usa l'atlas standard
     });
   }
 
@@ -273,15 +290,24 @@ class MappaBaseScene extends Phaser.Scene {
   }
 
   // ----- PORTE -----
+  /** Legge una proprietà sì/no di Tiled (accetta casella spuntata, sì, si, true, no, false...). */
+  _siNo(valore, predefinito) {
+    if (valore === undefined || valore === null || valore === '') return predefinito;
+    if (typeof valore === 'boolean') return valore;
+    return !['no', 'n', 'false', '0'].includes(String(valore).trim().toLowerCase());
+  }
+
   _creaPorta(o) {
     const p = this._prop(o);
     const cx = o.x + o.width / 2, cy = o.y + o.height / 2;
+    const visibile = this._siNo(p.visibile, true);
+    const conTasto = this._siNo(p.tasto, false);
 
     const zona = this.add.zone(cx, cy, o.width, o.height);
     this.physics.add.existing(zona, true);            // true = corpo statico
 
     // Rettangolo che cambia colore: grigio = chiusa, verde = aperta
-    const segnale = this.add.rectangle(cx, cy, o.width, o.height, 0x888888, 0.35).setDepth(1);
+    const segnale = this.add.rectangle(cx, cy, o.width, o.height, 0x888888, 0.35).setDepth(1).setVisible(visibile);
 
     if (p.etichetta) {
       this.add.text(Phaser.Math.Clamp(cx, 50, this.larghezzaMondo - 50), o.y - 6, p.etichetta, {
@@ -290,14 +316,27 @@ class MappaBaseScene extends Phaser.Scene {
       }).setOrigin(0.5, 1).setDepth(3);
     }
 
+    // Porta con tasto: compare [E] quando il giocatore è sopra la porta
+    let suggerimento = null;
+    if (conTasto) {
+      suggerimento = this.add.text(cx, o.y - 4, '[E]', {
+        fontSize: '11px', fontFamily: 'monospace', color: '#f5c842',
+        backgroundColor: '#000000aa', padding: { x: 3, y: 1 }
+      }).setOrigin(0.5, 1).setDepth(6).setVisible(false);
+    }
+
     // inUso = true all'inizio: se il giocatore appare dentro la zona, la porta non scatta subito
-    this.porte.push({ zona, segnale, p, nome: o.name, inUso: true });
+    this.porte.push({ zona, segnale, p, nome: o.name, conTasto, suggerimento, inUso: true });
   }
 
   _controllaPorte() {
     this.porte.forEach(porta => {
       const dentro = this.physics.overlap(this.player, porta.zona);
-      if (!dentro) porta.inUso = false;
+      if (porta.suggerimento) porta.suggerimento.setVisible(dentro);
+      if (porta.conTasto) {
+        // porta con tasto: si prova ad aprire solo premendo E mentre ci si sta sopra
+        if (dentro && Phaser.Input.Keyboard.JustDown(this.tastoInterazione)) this._provaPorta(porta);
+      } else if (!dentro) porta.inUso = false;
       else if (!porta.inUso) {
         porta.inUso = true;                           // evita di ripetere il messaggio finché si resta nella zona
         this._provaPorta(porta);
@@ -356,6 +395,7 @@ class MappaBaseScene extends Phaser.Scene {
     if (this.dialogo.inCorso) {
       this._fermaGiocatore();
       this.npcs.forEach(n => n.label.setVisible(false));
+      this.porte.forEach(pt => pt.suggerimento && pt.suggerimento.setVisible(false));
       this.dialogo.aggiorna();
       return;
     }

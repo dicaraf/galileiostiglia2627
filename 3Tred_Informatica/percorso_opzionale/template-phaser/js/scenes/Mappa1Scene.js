@@ -8,7 +8,7 @@
  * ║  per vederli e spostarli.                                    ║
  * ║                                                              ║
  * ║  In questa scena:                                            ║
- * ║   • Luna e Bruto, con dialoghi a scelta (dialoghi.js)        ║
+ * ║   • Luna, Bruto e Pip, con dialoghi a scelta (dialoghi.js)   ║
  * ║   • una porta verso la Foresta che si apre SOLO dopo aver    ║
  * ║     accettato la missione di Luna                            ║
  * ║                                                              ║
