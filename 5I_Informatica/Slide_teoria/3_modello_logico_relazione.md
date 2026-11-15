@@ -150,6 +150,31 @@ La **chiave primaria** (*primary key*, PK) è un attributo, o un insieme di attr
 
 ---
 
+<!-- _class: tiny -->
+
+# Chiave primaria in SQL: schema e istanza
+
+```sql
+-- SCHEMA: la struttura della relazione (DDL)
+CREATE TABLE Studenti (
+  Matricola INT         PRIMARY KEY,          -- univoca e mai NULL
+  Cognome   VARCHAR(30) NOT NULL,
+  Nome      VARCHAR(30) NOT NULL,
+  Eta       TINYINT     CHECK (Eta BETWEEN 14 AND 25)
+);
+
+-- ISTANZA: le righe presenti in un dato momento (DML)
+INSERT INTO Studenti VALUES (12345, 'Rossi',   'Mario', 18);
+INSERT INTO Studenti VALUES (12346, 'Bianchi', 'Luisa', 17);
+INSERT INTO Studenti VALUES (12345, 'Verdi',   'Carlo', 18);  -- ERRORE: chiave duplicata
+```
+
+- **Tipo di dato + `CHECK`** definiscono il **dominio** dell'attributo.
+- Dopo i primi due `INSERT` la relazione ha **grado 4** (colonne) e **cardinalità 2** (righe).
+- Il terzo `INSERT` viene rifiutato dal DBMS: la matricola 12345 esiste già (**integrità di entità**).
+
+---
+
 # Esempio di tabella Automobile
 
 ![h:230](images/page-011-image-01.png)
@@ -206,6 +231,29 @@ Il modello relazionale è **basato sui valori**: ogni dato è raggiungibile tram
 - Le righe possono comparire in qualsiasi ordine, perché l'ordinamento **non è rilevante** nel modello relazionale.
 
 > **Valore NULL.** Un attributo non chiave può avere valore `NULL` (informazione mancante o non applicabile). `NULL` **non è** lo zero né la stringa vuota: è l'assenza di un valore.
+
+---
+
+<!-- _class: tiny -->
+
+# Requisiti e valore NULL in SQL
+
+```sql
+CREATE TABLE Libri (
+  ISBN    CHAR(13)     PRIMARY KEY,
+  Titolo  VARCHAR(100) NOT NULL,
+  Anno    SMALLINT,                 -- ammette NULL
+  Prezzo  DECIMAL(6,2)
+);
+
+INSERT INTO Libri VALUES ('9781234567890', 'Basi di dati', NULL, 24.90);  -- anno sconosciuto
+INSERT INTO Libri VALUES ('9789876543210', 'Reti', 2024, 'venti');        -- ERRORE: tipo errato
+INSERT INTO Libri VALUES ('9785555555555', NULL, 2023, 18.00);            -- ERRORE: Titolo NOT NULL
+```
+
+- Il **tipo di dato** garantisce l'omogeneità dei valori di una colonna (requisito 6): MySQL rifiuta il testo `'venti'` in una colonna `DECIMAL`.
+- `NOT NULL` rende un attributo **obbligatorio**; senza `NOT NULL` l'attributo ammette valori mancanti.
+- `NULL` si scrive **senza apici**: `'NULL'` sarebbe una stringa di quattro lettere.
 
 ---
 
@@ -303,6 +351,36 @@ Ogni corso è associato a **un solo** docente; un docente può avere **più** co
 
 ---
 
+<!-- _class: tiny -->
+
+# Chiave esterna in SQL
+
+```sql
+CREATE TABLE Docenti (
+  IDDocente INT         PRIMARY KEY,
+  Nome      VARCHAR(30) NOT NULL,
+  Cognome   VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE Corsi (
+  IDCorso   CHAR(3)     PRIMARY KEY,
+  NomeCorso VARCHAR(50) NOT NULL,
+  IDDocente INT         NOT NULL,
+  FOREIGN KEY (IDDocente) REFERENCES Docenti(IDDocente)
+);
+
+INSERT INTO Docenti VALUES (1, 'Anna', 'Bianchi');
+INSERT INTO Corsi   VALUES ('C1', 'Matematica', 1);
+INSERT INTO Corsi   VALUES ('C4', 'Chimica', 9);     -- ERRORE: il docente 9 non esiste
+```
+
+- Si crea e si popola **prima** la tabella riferita (`Docenti`), poi quella con la FK (`Corsi`).
+- La FK deve avere **lo stesso tipo** della PK riferita (qui `INT`).
+
+> In SQL i nomi non contengono spazi: `ID Docente` diventa `IDDocente`.
+
+---
+
 # Passaggio pratico: dal modello E/R al modello logico
 
 **Procedura in tre passi**
@@ -334,6 +412,37 @@ Ogni persona ha **un solo** passaporto e ogni passaporto appartiene a **una sola
 
 ---
 
+<!-- _class: tiny -->
+
+# Uno a uno in SQL
+
+**Soluzione con una tabella unica**
+
+```sql
+CREATE TABLE PersonePassaporti (
+  ID            INT         PRIMARY KEY,
+  Nome          VARCHAR(30) NOT NULL,
+  Cognome       VARCHAR(30) NOT NULL,
+  IDPassaporto  CHAR(4)     NOT NULL UNIQUE,   -- chiave candidata
+  DataEmissione DATE        NOT NULL
+);
+```
+
+**Alternativa con due tabelle: chiave esterna univoca**
+
+```sql
+CREATE TABLE Passaporti (
+  IDPassaporto  CHAR(4) PRIMARY KEY,
+  DataEmissione DATE    NOT NULL,
+  IDPersona     INT     NOT NULL UNIQUE,       -- senza UNIQUE sarebbe 1:N
+  FOREIGN KEY (IDPersona) REFERENCES Persone(ID)
+);
+```
+
+> È il vincolo `UNIQUE` sulla FK a garantire che una persona abbia **al più un** passaporto.
+
+---
+
 <!-- _class: small -->
 
 # Esempio uno a molti: Dipartimento e Impiegato
@@ -355,6 +464,35 @@ Ogni dipartimento può avere **molti** impiegati, ma ogni impiegato appartiene a
 | 1 | Anna | Verdi | 10 |
 | 2 | Marco | Bianchi | 20 |
 | 3 | Sara | Rossi | 20 |
+
+---
+
+<!-- _class: tiny -->
+
+# Uno a molti in SQL
+
+```sql
+CREATE TABLE Dipartimenti (
+  IDDipartimento   INT         PRIMARY KEY,
+  NomeDipartimento VARCHAR(40) NOT NULL
+);
+
+CREATE TABLE Impiegati (
+  IDImpiegato    INT         PRIMARY KEY,
+  Nome           VARCHAR(30) NOT NULL,
+  Cognome        VARCHAR(30) NOT NULL,
+  IDDipartimento INT         NOT NULL,
+  FOREIGN KEY (IDDipartimento) REFERENCES Dipartimenti(IDDipartimento)
+);
+
+INSERT INTO Dipartimenti VALUES (10, 'Risorse Umane'), (20, 'IT'), (30, 'Marketing');
+INSERT INTO Impiegati VALUES
+  (1, 'Anna',  'Verdi',   10),
+  (2, 'Marco', 'Bianchi', 20),
+  (3, 'Sara',  'Rossi',   20);
+```
+
+> La FK sta nel lato **"molti"** (`Impiegati`): più impiegati possono avere lo stesso `IDDipartimento` (20). Con un solo `INSERT` si possono inserire **più righe**, separate da virgole.
 
 ---
 
@@ -400,6 +538,34 @@ Ogni studente può iscriversi a **molti** corsi e ogni corso può avere **molti*
 - `Data Iscrizione` è un **attributo dell'associazione**: non appartiene né allo studente né al corso, ma al loro legame.
 
 > **N.B.** Nel passaggio dall'entità alla relazione il nome si scrive di solito al **plurale** (convenzione), perché la relazione, vista come insieme, contiene tutte le istanze dell'entità.
+
+---
+
+<!-- _class: tiny -->
+
+# Molti a molti in SQL
+
+```sql
+CREATE TABLE Iscrizioni (
+  IDStudente     INT     NOT NULL,
+  IDCorso        CHAR(3) NOT NULL,
+  DataIscrizione DATE    NOT NULL,
+  PRIMARY KEY (IDStudente, IDCorso),
+  FOREIGN KEY (IDStudente) REFERENCES Studenti(IDStudente),
+  FOREIGN KEY (IDCorso)    REFERENCES Corsi(IDCorso)
+);
+
+INSERT INTO Iscrizioni VALUES
+  (101, 'C1', '2023-09-01'),
+  (101, 'C2', '2023-09-05'),
+  (102, 'C1', '2023-09-03'),
+  (103, 'C3', '2023-09-02');
+
+INSERT INTO Iscrizioni VALUES (101, 'C1', '2023-10-01');  -- ERRORE: coppia (101, C1) già presente
+```
+
+- La **PK composta** impedisce che uno studente si iscriva due volte allo stesso corso.
+- `Studenti` e `Corsi` vanno popolate **prima** di `Iscrizioni`. Le date si scrivono `'AAAA-MM-GG'`.
 
 ---
 
@@ -463,6 +629,31 @@ Con partecipazione facoltativa in un'associazione 1:1 ci sono tre soluzioni prin
 
 ---
 
+<!-- _class: tiny -->
+
+# 1:1 con partecipazione facoltativa in SQL
+
+Soluzione 1: chiave esterna nel lato obbligatorio (`Classi`).
+
+```sql
+CREATE TABLE Classi (
+  IDClasse       CHAR(3)     PRIMARY KEY,
+  Aula           VARCHAR(10),
+  IDCoordinatore INT         NOT NULL UNIQUE,
+  FOREIGN KEY (IDCoordinatore) REFERENCES Docenti(IDDocente)
+);
+
+INSERT INTO Classi VALUES ('5A', 'Lab1', 7);
+INSERT INTO Classi VALUES ('5B', 'A12', 7);     -- ERRORE: il docente 7 coordina già la 5A
+INSERT INTO Classi VALUES ('4A', 'A10', NULL);  -- ERRORE: la classe deve avere un coordinatore
+```
+
+- `NOT NULL`: ogni classe **deve** avere un coordinatore (partecipazione obbligatoria).
+- `UNIQUE`: un docente coordina **al più una** classe (cardinalità 1:1).
+- Il nome `IDCoordinatore` esprime il **ruolo** del docente nell'associazione.
+
+---
+
 <!-- _class: small -->
 
 # Esempio alternativo: Cittadino Italiano e Calciatore Nazionale
@@ -506,9 +697,366 @@ La tabella `Cittadini` contiene **tutti** i cittadini; `CalciatoriNazionali` con
 
 ---
 
+<!-- _class: tiny -->
+
+# Specializzazione in SQL: Cittadini e Calciatori
+
+```sql
+CREATE TABLE CalciatoriNazionali (
+  IDCittadino         INT         PRIMARY KEY,
+  Ruolo               VARCHAR(20) NOT NULL,
+  SquadraAppartenenza VARCHAR(40) NOT NULL,
+  DataNazionale       DATE,
+  FOREIGN KEY (IDCittadino) REFERENCES Cittadini(IDCittadino)
+);
+
+INSERT INTO CalciatoriNazionali VALUES (1, 'Attaccante', 'Roma', '2021-09-01');
+INSERT INTO CalciatoriNazionali VALUES (3, 'Portiere', 'Juventus', '2020-06-15');
+INSERT INTO CalciatoriNazionali VALUES (9, 'Difensore', 'Milan', '2022-03-10');
+-- ERRORE: il cittadino 9 non esiste in Cittadini
+```
+
+- **PK = FK:** ogni calciatore corrisponde a un cittadino esistente (FK) e compare al massimo una volta (PK).
+
+---
+
 # Conclusioni sul caso particolare
 
 - Le relazioni 1:1 con partecipazione facoltativa permettono una modellazione **più flessibile**: non tutti gli elementi di un'entità devono partecipare all'associazione.
 - È importante **analizzare il contesto** per decidere se la partecipazione è facoltativa o obbligatoria.
 - Nelle relazioni uno a uno la scelta del lato in cui inserire la chiave esterna dipende dall'**importanza relativa delle due entità** e dalla partecipazione: di norma si sceglie il lato obbligatorio, per evitare valori `NULL`.
 - La modellazione deve rispecchiare la **logica** e i **requisiti** del sistema.
+
+---
+
+<!-- _class: lead -->
+<!-- _paginate: false -->
+<!-- _header: '' -->
+<!-- _footer: '' -->
+
+# I concetti del Modello Relazionale
+
+## Parte 3 – Chiavi composte e casi particolari
+
+Prof. Francesco Dicara
+I.I.S.S. Galileo Galilei – Ostiglia (MN)
+
+---
+
+# Chiave primaria composta: quando serve
+
+Una chiave primaria è **composta** quando **nessun attributo da solo** identifica la riga e serve una **combinazione** di due o più attributi.
+
+- **Minimalità:** ogni attributo della chiave è indispensabile; togliendone uno, l'unicità si perde.
+- Casi tipici:
+  - tabelle di associazione **N:M** (es. `Iscrizioni`, Parte 2);
+  - **entità deboli** (es. righe di un ordine);
+  - **eventi nel tempo** (prenotazioni, noleggi, lezioni: serve data/ora);
+  - **attributi multivalore** (più telefoni per cliente).
+- In SQL si dichiara a livello di tabella: `PRIMARY KEY (A, B, C)`.
+
+> Notazione: **PK in grassetto**, *FK in corsivo*, ***grassetto corsivo*** = PK e FK insieme.
+
+---
+
+<!-- _class: small -->
+
+# Esempio: orario delle lezioni (chiave di 3 attributi)
+
+Lezioni(**Classe**, **Giorno**, **Ora**, Materia, *IDDocente*)
+
+| Classe | Giorno | Ora | Materia | IDDocente (FK) |
+| --- | --- | --- | --- | --- |
+| 5A | Lun | 1 | Informatica | 7 |
+| 5A | Lun | 2 | Matematica | 3 |
+| 5B | Lun | 1 | Italiano | 4 |
+| 5A | Mar | 1 | Informatica | 7 |
+
+> In un certo giorno e a una certa ora, una classe ha **una sola** lezione: la terna (Classe, Giorno, Ora) identifica la riga.
+
+---
+
+<!-- _class: small -->
+
+# Verifica della minimalità
+
+Togliamo un attributo alla volta e cerchiamo un controesempio nei dati:
+
+| Sottoinsieme | È univoco? | Controesempio |
+| --- | --- | --- |
+| (Classe, Giorno) | No | 5A–Lun compare alle ore 1 e 2 |
+| (Giorno, Ora) | No | Lun–1 compare per 5A e 5B |
+| (Classe, Ora) | No | 5A–1 compare lunedì e martedì |
+| **(Classe, Giorno, Ora)** | **Sì** | — |
+
+Nessun sottoinsieme proprio funziona, quindi la chiave è **minimale**.
+
+> **Chiave candidata alternativa:** anche (IDDocente, Giorno, Ora) è univoca, perché un docente non può stare in due classi alla stessa ora. Si dichiara `UNIQUE`.
+> **Attenzione:** i dati servono a trovare controesempi; la chiave si sceglie in base al **significato della realtà**, non a un'istanza.
+
+---
+
+<!-- _class: tiny -->
+
+# Orario delle lezioni in SQL
+
+```sql
+CREATE TABLE Lezioni (
+  Classe     CHAR(3)     NOT NULL,
+  Giorno     CHAR(3)     NOT NULL,
+  Ora        SMALLINT    NOT NULL,
+  Materia    VARCHAR(30) NOT NULL,
+  IDDocente  INT         NOT NULL,
+  PRIMARY KEY (Classe, Giorno, Ora),
+  UNIQUE (IDDocente, Giorno, Ora),
+  FOREIGN KEY (IDDocente) REFERENCES Docenti(IDDocente)
+);
+```
+
+- Una `PRIMARY KEY` su più colonne si scrive come **vincolo di tabella**, dopo l'elenco delle colonne, e non accanto a una singola colonna.
+- Il vincolo `UNIQUE` impedisce di assegnare lo stesso docente a due classi nella stessa ora.
+
+---
+
+<!-- _class: small -->
+
+# Entità debole: Ordini e Righe d'ordine
+
+Un'**entità debole** non ha un identificatore proprio: si identifica solo **insieme all'entità da cui dipende**. La riga numero 1 esiste in ogni ordine!
+
+Ordini(**IDOrdine**, Data, *IDCliente*)
+RigheOrdine(***IDOrdine***, **NumRiga**, *CodProdotto*, Quantità, PrezzoUnitario)
+
+| IDOrdine (PK, FK) | NumRiga (PK) | CodProdotto (FK) | Quantità | PrezzoUnitario |
+| --- | --- | --- | --- | --- |
+| 1001 | 1 | P10 | 2 | 15,00 |
+| 1001 | 2 | P27 | 1 | 49,90 |
+| 1002 | 1 | P10 | 5 | 14,50 |
+
+> `IDOrdine` è **sia parte della PK sia FK**: è il caso tipico delle tracce su e-commerce e gestionali. `PrezzoUnitario` si salva nella riga perché il prezzo del prodotto può cambiare nel tempo.
+
+---
+
+<!-- _class: small -->
+
+# N:M che si ripete nel tempo: i noleggi
+
+**Traccia tipo (bike sharing):** un cliente noleggia più biciclette e una bicicletta è noleggiata da più clienti. **Lo stesso cliente può noleggiare la stessa bici più volte.**
+
+| IDCliente (FK) | IDBici (FK) | DataOraInizio | DataOraFine |
+| --- | --- | --- | --- |
+| 15 | B03 | 2026-10-02 08:10 | 2026-10-02 08:40 |
+| 15 | B03 | 2026-10-05 17:30 | 2026-10-05 18:05 |
+| 22 | B03 | 2026-10-05 19:00 | NULL |
+
+- (IDCliente, IDBici) **non basta**: la coppia 15–B03 compare due volte.
+- Serve un attributo temporale. **(IDBici, DataOraInizio)** è sufficiente, perché una bici non può iniziare due noleggi nello stesso istante.
+- `IDCliente` resta FK, ma **non fa parte** della chiave. `DataOraFine = NULL` indica un noleggio **in corso**.
+
+---
+
+<!-- _class: small -->
+
+# Chiave composta o chiave surrogata?
+
+Una **chiave surrogata** è un identificatore artificiale, senza significato nella realtà (es. `IDNoleggio INT AUTO_INCREMENT`).
+
+| | Chiave composta (naturale) | Chiave surrogata |
+| --- | --- | --- |
+| Significato | Esprime un vincolo della realtà | Nessuno: è solo un numero |
+| FK nelle altre tabelle | Composte, su più colonne | Un solo attributo |
+| Rischio | Chiavi lunghe se ha molti attributi | Duplicati logici se manca `UNIQUE` |
+
+> **All'esame** entrambe le scelte sono corrette se motivate. Con la chiave surrogata si dichiara **sempre** `UNIQUE` sulla chiave naturale, altrimenti il DBMS accetta due noleggi della stessa bici nello stesso istante.
+
+---
+
+<!-- _class: tiny -->
+
+# Noleggi in SQL: le due soluzioni
+
+**A – Chiave composta naturale**
+
+```sql
+CREATE TABLE Noleggi (
+  IDBici        CHAR(3)  NOT NULL,
+  DataOraInizio DATETIME NOT NULL,
+  IDCliente     INT      NOT NULL,
+  DataOraFine   DATETIME,
+  PRIMARY KEY (IDBici, DataOraInizio),
+  FOREIGN KEY (IDBici)    REFERENCES Biciclette(IDBici),
+  FOREIGN KEY (IDCliente) REFERENCES Clienti(IDCliente)
+);
+```
+
+**B – Chiave surrogata** (stesse colonne e stesse FK, cambiano solo i vincoli di chiave)
+
+```sql
+  IDNoleggio INT AUTO_INCREMENT PRIMARY KEY,
+  ...
+  UNIQUE (IDBici, DataOraInizio),
+```
+
+---
+
+<!-- _class: tiny -->
+
+# Chiave esterna composta: gli esami
+
+Se una tabella riferisce una tabella con **PK composta**, anche la **FK deve essere composta** (stessi attributi, stesso ordine).
+
+Uno studente sostiene l'esame di un corso a cui è iscritto e può **ripeterlo** in appelli diversi:
+
+Esami(***IDStudente***, ***IDCorso***, **DataAppello**, Voto)
+
+```sql
+CREATE TABLE Esami (
+  IDStudente  INT     NOT NULL,
+  IDCorso     CHAR(3) NOT NULL,
+  DataAppello DATE    NOT NULL,
+  Voto        TINYINT CHECK (Voto BETWEEN 1 AND 10),
+  PRIMARY KEY (IDStudente, IDCorso, DataAppello),
+  FOREIGN KEY (IDStudente, IDCorso)
+    REFERENCES Iscrizioni(IDStudente, IDCorso)
+);
+```
+
+> Non si può registrare un esame per un corso a cui lo studente **non è iscritto**: l'integrità referenziale lavora sulla **coppia**, non sui singoli attributi.
+
+---
+
+<!-- _class: small -->
+
+# Attributo multivalore: i telefoni
+
+Requisito 5 della Parte 1: gli attributi sono **atomici**. Se un cliente ha **più numeri di telefono**, non li si scrive tutti in un campo.
+
+**Errato:** Clienti(**IDCliente**, Nome, Telefoni) con `Telefoni = "0386 123456, 333 1234567"`
+
+**Corretto:** una tabella separata, in relazione 1:N con Clienti.
+
+Clienti(**IDCliente**, Nome, Cognome) · TelefoniClienti(***IDCliente***, **Telefono**, Tipo)
+
+| IDCliente (PK, FK) | Telefono (PK) | Tipo |
+| --- | --- | --- |
+| 1 | 0386 123456 | Casa |
+| 1 | 333 1234567 | Cellulare |
+| 2 | 347 7654321 | Cellulare |
+
+> **Attributo composto** (es. Indirizzo): si scompone nei componenti Via, Civico, CAP, Città, come colonne della stessa tabella.
+
+---
+
+<!-- _class: small -->
+
+# Associazione ricorsiva 1:N: il responsabile
+
+Un'**associazione ricorsiva** (o autoassociazione) lega un'entità **a se stessa**. Ogni impiegato ha al più un responsabile, che è a sua volta un impiegato.
+
+Impiegati(**IDImpiegato**, Nome, Cognome, *IDResponsabile*)
+
+| IDImpiegato | Nome | Cognome | IDResponsabile (FK) |
+| --- | --- | --- | --- |
+| 1 | Elena | Gallo | NULL |
+| 2 | Marco | Bianchi | 1 |
+| 3 | Sara | Rossi | 1 |
+| 4 | Luca | Neri | 2 |
+
+- `IDResponsabile` riferisce la PK **della stessa tabella**: `FOREIGN KEY (IDResponsabile) REFERENCES Impiegati(IDImpiegato)`.
+- Elena è al vertice e non ha responsabile, quindi il valore è `NULL`.
+
+---
+
+<!-- _class: small -->
+
+# Associazione ricorsiva N:M: le propedeuticità
+
+Un corso può avere **più corsi propedeutici** ed essere propedeutico a **più corsi**. Come ogni N:M serve una nuova tabella, qui con **due FK verso la stessa tabella**.
+
+Corsi(**IDCorso**, NomeCorso) · Propedeuticita(***IDCorso***, ***IDCorsoPropedeutico***)
+
+| IDCorso (FK) | IDCorsoPropedeutico (FK) |
+| --- | --- |
+| C3 (Basi di dati) | C2 (Informatica) |
+| C4 (Sistemi web) | C2 (Informatica) |
+| C4 (Sistemi web) | C3 (Basi di dati) |
+
+- PK composta: (IDCorso, IDCorsoPropedeutico).
+- I due attributi riferiscono la stessa colonna `Corsi.IDCorso`, ma hanno **nomi diversi** che ne chiariscono il **ruolo**.
+
+> Vincolo aggiuntivo: un corso non è propedeutico a se stesso → `CHECK (IDCorso <> IDCorsoPropedeutico)`.
+
+---
+
+<!-- _class: small -->
+
+# Associazione ternaria: chi insegna cosa e dove
+
+Un'associazione **ternaria** coinvolge **tre** entità (Docente, Materia, Classe) e diventa una tabella con **tre FK**.
+
+Insegnamenti(***IDClasse***, ***CodMateria***, *IDDocente*)
+
+| IDClasse (PK, FK) | CodMateria (PK, FK) | IDDocente (FK) |
+| --- | --- | --- |
+| 5A | INF | 7 |
+| 5A | MAT | 3 |
+| 5B | INF | 7 |
+
+- **La chiave dipende dalle cardinalità.** Se in una classe ogni materia ha **un solo** docente, basta (IDClasse, CodMateria); `IDDocente` è FK `NOT NULL` ma resta fuori dalla chiave.
+- Se più docenti insegnano la stessa materia nella stessa classe (es. **compresenza dell'ITP** in laboratorio), la chiave diventa **(IDClasse, CodMateria, IDDocente)**.
+
+---
+
+<!-- _class: small -->
+
+# Riepilogo dei casi particolari
+
+| Caso | Soluzione | Chiave primaria |
+| --- | --- | --- |
+| N:M | Tabella di associazione | Composta dalle due FK |
+| N:M ripetuta nel tempo | Tabella con attributo data/ora | FK + data/ora, oppure surrogata |
+| Entità debole | FK verso l'entità "forte" | FK + identificatore parziale |
+| Attributo multivalore | Tabella separata (1:N) | FK + valore |
+| Ricorsiva 1:N | FK verso la stessa tabella | Semplice |
+| Ricorsiva N:M | Tabella con due FK sulla stessa tabella | Composta dalle due FK |
+| Ternaria | Tabella con tre FK | Dipende dalle cardinalità |
+| Riferimento a PK composta | FK composta | — |
+
+---
+
+<!-- _class: small -->
+
+# Esercizio stile maturità
+
+> Un centro sportivo comunale gestisce la **prenotazione dei campi** (calcetto, tennis, padel). Ogni campo ha un codice, un tipo e una tariffa oraria. I soci si registrano con codice fiscale, nome, cognome ed e-mail. Un socio prenota un campo per una data e una **fascia oraria** di un'ora (es. 18–19); in una certa data e fascia un campo può essere prenotato da **un solo** socio. Per ogni prenotazione si registra se è stata pagata.
+
+1. Disegna il modello E/R con entità, associazioni e cardinalità.
+2. Ricava il modello logico indicando chiavi primarie ed esterne.
+3. Scrivi il codice SQL che crea la tabella delle prenotazioni.
+
+---
+
+<!-- _class: tiny -->
+
+# Esercizio: soluzione
+
+Campi(**CodCampo**, Tipo, TariffaOraria) · Soci(**CodFiscale**, Nome, Cognome, Email)
+Prenotazioni(***CodCampo***, **Data**, **FasciaOraria**, *CodFiscale*, Pagata)
+
+- Soci–Campi è **N:M**, ma la stessa coppia si ripete in date diverse: la chiave contiene data e fascia.
+- Il socio **non entra nella chiave**: dati campo, data e fascia, il socio è unico.
+
+```sql
+CREATE TABLE Prenotazioni (
+  CodCampo     CHAR(4)  NOT NULL,
+  Data         DATE     NOT NULL,
+  FasciaOraria TINYINT  NOT NULL CHECK (FasciaOraria BETWEEN 8 AND 22),
+  CodFiscale   CHAR(16) NOT NULL,
+  Pagata       BOOLEAN  NOT NULL DEFAULT FALSE,
+  PRIMARY KEY (CodCampo, Data, FasciaOraria),
+  FOREIGN KEY (CodCampo)   REFERENCES Campi(CodCampo),
+  FOREIGN KEY (CodFiscale) REFERENCES Soci(CodFiscale)
+);
+```
+
+> `FasciaOraria` memorizza l'ora di inizio (18 = fascia 18–19).
