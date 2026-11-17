@@ -23,15 +23,9 @@ style: |
   }
   .flow {
     text-align: center;
-    font-size: 1.25em;
-    margin-top: 60px;
+    font-size: 1.2em;
+    margin-top: 50px;
     font-weight: 600;
-  }
-  .big {
-    text-align: center;
-    font-size: 1.6em;
-    font-weight: 700;
-    margin-top: 70px;
   }
   table {
     font-size: 0.9em;
@@ -53,7 +47,7 @@ style: |
 
 # PRIMA DI INIZIARE
 
-### Perché progettare un videogioco ti insegna molto più di un videogioco
+### Perché progettare un videogioco serve anche fuori dall'informatica
 
 <p class="subtitle">Percorso opzionale · Crea il tuo videogioco</p>
 
@@ -61,182 +55,155 @@ style: |
 
 # IL PERCORSO IN BREVE
 
-In circa **25 ore**, a gruppi, trasformerete un'idea in un **videogioco 2D giocabile**.
+In circa **25 ore**, a gruppi, realizzerete un **videogioco 2D giocabile**.
 
 <div class="flow">
 
-**IDEA → PROGETTO → CODICE → TEST → CORREZIONI → DEMO DAY**
+IDEA → PROGETTO → CODICE → TEST → CORREZIONI → DEMO DAY
 
 </div>
 
 <br>
 
-Partirete da una **base già funzionante** (Phaser.js) e la renderete **vostra**: storia, personaggi, mappe, dialoghi, regole del gioco.
+Si parte da un gioco **già funzionante**, fatto con Phaser.js, e lo si trasforma: storia, personaggi, mappe, dialoghi e regole saranno i vostri.
 
 ---
 
-# GUARDA DIETRO LE QUINTE
+# DIETRO OGNI PRODOTTO C'È UN PROCESSO
 
-Il tuo gioco preferito. Il telefono che hai in tasca. Un concerto. Una partita di serie A.
+Pensate a un videogioco, a uno smartphone, a un evento sportivo.
 
-Quello che vedi è **solo l'ultimo pezzo**.
+Quello che vediamo è il risultato finale. Prima ci sono stati:
 
-Prima ci sono stati **mesi di idee scartate, prove, schizzi, errori, riunioni, rifacimenti**.
+- idee proposte e scartate;
+- bozze, prove e modifiche;
+- errori da correggere;
+- tempo e lavoro di molte persone.
 
-<div class="big">
-
-Nessun risultato arriva "per magia".
-Dietro c'è sempre **lavoro** e **fatica**.
-
-</div>
+Il risultato concreto arriva **dopo** questo lavoro, non al posto suo.
 
 ---
 
-# PROGETTARE = PENSARE PRIMA DI FARE
+# PROGETTARE: PENSARE PRIMA DI FARE
 
-Progettare vuol dire chiedersi **prima**:
+Progettare significa rispondere ad alcune domande **prima** di iniziare:
 
 - **Cosa** voglio ottenere?
 - **Per chi** lo sto facendo?
 - **Di cosa** ho bisogno?
 - **In che ordine** devo fare le cose?
-- **Come** capisco se funziona?
+- **Come** verifico che funzioni?
 
-Più le risposte sono **chiare e complete**, più il lavoro dopo sarà **veloce e sensato**.
+Più le risposte sono chiare e complete, meno tempo si perde dopo.
 
 ---
 
-# VALE OVUNQUE, NON SOLO NEI GIOCHI
+# UN METODO CHE SERVE OVUNQUE
 
 | Situazione | Senza progetto | Con un progetto |
 |---|---|---|
-| Studiare per una verifica | Tutto la sera prima | Piano di ripasso nei giorni |
+| Studiare per una verifica | Tutto la sera prima | Ripasso distribuito nei giorni |
 | Organizzare una festa | Manca sempre qualcosa | Lista, budget, compiti divisi |
-| Allenarsi in uno sport | Risultati a caso | Obiettivi e progressi misurabili |
-| Un lavoro di gruppo | Litigi e confusione | Ruoli chiari e scadenze |
+| Allenarsi in uno sport | Progressi casuali | Obiettivi e progressi misurabili |
+| Un lavoro di gruppo | Confusione e ritardi | Ruoli chiari e scadenze |
 
-<div class="flow">
-
-Il metodo che userete qui **ve lo porterete dietro per sempre**.
-
-</div>
+Il metodo che userete per il videogioco è lo stesso che si usa in questi casi.
 
 ---
 
-# GLI ERRORI ARRIVERANNO. SEMPRE.
+# GLI ERRORI CI SARANNO COMUNQUE
 
-Anche con il progetto migliore, qualcosa **non funzionerà**:
-il personaggio passa attraverso i muri, un dialogo non parte, il gioco si blocca.
+Anche con un buon progetto qualcosa non funzionerà: il personaggio attraversa un muro, un dialogo non parte, una porta non si apre.
 
-**È normale. Succede anche ai professionisti.**
+Succede anche ai professionisti. La differenza la fa il progetto:
 
-La differenza è questa:
-
-- **Senza idee chiare** → non sai nemmeno da dove partire a cercare il problema.
-- **Con idee chiare** → sai cosa *doveva* succedere, quindi trovi più in fretta **cosa non va** e **come sistemarlo**.
+- **senza un progetto** è difficile capire dove cercare il problema;
+- **con un progetto** sai cosa doveva succedere, quindi è più facile capire cosa non va e come correggerlo.
 
 ---
 
-# CREATIVITÀ + METODO = IDEE CHE DIVENTANO REALI
+# CREATIVITÀ E METODO
 
-La creatività da sola è un'auto **potentissima ma senza volante**.
+La creatività serve per avere idee. Il metodo serve per realizzarle.
 
-Il metodo (organizzare, dividere in passi, controllare) è il **volante**.
+Organizzare il lavoro in fasi, dividere un problema grande in parti più piccole e controllare i risultati non limita la creatività: permette di portare un'idea fino a un prodotto finito.
 
-<div class="big">
-
-Ingegnerizzare un processo non spegne la fantasia:
-**le dà una strada da percorrere**.
-
-</div>
+Questo modo di lavorare si chiama anche **ingegnerizzare un processo**.
 
 ---
 
 # IL NOSTRO PERCORSO IN 7 TAPPE
 
-1. **Gioca e smonta** il gioco di partenza
-2. **Progetta** con il Quaderno (carta e penna, niente codice!)
-3. **Personalizza i testi**: titolo, dialoghi, obiettivi
-4. **Disegna le mappe** con Tiled
-5. **Collega le scene** con porte e oggetti
-6. **Sostituisci la grafica** e aggiungi i suoni
-7. **Rifinisci e fai provare** il gioco ai compagni
+1. **Insieme**: vediamo il gioco di partenza e come è fatto
+2. **Progettate** il vostro gioco con il Quaderno digitale
+3. **Personalizzate i testi**: titolo, dialoghi, obiettivi
+4. **Disegnate le mappe** con Tiled
+5. **Collegate le scene** con porte e oggetti
+6. **Sostituite la grafica** e aggiungete i suoni
+7. **Rifinite e fate provare** il gioco ai compagni
 
-<div class="flow">
-
-Prima si **pensa**, poi si **costruisce**, poi si **prova**.
-
-</div>
+Il codice si tocca solo **dopo** aver completato il progetto.
 
 ---
 
-# TAPPA 1 · GIOCA E SMONTA
+# TAPPA 1 · IL GIOCO DI PARTENZA
 
-Partirete da un gioco **che funziona già**: *Il Cristallo del Villaggio*.
+Questa tappa la facciamo **insieme**: il docente mostra il gioco *Il Cristallo del Villaggio* e alcune parti del codice.
 
-- Parla con **Luna**, entra nella **Foresta**, trova il **Cristallo**, riportalo indietro.
-- Se consoli **Bruto**, il finale cambia!
+**Il gioco:** si parla con Luna, si entra nella Foresta, si trova il Cristallo e lo si riporta indietro. Le scelte nei dialoghi (per esempio consolare Bruto) cambiano il finale.
 
-Poi si guarda **dentro**: i dialoghi, le mappe, i file del codice.
+**Il codice:** vedremo dove si trovano i dialoghi, come sono fatte le mappe in Tiled e come il gioco "ricorda" quello che è già successo.
 
-<div class="note">
-
-Prima di costruire qualcosa di tuo, capisci **come è fatto** qualcosa che funziona.
-
-</div>
+L'obiettivo è capire come è costruito un gioco funzionante prima di progettare il vostro.
 
 ---
 
 <!-- _class: small -->
 
-# TAPPA 2 · GAME DESIGN DOCUMENT
+# TAPPA 2 · IL QUADERNO DI PROGETTAZIONE
+
+Il vostro **Game Design Document**, da compilare in digitale: 9 schede, dalla storia alla mappa.
 
 | Scheda | Cosa progettate |
 |---|---|
-| 1 · Idea | Titolo, la storia in **una frase**, missione, finale |
+| 1 · Idea | Titolo, la storia in una frase, missione, finale |
 | 2 · Personaggi | Chi sono, cosa vogliono, come parlano |
-| 3 · Struttura | I tre atti e i **passi** che fa chi gioca |
+| 3 · Struttura | I tre atti e i passi che compie chi gioca |
 | 4 · Scene | Ogni luogo: chi c'è, da dove si entra e si esce |
 | 5 · Mappe | Lo schizzo su griglia, con coordinate |
-| 6 · Dialoghi | Battute e **scelte** che cambiano la storia |
+| 6 · Dialoghi | Battute e scelte che cambiano la storia |
 | 7 · Oggetti e flag | Cosa si raccoglie, cosa si sblocca, quando |
-| 8 · Risorse | Immagini, mappe, suoni (e da dove vengono) |
-| 9 · Verifica | Il gioco si può fare davvero? |
+| 8 · Risorse | Immagini, mappe, suoni e la loro provenienza |
+| 9 · Verifica | Controllo che il gioco sia realizzabile |
 
 ---
 
-# OGNI SCHEDA HA IL SUO POSTO
+# DAL QUADERNO AL CODICE
 
-Quello che scrivete sul Quaderno **non resta sulla carta**: ha un posto preciso nel gioco.
+Ogni scheda del Quaderno corrisponde a una parte precisa del gioco.
 
-| Sul Quaderno | Nel gioco |
+| Nel Quaderno | Nel gioco |
 |---|---|
 | Titolo e sottotitolo | La schermata iniziale |
 | Personaggi | Le figure sulla mappa |
-| Mappe disegnate su griglia | Le mappe costruite con **Tiled** |
+| Mappe su griglia | Le mappe costruite con **Tiled** |
 | Dialoghi e scelte | Il file `dialoghi.js` |
 | Flag e obiettivi | `GameState.js` e `obiettivi.js` |
 
-<div class="flow">
-
-Un buon progetto è già **mezzo gioco**.
-
-</div>
+Se il Quaderno è completo, la fase di programmazione consiste soprattutto nel trasferire queste informazioni nei file giusti.
 
 ---
 
-# PRIMA DI PROGRAMMARE: LA PROVA SU CARTA
+# PRIMA DI PROGRAMMARE: LA VERIFICA
 
-**Simulazione a mano**: "giocate" la vostra storia sul foglio, passo dopo passo.
-Se a un certo punto non sapete cosa fa il giocatore, **avete trovato un buco**.
+**Simulazione:** nella Scheda 9 si "gioca" la storia passo dopo passo, annotando cosa fa il giocatore e cosa cambia. Se a un certo punto non è chiaro cosa deve fare, c'è un problema da risolvere nel progetto.
 
-Poi una **checklist finale** e l'**approvazione del docente**.
+Poi si compila la **checklist finale** e il progetto passa all'**approvazione del docente**.
 
 <div class="note">
 
-**Regola d'oro:** tenete la storia piccola.
-**3-5 personaggi · 2-4 scene · 5-10 minuti di gioco.**
-Un gioco corto e **finito** è meglio di uno enorme e **a metà**.
+**Dimensioni consigliate:** 3-5 personaggi, 2-4 scene, 5-10 minuti di gioco.
+Un gioco corto e finito è meglio di uno grande e incompleto.
 
 </div>
 
@@ -244,74 +211,57 @@ Un gioco corto e **finito** è meglio di uno enorme e **a metà**.
 
 # DAL PROGETTO AL GIOCO
 
-Solo adesso si passa al computer.
+Dopo l'approvazione si passa allo sviluppo.
 
 | Strumento | A cosa serve |
 |---|---|
 | **VS Code + Live Server** | Modificare il codice e provare il gioco |
-| **Phaser.js** | Il "motore" che fa funzionare tutto |
+| **Phaser.js** | La libreria che fa funzionare il gioco |
 | **Tiled** | Disegnare le mappe a tessere |
 | **Piskel** | Disegnare i personaggi (sprite) |
 
-Poi arriva la fase più vera di tutte: **trovare e correggere gli errori**,
-e **giocare ai giochi degli altri gruppi** per darsi consigli.
+L'ultima fase è dedicata a **trovare e correggere gli errori** e a **provare i giochi degli altri gruppi**, scambiandosi osservazioni.
 
 ---
 
 # E L'INTELLIGENZA ARTIFICIALE?
 
-L'IA è uno **strumento potente**. Può davvero aiutarti a:
+L'IA è uno strumento utile. Può aiutare a:
 
-- scrivere o correggere pezzi di codice;
-- trovare un errore più in fretta;
+- scrivere o correggere parti di codice;
+- trovare un errore più velocemente;
 - proporre idee, nomi, testi, immagini;
-- spiegarti qualcosa che non hai capito.
+- spiegare un concetto non chiaro.
 
-**Ma non può decidere al posto tuo cosa vuoi creare e perché.**
+Però non può decidere al posto vostro **cosa** volete realizzare e **perché**.
 
 ---
 
-# COSA RESTA A TE
+# COSA FA L'IA, COSA FATE VOI
 
-| Ci pensa bene l'IA | Ci pensi **TU** |
+| L'IA può | Voi dovete |
 |---|---|
-| Generare codice su richiesta | Decidere **cosa** deve fare il gioco |
-| Proporre tante idee | **Scegliere** quella giusta e motivarla |
-| Trovare errori comuni | Capire se il risultato è **quello che volevi** |
-| Scrivere un testo | Dare alla storia **la tua voce** |
-| Rispondere a una domanda | Sapere **quale domanda fare** |
-
-<div class="flow">
-
-L'IA esegue. **Chi progetta guida.**
-
-</div>
+| Generare codice su richiesta | Decidere cosa deve fare il gioco |
+| Proporre molte idee | Scegliere quella adatta e motivare la scelta |
+| Segnalare errori comuni | Verificare che il risultato sia quello voluto |
+| Scrivere un testo | Dare alla storia il vostro stile |
+| Rispondere a una domanda | Sapere quale domanda fare |
 
 ---
 
-# LA DOMANDA GIUSTA
+# PROGETTARE PER USARE BENE L'IA
 
-Un'IA risponde bene **solo se sai cosa chiederle**.
+Un'IA dà risposte utili solo se le si chiede la cosa giusta, e per sapere cosa chiedere bisogna avere chiaro il progetto. Per questo, nel nostro percorso, il Quaderno viene prima del codice.
 
-E sai cosa chiederle **solo se hai progettato**.
-(Per questo, nel nostro percorso, **prima c'è il Quaderno**.)
-
-<div class="big">
-
-Le competenze che allenerete qui
-— **progettare, organizzare, scegliere, risolvere** —
-sono proprio quelle che **nessuna macchina può fare al posto vostro**.
-
-</div>
+Le competenze che allenerete (**progettare, organizzare il lavoro, fare scelte, risolvere problemi**) sono quelle in cui l'IA non può sostituirvi.
 
 ---
 
-# PRONTI A PARTIRE?
+# IN SINTESI
 
-## Dalla prima idea al gioco completo.
+- Si parte da un gioco funzionante e lo si analizza insieme.
+- Si progetta il proprio gioco con il Quaderno digitale.
+- Si sviluppa, si prova, si correggono gli errori.
+- Si presenta il risultato al Demo Day.
 
-**Pensare · Progettare · Creare · Sbagliare · Correggere · Presentare**
-
-<br>
-
-<p class="subtitle">Il videogioco è il risultato. Il metodo è quello che vi resta.</p>
+<p class="subtitle">Oltre al videogioco, resterà un metodo di lavoro utile anche in altri contesti.</p>

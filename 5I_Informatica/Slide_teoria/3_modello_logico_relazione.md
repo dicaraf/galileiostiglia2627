@@ -257,6 +257,161 @@ INSERT INTO Libri VALUES ('9785555555555', NULL, 2023, 18.00);            -- ERR
 
 ---
 
+<!-- _class: tiny -->
+
+# Tipi di dato MySQL: numeri
+
+| Tipo | Valori | Quando usarlo | Esempio |
+| --- | --- | --- | --- |
+| `TINYINT` | da −128 a 127 (`UNSIGNED`: da 0 a 255) | Età, voti, piccoli contatori | `Eta TINYINT` |
+| `SMALLINT` | da −32 768 a 32 767 | Anni, ore, quantità limitate | `Anno SMALLINT` |
+| `INT` | circa ± 2,1 miliardi | Identificatori e chiavi, contatori | `IDCliente INT` |
+| `BIGINT` | circa ± 9,2 × 10¹⁸ | Valori molto grandi (log, visualizzazioni) | `NumVisite BIGINT` |
+| `DECIMAL(p,s)` | numero **esatto**: *p* cifre totali, di cui *s* decimali | **Importi in euro**, prezzi, tariffe | `Prezzo DECIMAL(8,2)` → max 999999.99 |
+| `FLOAT`, `DOUBLE` | numero **approssimato** (virgola mobile) | Misure scientifiche, coordinate GPS | `Latitudine DOUBLE` |
+| `BOOLEAN` | sinonimo di `TINYINT(1)`: `TRUE` = 1, `FALSE` = 0 | Valori sì/no | `Pagata BOOLEAN` |
+
+> `UNSIGNED` esclude i negativi e raddoppia il massimo positivo (es. `Quantita INT UNSIGNED`).
+> **Mai `FLOAT` per i soldi:** 0.1 + 0.2 non dà esattamente 0.3; con `DECIMAL` il calcolo è esatto.
+
+---
+
+<!-- _class: tiny -->
+
+# Tipi di dato MySQL: testo e date
+
+| Tipo | Valori | Quando usarlo | Esempio |
+| --- | --- | --- | --- |
+| `CHAR(n)` | stringa di lunghezza **fissa** *n* | Codici a lunghezza costante | `CodFiscale CHAR(16)`, `CAP CHAR(5)` |
+| `VARCHAR(n)` | stringa **variabile**, fino a *n* caratteri | Nomi, cognomi, e-mail, indirizzi | `Email VARCHAR(100)` |
+| `TEXT` | testo lungo (fino a 65 535 byte) | Descrizioni, note, recensioni | `Descrizione TEXT` |
+| `ENUM(...)` | un valore da una **lista fissa** | Stati, categorie stabili | `Taglia ENUM('S','M','L')` |
+| `DATE` | `'AAAA-MM-GG'` | Date di nascita, iscrizioni, scadenze | `DataNascita DATE` |
+| `TIME` | `'hh:mm:ss'` | Orari, durate | `OraInizio TIME` |
+| `DATETIME` | `'AAAA-MM-GG hh:mm:ss'` | Un istante preciso: noleggi, prenotazioni, ordini | `DataOraInizio DATETIME` |
+| `TIMESTAMP` | come `DATETIME`, dal 1970 al 2038 | Istante di creazione o modifica di una riga | `CreatoIl TIMESTAMP` |
+| `YEAR` | anno di 4 cifre | Anno di immatricolazione, di pubblicazione | `AnnoImm YEAR` |
+
+> **Errori tipici all'esame:** telefono, CAP e partita IVA in `INT` invece che in `CHAR`/`VARCHAR` (zeri iniziali, nessun calcolo); date in `VARCHAR` invece che in `DATE`.
+
+---
+
+<!-- _class: tiny -->
+
+# Dati multimediali: link o BLOB?
+
+Immagini, PDF, audio e video si possono gestire in due modi.
+
+| | **Link** (percorso o URL in `VARCHAR`) | **BLOB** (file dentro il database) |
+| --- | --- | --- |
+| Cosa si salva | Solo il riferimento: `'img/prodotti/p10.jpg'` | I byte del file |
+| Dimensione del DB | Piccola | Cresce molto, backup lenti |
+| Visualizzazione nel web | Diretta: `<img src="...">` | Il file va estratto da uno script |
+| Coerenza | Il file può essere cancellato o spostato e il link resta "rotto" | Dato e file sono sempre insieme |
+| Uso tipico | Foto prodotti, copertine, video, allegati | File piccoli e riservati (firme, documenti) |
+
+**Tipi BLOB** (*Binary Large OBject*):
+
+| Tipo | Dimensione massima |
+| --- | --- |
+| `TINYBLOB` | 255 byte |
+| `BLOB` | 64 KB |
+| `MEDIUMBLOB` | 16 MB |
+| `LONGBLOB` | 4 GB |
+
+> **Soluzione consigliata (e più usata nelle prove d'esame):** il file sta nel file system del server o su un servizio cloud; il database memorizza **il percorso o l'URL** e le informazioni sul file.
+
+---
+
+<!-- _class: tiny -->
+
+# Dati multimediali in SQL
+
+**Soluzione con link** (consigliata)
+
+```sql
+CREATE TABLE FotoProdotti (
+  IDFoto      INT          AUTO_INCREMENT PRIMARY KEY,
+  CodProdotto CHAR(3)      NOT NULL,
+  Percorso    VARCHAR(255) NOT NULL UNIQUE,   -- percorso relativo o URL
+  TipoMIME    VARCHAR(50)  NOT NULL,          -- es. 'image/jpeg'
+  Didascalia  VARCHAR(100),
+  FOREIGN KEY (CodProdotto) REFERENCES Prodotti(CodProdotto)
+);
+
+INSERT INTO FotoProdotti (CodProdotto, Percorso, TipoMIME, Didascalia)
+  VALUES ('P10', 'img/prodotti/p10_fronte.jpg', 'image/jpeg', 'Vista frontale');
+```
+
+**Soluzione con BLOB**
+
+```sql
+CREATE TABLE DocumentiStudenti (
+  IDDocumento INT          AUTO_INCREMENT PRIMARY KEY,
+  IDStudente  INT          NOT NULL,
+  NomeFile    VARCHAR(100) NOT NULL,
+  TipoMIME    VARCHAR(50)  NOT NULL,          -- es. 'application/pdf'
+  Contenuto   MEDIUMBLOB   NOT NULL,          -- file fino a 16 MB
+  FOREIGN KEY (IDStudente) REFERENCES Studenti(IDStudente)
+);
+```
+
+> Il contenuto di un BLOB non si scrive a mano nell'`INSERT`: lo carica l'**applicazione** (es. una pagina PHP che riceve il file con un form di upload).
+
+---
+
+<!-- _class: tiny -->
+
+# Vincoli nella CREATE TABLE
+
+| Vincolo | Significato | Dove si scrive | Esempio |
+| --- | --- | --- | --- |
+| `PRIMARY KEY` | Identifica ogni riga: univoca e mai `NULL`. **Una sola** per tabella | Colonna; tabella se composta | `ISBN CHAR(13) PRIMARY KEY` · `PRIMARY KEY (IDStudente, IDCorso)` |
+| `FOREIGN KEY … REFERENCES` | Integrità referenziale verso la PK di un'altra tabella (Parte 2) | Tabella | `FOREIGN KEY (IDDocente) REFERENCES Docenti(IDDocente)` |
+| `UNIQUE` | Nessun valore duplicato; ammette `NULL` | Colonna o tabella | `Email VARCHAR(100) UNIQUE` |
+| `NOT NULL` | Valore obbligatorio | Colonna | `Cognome VARCHAR(30) NOT NULL` |
+| `CHECK (condizione)` | I valori devono rispettare la condizione | Colonna o tabella | `Voto TINYINT CHECK (Voto BETWEEN 1 AND 10)` |
+| `DEFAULT valore` | Valore usato se l'`INSERT` non lo specifica | Colonna | `Pagata BOOLEAN DEFAULT FALSE` |
+| `AUTO_INCREMENT` | Numero progressivo generato dal DBMS; colonna intera e chiave, una per tabella | Colonna | `IDOrdine INT AUTO_INCREMENT PRIMARY KEY` |
+
+> `DEFAULT` e `AUTO_INCREMENT` non sono vincoli di integrità in senso stretto, ma **proprietà** della colonna: si scrivono nello stesso punto.
+> Un vincolo può avere un **nome**, che compare nei messaggi di errore: `CONSTRAINT chk_voto CHECK (Voto BETWEEN 1 AND 10)`. Il `CHECK` è applicato da MySQL 8.0.16 in poi.
+
+---
+
+<!-- _class: tiny -->
+
+# Tipi e vincoli insieme: un esempio completo
+
+```sql
+CREATE TABLE Clienti (
+  IDCliente   INT          AUTO_INCREMENT PRIMARY KEY,
+  CodFiscale  CHAR(16)     NOT NULL UNIQUE,
+  Cognome     VARCHAR(30)  NOT NULL,
+  Email       VARCHAR(100) UNIQUE,
+  Telefono    VARCHAR(15),
+  CAP         CHAR(5)
+);
+
+CREATE TABLE Ordini (
+  IDOrdine  INT          AUTO_INCREMENT PRIMARY KEY,
+  DataOra   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  Stato     ENUM('in preparazione', 'spedito', 'consegnato') NOT NULL DEFAULT 'in preparazione',
+  Totale    DECIMAL(8,2) NOT NULL CHECK (Totale >= 0),
+  IDCliente INT          NOT NULL,
+  FOREIGN KEY (IDCliente) REFERENCES Clienti(IDCliente)
+);
+
+INSERT INTO Clienti (CodFiscale, Cognome, Email, Telefono, CAP)
+  VALUES ('RSSMRA05A01E897X', 'Rossi', 'mario.rossi@mail.it', '0386 123456', '46035');
+INSERT INTO Ordini (Totale, IDCliente) VALUES (59.90, 1);
+INSERT INTO Ordini (Totale, IDCliente) VALUES (-5.00, 1);   -- ERRORE: viola il CHECK
+```
+
+> Indicando l'**elenco delle colonne** nell'`INSERT`, quelle omesse ricevono il valore di `AUTO_INCREMENT` o di `DEFAULT` (`IDOrdine`, `DataOra`, `Stato`).
+
+---
+
 <!-- _class: lead -->
 <!-- _paginate: false -->
 <!-- _header: '' -->

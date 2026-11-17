@@ -256,6 +256,69 @@ Attenzione: in MySQL le date si scrivono **anno-mese-giorno**, non `10/11/2026`.
 
 ---
 
+<!-- _class: tiny -->
+
+# Dati multimediali: link o BLOB?
+
+Immagini, PDF, audio e video si possono gestire in due modi.
+
+| | **Link** (percorso o URL in `VARCHAR`) | **BLOB** (file dentro il database) |
+| --- | --- | --- |
+| Cosa si salva | Solo il riferimento: `'img/prodotti/p10.jpg'` | I byte del file |
+| Dimensione del DB | Piccola | Cresce molto, backup lenti |
+| Visualizzazione nel web | Diretta: `<img src="...">` | Il file va estratto da uno script |
+| Coerenza | Il file può essere cancellato o spostato e il link resta "rotto" | Dato e file sono sempre insieme |
+| Uso tipico | Foto prodotti, copertine, video, allegati | File piccoli e riservati (firme, documenti) |
+
+**Tipi BLOB** (*Binary Large OBject*):
+
+| Tipo | Dimensione massima |
+| --- | --- |
+| `TINYBLOB` | 255 byte |
+| `BLOB` | 64 KB |
+| `MEDIUMBLOB` | 16 MB |
+| `LONGBLOB` | 4 GB |
+
+> **Soluzione consigliata (e più usata nelle prove d'esame):** il file sta nel file system del server o su un servizio cloud; il database memorizza **il percorso o l'URL** e le informazioni sul file.
+
+---
+<!-- _class: tiny -->
+
+# Dati multimediali in SQL
+
+**Soluzione con link** (consigliata)
+
+```sql
+CREATE TABLE FotoProdotti (
+  IDFoto      INT          AUTO_INCREMENT PRIMARY KEY,
+  CodProdotto CHAR(3)      NOT NULL,
+  Percorso    VARCHAR(255) NOT NULL UNIQUE,   -- percorso relativo o URL
+  TipoMIME    VARCHAR(50)  NOT NULL,          -- es. 'image/jpeg'
+  Didascalia  VARCHAR(100),
+  FOREIGN KEY (CodProdotto) REFERENCES Prodotti(CodProdotto)
+);
+
+INSERT INTO FotoProdotti (CodProdotto, Percorso, TipoMIME, Didascalia)
+  VALUES ('P10', 'img/prodotti/p10_fronte.jpg', 'image/jpeg', 'Vista frontale');
+```
+
+**Soluzione con BLOB**
+
+```sql
+CREATE TABLE DocumentiStudenti (
+  IDDocumento INT          AUTO_INCREMENT PRIMARY KEY,
+  IDStudente  INT          NOT NULL,
+  NomeFile    VARCHAR(100) NOT NULL,
+  TipoMIME    VARCHAR(50)  NOT NULL,          -- es. 'application/pdf'
+  Contenuto   MEDIUMBLOB   NOT NULL,          -- file fino a 16 MB
+  FOREIGN KEY (IDStudente) REFERENCES Studenti(IDStudente)
+);
+```
+
+> Il contenuto di un BLOB non si scrive a mano nell'`INSERT`: lo carica l'**applicazione** (es. una pagina PHP che riceve il file con un form di upload).
+
+---
+
 <!-- _class: part -->
 
 # 3 · DDL: definire la struttura
