@@ -1,32 +1,32 @@
 -- =========================================================
 --  Schema logico e DDL di ERcompleto1 (prenotazioni sistema sanitario)
--- =========================================================
+-- ========================================================= 
 
--- Presidio      (_IdPresidio_, Nome, Indirizzo, Citta)
+-- Presidi      (_IdPresidio_, Nome, Indirizzo, Citta)
 
---Ambulatorio   (_IdAmbulatorio_, Codice, Piano, Stanza,
+--Ambulatori   (_IdAmbulatorio_, Codice, Piano, Stanza,
 --               FKIdPresidio)
 --
---Branca        (_IdBranca_, Descrizione)
+--Branche       (_IdBranca_, Descrizione)
 --
---Medico        (_IdMedico_, Nome, Cognome, CodiceFiscale, NumeroAlbo,
+--Medici       (_IdMedico_, Nome, Cognome, CodiceFiscale, NumeroAlbo,
 --               Telefono, Email,
 --               FKIdBranca)
 --
---TipoVisita    (_CodVisita_, Descrizione, DurataMinuti, Ticket,
+--TipiVisita    (_CodVisita_, Descrizione, DurataMinuti, Ticket,
 --               FKIdBranca)
 --
---FasciaOraria  (_IdFascia_, Data, OraInizio,
+--FasceOrarie  (_IdFascia_, Data, OraInizio,
 --               FKIdMedico,
 --               FKIdAmbulatorio,
 --               FKCodVisita)
 --
---Paziente      (_CodiceFiscale_, Nome, Cognome, DataNascita, Sesso,
+--Pazienti      (_CodiceFiscale_, Nome, Cognome, DataNascita, Sesso,
 --               Indirizzo, Comune, Telefono, Email, CodEsenzione)
 --
---Operatore     (_Matricola_, Nome, Cognome, Sportello)
+--Operatori     (_Matricola_, Nome, Cognome, Sportello)
 --
---Prenotazione  (_IdPrenotazione_, NRE, Priorita, DataOraPrenotazione, Stato,
+--Prenotazioni  (_IdPrenotazione_, NRE, Priorita, DataOraPrenotazione, Stato,
 --               FKCFPaziente,
 --               FKIdFascia,
 --               FKMatrOperatore)
