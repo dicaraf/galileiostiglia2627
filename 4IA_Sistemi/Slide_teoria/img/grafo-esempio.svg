@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 470" font-family="DejaVu Sans, Arial, sans-serif">
+<rect width="900" height="470" fill="white"/>
+<line x1="90" y1="200" x2="330" y2="70" stroke="#9aa5b1" stroke-width="3"/><circle cx="210.0" cy="135.0" r="17" fill="white" stroke="#9aa5b1" stroke-width="2"/><text x="210.0" y="142.0" text-anchor="middle" font-size="20" font-weight="bold" fill="#9aa5b1">4</text>
+<line x1="90" y1="200" x2="330" y2="330" stroke="#9aa5b1" stroke-width="3"/><circle cx="210.0" cy="265.0" r="17" fill="white" stroke="#9aa5b1" stroke-width="2"/><text x="210.0" y="272.0" text-anchor="middle" font-size="20" font-weight="bold" fill="#9aa5b1">1</text>
+<line x1="330" y1="70" x2="330" y2="330" stroke="#9aa5b1" stroke-width="3"/><circle cx="330.0" cy="200.0" r="17" fill="white" stroke="#9aa5b1" stroke-width="2"/><text x="330.0" y="207.0" text-anchor="middle" font-size="20" font-weight="bold" fill="#9aa5b1">2</text>
+<line x1="330" y1="70" x2="570" y2="200" stroke="#9aa5b1" stroke-width="3"/><circle cx="450.0" cy="135.0" r="17" fill="white" stroke="#9aa5b1" stroke-width="2"/><text x="450.0" y="142.0" text-anchor="middle" font-size="20" font-weight="bold" fill="#9aa5b1">1</text>
+<line x1="330" y1="330" x2="570" y2="200" stroke="#9aa5b1" stroke-width="3"/><circle cx="450.0" cy="265.0" r="17" fill="white" stroke="#9aa5b1" stroke-width="2"/><text x="450.0" y="272.0" text-anchor="middle" font-size="20" font-weight="bold" fill="#9aa5b1">5</text>
+<line x1="570" y1="200" x2="810" y2="200" stroke="#9aa5b1" stroke-width="3"/><circle cx="690.0" cy="200.0" r="17" fill="white" stroke="#9aa5b1" stroke-width="2"/><text x="690.0" y="207.0" text-anchor="middle" font-size="20" font-weight="bold" fill="#9aa5b1">3</text>
+<path d="M330,330 Q570.0,430 810,200" stroke="#9aa5b1" stroke-width="3" fill="none"/><circle cx="570.0" cy="353.5" r="17" fill="white" stroke="#9aa5b1" stroke-width="2"/><text x="570.0" y="360.5" text-anchor="middle" font-size="20" font-weight="bold" fill="#9aa5b1">8</text>
+<circle cx="90" cy="200" r="32" fill="#1f4e79"/><text x="90" y="210" text-anchor="middle" font-size="28" font-weight="bold" fill="white">A</text>
+<circle cx="330" cy="70" r="32" fill="#1f4e79"/><text x="330" y="80" text-anchor="middle" font-size="28" font-weight="bold" fill="white">B</text>
+<circle cx="330" cy="330" r="32" fill="#1f4e79"/><text x="330" y="340" text-anchor="middle" font-size="28" font-weight="bold" fill="white">C</text>
+<circle cx="570" cy="200" r="32" fill="#1f4e79"/><text x="570" y="210" text-anchor="middle" font-size="28" font-weight="bold" fill="white">D</text>
+<circle cx="810" cy="200" r="32" fill="#1f4e79"/><text x="810" y="210" text-anchor="middle" font-size="28" font-weight="bold" fill="white">E</text>
+</svg>

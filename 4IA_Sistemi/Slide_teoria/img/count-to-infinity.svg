@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 230" font-family="DejaVu Sans, Arial, sans-serif">
+<rect width="900" height="230" fill="white"/>
+<line x1="120" y1="110" x2="450" y2="110" stroke="#9aa5b1" stroke-width="4" stroke-dasharray="10,8"/>
+<text x="285" y="80" text-anchor="middle" font-size="44" fill="#c0392b" font-weight="bold">✕</text>
+<text x="285" y="150" text-anchor="middle" font-size="18" fill="#c0392b">link guasto</text>
+<line x1="450" y1="110" x2="780" y2="110" stroke="#9aa5b1" stroke-width="4"/>
+<text x="615" y="98" text-anchor="middle" font-size="20" fill="#333">costo 1</text>
+<circle cx="120" cy="110" r="34" fill="#1f4e79"/><text x="120" y="120" text-anchor="middle" font-size="28" fill="white" font-weight="bold">A</text>
+<circle cx="450" cy="110" r="34" fill="#1f4e79"/><text x="450" y="120" text-anchor="middle" font-size="28" fill="white" font-weight="bold">B</text>
+<circle cx="780" cy="110" r="34" fill="#1f4e79"/><text x="780" y="120" text-anchor="middle" font-size="28" fill="white" font-weight="bold">C</text>
+<text x="450" y="200" text-anchor="middle" font-size="18" fill="#333">B: "A? Non lo raggiungo più… ma C dice di arrivarci con costo 2!"</text>
+</svg>
