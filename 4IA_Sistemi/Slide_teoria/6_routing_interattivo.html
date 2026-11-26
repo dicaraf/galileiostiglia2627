@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Routing interattivo 4ª</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* VOICE everyday learning, precise and technical: a lab notebook for a 4th-year networking class
+   IDEA an engineering datasheet for routers: numbered panels, exact tables, live diagrams
+   PICTURE the A–E router graph, drawn large and live: Dijkstra/Bellman-Ford run on it step by step
+   COLOUR white ground, cobalt title strip and definitive nodes, pale cobalt zones, orange for the frontier, red for faults
+   TYPE Space Grotesk 600 for titles and numbers + Inter for text
+   LAYOUT laptop: explanation left, widget right in each band; phone: title, widget, controls stacked */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0a0d18);--ink:light-dark(#0b0f1a,#e8ecf8);--mute:light-dark(#4a5268,#9aa3bd);--cob:light-dark(#1240e0,#5b7cff);--zone:light-dark(#eef2ff,#141a33);--line:light-dark(#c9d2ee,#2a3358);--or:#ff9f1c;--red:#e8251a;--ok:light-dark(#0b7a3e,#4fd18b);--card:light-dark(#ffffff,#10152a)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:64px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:'Space Grotesk',Inter,sans-serif;letter-spacing:-.02em;line-height:1.08;text-wrap:balance;margin:0 0 .4em}
+h1{font-size:clamp(34px,5vw,52px)}
+h2{font-size:clamp(26px,3.4vw,36px)}
+h3{font-size:20px;margin-top:1em}
+p{margin:.4em 0 .8em;max-width:68ch}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--zone);padding:1px 5px;border-radius:4px;font-size:.92em;overflow-wrap:anywhere}
+.band{padding-block:clamp(28px,4vw,60px);padding-inline:max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+.hero{background:var(--cob);color:#fff}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:clamp(20px,4vw,56px);align-items:center}
+.hero p{color:#dfe6ff;font-size:17px}
+.hero svg{width:100%;height:auto;display:block;background:#0e2fa8;border-radius:14px}
+nav.toc{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav.toc .scroll{display:flex;gap:4px;padding:8px max(5vw,16px);max-width:1240px;margin:0 auto}
+nav.toc a{flex:none;color:var(--ink);text-decoration:none;font-weight:500;font-size:14px;padding:8px 12px;border-radius:8px}
+nav.toc a:hover,nav.toc a:focus-visible{background:var(--zone);color:var(--cob)}
+.scroll{overflow-x:auto}
+.alt{background:var(--zone)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:clamp(20px,3.5vw,48px);align-items:start}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.alt .panel{border-color:var(--line)}
+.note{border-left:5px solid var(--or);background:color-mix(in srgb,var(--or) 12%,var(--bg));padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;max-width:68ch}
+.note b{color:light-dark(#9a5200,#ffc06a)}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-family:'Space Grotesk',sans-serif;font-weight:600;color:var(--cob)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.win td{background:color-mix(in srgb,var(--cob) 16%,transparent);font-weight:600}
+tr.match td{background:color-mix(in srgb,var(--or) 14%,transparent)}
+td.chg{color:var(--cob);font-weight:700}
+button,select,input{font:inherit;font-size:16px}
+button{min-height:44px;padding:0 16px;border-radius:9px;border:1.5px solid var(--cob);background:var(--cob);color:#fff;font-weight:600;cursor:pointer}
+button.ghost{background:transparent;color:var(--cob)}
+button:hover{filter:brightness(1.08)}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+select,input[type=text],input[type=number]{min-height:44px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);padding:0 10px}
+input[type=number]{width:4.2em}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.lbl{font-size:14px;color:var(--mute)}
+.svgbox svg{width:100%;height:auto;display:block}
+.svgbox text{font-family:'Space Grotesk',Inter,sans-serif}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--mute);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:6px;border:2px solid var(--ink)}
+.msg{min-height:1.6em;font-weight:500}
+.msg.good{color:var(--ok)}
+.msg.bad{color:var(--red)}
+.edges{display:grid;grid-template-columns:repeat(auto-fit,minmax(7.5em,1fr));gap:6px 12px}
+.edges label{display:flex;align-items:center;justify-content:space-between;gap:6px;font-weight:600;font-family:'Space Grotesk',sans-serif}
+.q{border-top:1px solid var(--line);padding:12px 0}
+.q:first-child{border-top:0}
+.q .opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.q .opts label{display:flex;gap:8px;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:8px 12px;min-height:44px;cursor:pointer;background:var(--card)}
+.q .opts label.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--card))}
+.q .opts label.ko{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,var(--card))}
+.q .why{display:none;font-size:15px;color:var(--mute);margin-top:6px}
+.q.done .why{display:block}
+.alt .log{background:var(--card);border:1px solid var(--line)}
+.log{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:var(--zone);border-radius:8px;padding:10px 12px;max-height:230px;overflow:auto;white-space:pre-wrap}
+.big{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,40px);font-weight:700;color:var(--cob);font-variant-numeric:tabular-nums}
+.stack3{display:grid;grid-template-columns:repeat(auto-fit,minmax(14em,1fr));gap:14px}
+.bgp{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.bgp:first-of-type{border-top:0}
+.path{font-family:ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+footer{padding:28px max(5vw,16px);color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
+@media(max-width:860px){.hero .wrap,.two{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){table{font-size:13px}th,td{padding:6px 5px}.bgp{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.pk{display:none}}
+</style>
+</head>
+<body>
+
+<header class="band hero">
+  <div class="wrap">
+    <div>
+      <h1>Routing: come i pacchetti trovano la strada</h1>
+      <p>Un laboratorio interattivo per la classe 4ª di Sistemi e Reti. Ogni sezione ha uno schema da manovrare e un esercizio con correzione immediata: routing table, Bellman-Ford, Dijkstra, OSPF, BGP e MPLS.</p>
+      <p>Nel disegno il pacchetto va da A a E. Non usa il percorso più diretto ma quello <b>a costo minimo</b>, cioè A → C → B → D → E. Più sotto scoprirai perché.</p>
+    </div>
+    <div class="svgbox" id="heroFig" role="img" aria-label="Grafo di cinque router da A a E con un pacchetto che segue il cammino minimo"></div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sezioni"><div class="scroll">
+  <a href="#tabella">Routing table</a><a href="#vettori">Distance Vector e Link State</a><a href="#grafo">Il grafo</a><a href="#bellman">Bellman-Ford</a><a href="#infinito">Count to infinity</a><a href="#dijkstra">Dijkstra</a><a href="#ospf">RIP e OSPF</a><a href="#bgp">BGP</a><a href="#mpls">MPLS</a><a href="#quiz">Quiz finale</a>
+</div></nav>
+
+<main>
+<!-- 1. ROUTING TABLE -->
+<section class="band" id="tabella"><div class="wrap two">
+  <div>
+    <h2>La routing table sceglie sempre la riga più specifica</h2>
+    <p>Quando arriva un pacchetto, il router confronta l'indirizzo di destinazione con le righe della tabella. Spesso più righe vanno bene. Vince quella con il <b>prefisso più lungo</b> (<i>longest prefix match</i>). La default route <code>0.0.0.0/0</code> va bene per qualunque indirizzo, quindi vince solo se nessun'altra riga corrisponde.</p>
+    <p>Prova a scrivere un indirizzo: le righe arancioni sono quelle che corrispondono, quella blu è la riga che vince.</p>
+    <div class="note"><b>Sul lavoro:</b> <code>ip route</code> su Linux, <code>route print</code> su Windows, <code>show ip route</code> su Cisco. Una rotta troppo specifica dimenticata in tabella può "rubare" traffico a quella giusta.</div>
+  </div>
+  <div class="panel">
+    <div class="row"><label class="lbl" for="ipIn">Indirizzo di destinazione</label><input type="text" id="ipIn" value="10.20.5.7" inputmode="decimal" style="width:11em"><button id="ipGo">Instrada</button></div>
+    <div class="row"><span class="lbl">Prova:</span><button class="ghost" data-ip="10.20.30.9">10.20.30.9</button><button class="ghost" data-ip="10.99.1.1">10.99.1.1</button><button class="ghost" data-ip="8.8.8.8">8.8.8.8</button><button class="ghost" data-ip="192.168.1.40">192.168.1.40</button></div>
+    <div class="scroll"><table id="rt"></table></div>
+    <p class="msg" id="ipMsg" aria-live="polite"></p>
+    <h3>Esercizio: qual è il next hop?</h3>
+    <div id="lpmEx"></div>
+    <div class="row"><button id="lpmCheck">Correggi</button><span class="msg" id="lpmMsg" aria-live="polite"></span></div>
+  </div>
+</div></section>
+
+<!-- 2. DV vs LS -->
+<section class="band alt" id="vettori"><div class="wrap">
+  <h2>Due modi di imparare la rete: chiedere ai vicini o avere la mappa</h2>
+  <div class="stack3">
+    <div class="panel"><h3 style="margin-top:0">Distance Vector · Bellman-Ford</h3><p>Ogni router manda <b>a tutti i suoi vicini tutto ciò che sa</b>, cioè le distanze verso ogni rete. È come chiedere la strada ai passanti: ti fidi di ciò che ti dicono. Le informazioni avanzano di un salto per volta e la convergenza è lenta. Lo usano RIP e IGRP.</p></div>
+    <div class="panel"><h3 style="margin-top:0">Link State · Dijkstra</h3><p>Ogni router manda <b>a tutti i router ciò che sa dei suoi vicini</b>, cioè lo stato dei propri link. Alla fine ognuno ha la <b>mappa completa</b> e calcola i percorsi da solo. La convergenza è rapida, ma servono più memoria e più CPU. Lo usano OSPF e IS-IS.</p></div>
+    <div class="panel"><h3 style="margin-top:0">Path Vector · BGP</h3><p>È un'evoluzione del Distance Vector: oltre alla distanza, l'annuncio porta <b>l'elenco degli AS attraversati</b>. Se un router trova il proprio AS nell'elenco, scarta l'annuncio e così evita i loop. È il protocollo che tiene insieme Internet.</p></div>
+  </div>
+</div></section>
+
+<!-- 3. GRAPH LAB -->
+<section class="band" id="grafo"><div class="wrap two">
+  <div>
+    <h2>Per calcolare i percorsi, la rete diventa un grafo pesato</h2>
+    <p>I <b>nodi</b> sono i router, gli <b>archi</b> sono i collegamenti e il <b>peso</b> di ogni arco è il costo del link (hop, ritardo, inverso della banda). Il cammino minimo è il percorso con la <b>somma dei costi più bassa</b>.</p>
+    <p>Qui puoi cambiare i costi e il router di partenza. Bellman-Ford e Dijkstra, nelle prossime sezioni, lavorano su questo stesso grafo. Prova ad alzare il costo di C–B a 9 e guarda come cambiano i percorsi.</p>
+    <div class="note"><b>Attenzione:</b> con i costi iniziali, da A a B il link diretto costa 4, mentre passando da C si spende 1 + 2 = 3. Il percorso più corto <b>non è sempre quello diretto</b>.</div>
+  </div>
+  <div class="panel">
+    <div class="svgbox" id="labFig"></div>
+    <div class="edges" id="edgeIn"></div>
+    <div class="row"><label class="lbl" for="srcSel">Router di partenza</label><select id="srcSel"></select><button class="ghost" id="resetG">Costi iniziali</button></div>
+    <h3>Routing table calcolata per <span id="rtSrc">A</span></h3>
+    <div class="scroll"><table id="nhTable"></table></div>
+  </div>
+</div></section>
+
+<!-- 4. BELLMAN-FORD -->
+<section class="band alt" id="bellman"><div class="wrap two">
+  <div>
+    <h2>Bellman-Ford: a ogni giro le buone notizie avanzano di un salto</h2>
+    <p>L'idea è l'<b>equazione di Bellman</b>: la mia distanza da un nodo è il minimo, tra tutti i vicini, di <i>(costo per raggiungere il vicino) + (distanza del vicino)</i>.</p>
+    <p>Ogni "giro" corrisponde a uno scambio di vettori tra router vicini, come in RIP ogni 30 secondi. Ogni nodo usa le distanze che i vicini avevano al <b>giro precedente</b>. Dopo al massimo N − 1 giri, con N numero dei nodi, le distanze non cambiano più: la rete ha raggiunto la <b>convergenza</b>.</p>
+    <div class="log" id="bfLog" aria-live="polite"></div>
+    <div class="note"><b>Complessità:</b> O(N · E). Funziona anche con pesi negativi, che però nelle reti non esistono.</div>
+  </div>
+  <div class="panel">
+    <div class="svgbox" id="bfFig"></div>
+    <div class="row"><button class="ghost" id="bfPrev">◀ Indietro</button><button id="bfNext">Giro successivo ▶</button><button class="ghost" id="bfReset">Ricomincia</button><span class="lbl" id="bfStat"></span></div>
+    <div class="scroll"><table id="bfTable"></table></div>
+    <p class="lbl">Tra parentesi c'è il predecessore. In blu i valori cambiati in quel giro.</p>
+  </div>
+</div></section>
+
+<!-- 5. COUNT TO INFINITY -->
+<section class="band" id="infinito"><div class="wrap two">
+  <div>
+    <h2>Count to infinity: quando i router si credono a vicenda</h2>
+    <p>Tre router in fila, A — B — C, con tutti i link a costo 1. B raggiunge A in 1 salto, C in 2 (passando da B). Ora <b>il link A–B si guasta</b>.</p>
+    <p>B non raggiunge più A direttamente, ma C continua ad annunciare "A è a distanza 2". B ci crede e aggiorna a 3 passando da C. Poi C sente 3 da B e sale a 4, e così via. In RIP la salita si ferma a <b>16, che vale infinito</b>. Nel frattempo i pacchetti per A rimbalzano tra B e C.</p>
+    <p>Attiva lo <b>split horizon con poison reverse</b> e ripeti: C non rimanda a B una rotta imparata proprio da B, anzi gliela annuncia con costo infinito.</p>
+  </div>
+  <div class="panel">
+    <div class="svgbox" id="ctiFig"></div>
+    <div class="row"><label class="row" style="margin:0"><input type="checkbox" id="ctiSplit" style="width:22px;height:22px"> Split horizon + poison reverse</label></div>
+    <div class="row"><button id="ctiBreak">Rompi il link A–B</button><button class="ghost" id="ctiStep" disabled>Scambio successivo</button><button class="ghost" id="ctiReset">Ricomincia</button></div>
+    <div class="log" id="ctiLog" aria-live="polite"></div>
+  </div>
+</div></section>
+
+<!-- 6. DIJKSTRA -->
+<section class="band alt" id="dijkstra"><div class="wrap two">
+  <div>
+    <h2>Dijkstra: rendi definitivo il nodo più vicino, poi ripeti</h2>
+    <p>Dijkstra ha bisogno di <b>tutto il grafo</b>, ed è per questo che lo usano i protocolli Link State. Funziona come una macchia d'olio che si allarga a partire dalla sorgente:</p>
+    <ol>
+      <li>la sorgente ha distanza 0, tutti gli altri ∞;</li>
+      <li>tra i nodi non definitivi prendi quello con la <b>distanza minima</b> e rendilo definitivo;</li>
+      <li>aggiorna (rilassa) le distanze dei suoi vicini;</li>
+      <li>ripeti finché tutti i nodi sono definitivi.</li>
+    </ol>
+    <p>Funziona perché i costi sono positivi: il nodo più vicino non può essere raggiunto meglio passando da nodi più lontani. Con una coda a priorità la complessità è O((N + E) log N).</p>
+    <div class="note"><b>Modalità esercizio:</b> invece di premere "Passo successivo", <b>clicca sul nodo</b> che secondo te diventa definitivo ora. A parità di distanza vale l'ordine alfabetico.</div>
+  </div>
+  <div class="panel">
+    <div class="svgbox" id="djFig"></div>
+    <div class="legend"><span><i style="background:var(--cob)"></i>definitivo</span><span><i style="background:var(--or)"></i>provvisorio</span><span><i style="background:var(--card)"></i>non raggiunto</span></div>
+    <div class="row"><button class="ghost" id="djPrev">◀ Indietro</button><button id="djNext">Passo successivo ▶</button><button class="ghost" id="djReset">Ricomincia</button><label class="row" style="margin:0"><input type="checkbox" id="djEx" style="width:22px;height:22px"> Modalità esercizio</label></div>
+    <p class="msg" id="djMsg" aria-live="polite"></p>
+    <div class="scroll"><table id="djTable"></table></div>
+  </div>
+</div></section>
+
+<!-- 7. RIP vs OSPF -->
+<section class="band" id="ospf"><div class="wrap two">
+  <div>
+    <h2>RIP conta i salti, OSPF guarda la banda</h2>
+    <p>RIP usa come metrica l'<b>hop count</b>, il numero di router da attraversare, e non distingue un link da 10 Mbps da uno da 10 Gbps. OSPF dà a ogni interfaccia un <b>costo</b>, calcolato come <code>banda di riferimento ÷ banda dell'interfaccia</code>, e poi esegue Dijkstra.</p>
+    <p>Sullo schema R1 deve raggiungere R4. In alto ci sono 2 salti su link lenti, in basso 3 salti su link veloci. Cambia protocollo e velocità dei link e osserva quale percorso vince.</p>
+    <h3>Calcolatore del costo OSPF</h3>
+    <div class="row"><label class="lbl" for="refBw">Banda di riferimento</label><select id="refBw"><option value="100">100 Mbps (predefinito Cisco)</option><option value="1000">1 Gbps</option><option value="10000" selected>10 Gbps</option><option value="100000">100 Gbps</option></select></div>
+    <div class="scroll"><table id="costT"></table></div>
+    <p class="msg" id="costMsg"></p>
+    <div class="note"><b>Sul lavoro:</b> con il riferimento predefinito di 100 Mbps, FastEthernet e Gigabit valgono entrambi 1 e Dijkstra non li distingue. Per questo si imposta <code>auto-cost reference-bandwidth 10000</code> su <b>tutti</b> i router.</div>
+  </div>
+  <div class="panel">
+    <div class="row"><span class="lbl">Protocollo</span><button id="pRip" class="ghost">RIP</button><button id="pOspf">OSPF</button></div>
+    <div class="svgbox" id="ospfFig"></div>
+    <div class="row"><label class="lbl" for="topBw">Link in alto</label><select id="topBw"><option value="10" selected>10 Mbps</option><option value="100">100 Mbps</option><option value="1000">1 Gbps</option><option value="10000">10 Gbps</option></select>
+    <label class="lbl" for="botBw">Link in basso</label><select id="botBw"><option value="10">10 Mbps</option><option value="100">100 Mbps</option><option value="1000" selected>1 Gbps</option><option value="10000">10 Gbps</option></select></div>
+    <p class="msg" id="ospfMsg" aria-live="polite"></p>
+  </div>
+</div></section>
+
+<!-- 8. BGP -->
+<section class="band alt" id="bgp"><div class="wrap two">
+  <div>
+    <h2>BGP: l'AS_PATH impedisce i loop tra gli Autonomous System</h2>
+    <p>Internet è fatta di decine di migliaia di <b>Autonomous System</b>, ognuno con il proprio numero (ASN). Il GARR, per esempio, è AS137. BGP gira su <b>TCP porta 179</b> e ogni annuncio porta l'attributo <b>AS_PATH</b>, cioè la lista degli AS attraversati.</p>
+    <p>Le regole sono due. Se trovi il <b>tuo</b> AS nell'elenco, scarta l'annuncio perché sarebbe un loop. Se l'annuncio è valido, prima di passarlo ai vicini aggiungi il tuo AS in testa. A parità di altre politiche si preferisce l'AS_PATH <b>più corto</b>.</p>
+    <div class="note"><b>Quanto conta?</b> Il 4 ottobre 2021 un errore di configurazione fece ritirare da BGP le rotte di Facebook. Facebook, Instagram e WhatsApp rimasero irraggiungibili in tutto il mondo per circa sei ore.</div>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0">Esercizio: sei il router di confine dell'AS 65010</h3>
+    <p class="lbl">Per ogni annuncio ricevuto decidi se accettarlo o scartarlo.</p>
+    <div id="bgpEx"></div>
+    <p class="msg" id="bgpMsg" aria-live="polite"></p>
+  </div>
+</div></section>
+
+<!-- 9. MPLS -->
+<section class="band" id="mpls"><div class="wrap two">
+  <div>
+    <h2>MPLS: i router del core leggono solo l'etichetta</h2>
+    <p>Quando un pacchetto entra nel dominio MPLS, il router di bordo (<b>ELSR</b>) lo assegna a una classe (FEC) e gli attacca una <b>label</b> da 20 bit, posta tra l'header di livello 2 e quello IP: per questo si parla di "livello 2.5". I router del core (<b>CLSR</b>) non guardano l'indirizzo IP. Consultano una tabella label → next hop e <b>sostituiscono</b> l'etichetta. All'uscita l'etichetta viene tolta.</p>
+    <p>Le tre operazioni sono <b>push</b> (inserisci), <b>swap</b> (sostituisci) e <b>pop</b> (togli). Fai avanzare il pacchetto per vederle.</p>
+    <div class="note"><b>Sul lavoro:</b> quando un'azienda compra una "VPN MPLS" per collegare le sue sedi, è l'operatore a gestire le label. Le sedi si vedono come se fossero sulla stessa rete privata, con qualità del servizio garantita.</div>
+  </div>
+  <div class="panel">
+    <div class="svgbox" id="mplsFig"></div>
+    <div class="row"><button class="ghost" id="mPrev">◀ Indietro</button><button id="mNext">Avanti ▶</button></div>
+    <p class="msg" id="mMsg" aria-live="polite"></p>
+  </div>
+</div></section>
+
+<!-- 10. QUIZ -->
+<section class="band alt" id="quiz"><div class="wrap">
+  <h2>Quiz finale: verifica cosa hai capito</h2>
+  <div class="panel" id="quizBox"></div>
+  <div class="row"><button id="quizCheck">Correggi il quiz</button><button class="ghost" id="quizReset">Ricomincia</button><span class="big" id="quizScore"></span></div>
+</div></section>
+</main>
+
+<footer>Sistemi e Reti · Classe 4ª · Il routing e l'interconnessione di reti geografiche. Indirizzi IP e numeri di AS negli esempi sono di documentazione o privati.</footer>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const INF=Infinity;
+const fmt=d=>d===INF?'∞':String(d);
+
+/* ---------- GRAPH MODEL ---------- */
+const NODES=['A','B','C','D','E'];
+const POS={A:[60,170],B:[240,55],C:[240,285],D:[420,170],E:[570,170]};
+const DEFAULT=[['A','B',4],['A','C',1],['B','C',2],['B','D',1],['C','D',5],['D','E',3],['C','E',8]];
+let edges=DEFAULT.map(e=>e.slice());
+let src='A';
+const ekey=(u,v)=>[u,v].sort().join('');
+function nbrs(u){const r=[];for(const [a,b,w] of edges){if(a===u)r.push([b,w]);else if(b===u)r.push([a,w]);}return r;}
+
+function drawGraph(box,o){
+  o=o||{};
+  const hl=o.hl||new Set(),fill=o.fill||{},lab=o.lab||{},ring=o.ring;
+  let s=`<svg viewBox="0 0 630 345" xmlns="${NS}">`;
+  for(const [u,v,w] of edges){
+    const [x1,y1]=POS[u],[x2,y2]=POS[v],on=hl.has(ekey(u,v));
+    const col=on?'var(--cob)':'var(--line)',sw=on?7:3;
+    let lx,ly;
+    if(ekey(u,v)==='CE'){const cx=(x1+x2)/2,cy=335;s+=`<path d="M${x1},${y1} Q${cx},${cy} ${x2},${y2}" fill="none" stroke="${col}" stroke-width="${sw}"/>`;lx=cx;ly=(y1+2*cy+y2)/4;}
+    else{s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${sw}"/>`;lx=(x1+x2)/2;ly=(y1+y2)/2;}
+    s+=`<circle cx="${lx}" cy="${ly}" r="15" fill="var(--card)" stroke="${col}" stroke-width="2"/><text x="${lx}" y="${ly+6}" text-anchor="middle" font-size="17" font-weight="700" fill="${on?'var(--cob)':'var(--mute)'}">${w}</text>`;
+  }
+  for(const n of NODES){
+    const [x,y]=POS[n],f=fill[n]||'var(--card)',dark=f==='var(--cob)';
+    if(ring===n)s+=`<circle cx="${x}" cy="${y}" r="36" fill="none" stroke="var(--red)" stroke-width="4"/>`;
+    s+=`<g data-node="${n}" style="cursor:${o.click?'pointer':'default'}"><circle cx="${x}" cy="${y}" r="28" fill="${f}" stroke="var(--ink)" stroke-width="2.5"/><text x="${x}" y="${y+8}" text-anchor="middle" font-size="24" font-weight="700" fill="${dark?'#fff':(f==='var(--or)'?'#1a1000':'var(--ink)')}">${n}</text></g>`;
+    if(lab[n]!==undefined){const ly=n==='C'?y+52:y-40;s+=`<text x="${x}" y="${ly}" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)" style="paint-order:stroke;stroke:var(--bg);stroke-width:4px">${lab[n]}</text>`;}
+  }
+  s+=o.extra||'';
+  box.innerHTML=s+'</svg>';
+  if(o.click)box.querySelectorAll('[data-node]').forEach(g=>g.addEventListener('click',()=>o.click(g.dataset.node)));
+}
+
+function dijkstraSteps(s){
+  const dist={},pred={},fin=[];for(const n of NODES){dist[n]=INF;pred[n]=null;}dist[s]=0;
+  const steps=[{fin:[],dist:{...dist},pred:{...pred},cur:null,chg:[]}];
+  while(fin.length<NODES.length){
+    let u=null;for(const n of NODES)if(!fin.includes(n)&&dist[n]<INF&&(u===null||dist[n]<dist[u]))u=n;
+    if(u===null)break;
+    fin.push(u);const chg=[];
+    for(const [v,w] of nbrs(u))if(!fin.includes(v)&&dist[u]+w<dist[v]){dist[v]=dist[u]+w;pred[v]=u;chg.push(v);}
+    steps.push({fin:fin.slice(),dist:{...dist},pred:{...pred},cur:u,chg});
+  }
+  return steps;
+}
+function treeEdges(pred,only){const h=new Set();for(const n of NODES)if(pred[n]&&(!only||only.includes(n)))h.add(ekey(n,pred[n]));return h;}
+function pathTo(pred,t){const p=[t];while(pred[p[0]])p.unshift(pred[p[0]]);return p;}
+
+/* ---------- HERO ---------- */
+function hero(){
+  const st=dijkstraSteps('A'),last=st[st.length-1];
+  const p=pathTo(last.pred,'E').map(n=>POS[n]);
+  const d='M'+p.map(q=>q.join(',')).join(' L');
+  const box=$('heroFig');
+  const save={...POS};
+  drawGraph(box,{hl:treeEdges(last.pred),fill:{A:'var(--cob)',E:'var(--cob)'},lab:{A:'partenza',E:'arrivo'},
+    extra:`<path id="hp" d="${d}" fill="none" stroke="none"/><g class="pk"><rect x="-17" y="-11" width="34" height="22" rx="4" fill="var(--or)" stroke="#000" stroke-width="2"/><text y="5" text-anchor="middle" font-size="12" font-weight="700" fill="#000">IP</text><animateMotion dur="5s" repeatCount="indefinite"><mpath href="#hp"/></animateMotion></g>`});
+  const sv=box.querySelector('svg');sv.style.setProperty('--card','#ffffff');sv.style.setProperty('--line','#6f8cff');sv.style.setProperty('--cob','#ffd23f');sv.style.setProperty('--ink','#0b0f1a');sv.style.setProperty('--mute','#1240e0');sv.style.setProperty('--bg','#0e2fa8');
+  sv.querySelectorAll('text').forEach(t=>{if(t.getAttribute('font-size')==='18')t.setAttribute('fill','#fff');});
+}
+
+/* ---------- 1. ROUTING TABLE / LPM ---------- */
+const RT=[['0.0.0.0',0,'203.0.113.1','Gi0/0 (Internet)'],['10.0.0.0',8,'10.0.0.1','Gi0/1'],['10.20.0.0',16,'10.0.0.2','Gi0/1'],['10.20.30.0',24,'10.0.0.3','Gi0/2'],['192.168.1.0',24,'connessa','Gi0/3 (LAN)']];
+function ip2n(s){const p=String(s).trim().split('.');if(p.length!==4)return null;let n=0;for(const x of p){if(!/^\d{1,3}$/.test(x)||+x>255)return null;n=n*256+(+x);}return n;}
+function match2(n,net,len){if(len===0)return true;const b=2**(32-len);return Math.floor(n/b)===Math.floor(ip2n(net)/b);}
+function lookup(ip){const n=ip2n(ip);if(n===null)return null;let best=-1;const m=RT.map((r,i)=>{const ok=match2(n,r[0],r[1]);if(ok&&(best<0||r[1]>RT[best][1]))best=i;return ok;});return {m,best};}
+function renderRT(){
+  const r=lookup($('ipIn').value);
+  $('rt').innerHTML='<tr><th>Rete</th><th class="num">Prefisso</th><th>Next hop</th><th>Interfaccia</th></tr>'+RT.map((x,i)=>`<tr class="${r&&r.best===i?'win':(r&&r.m[i]?'match':'')}"><td>${x[0]}</td><td class="num">/${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td></tr>`).join('');
+  const msg=$('ipMsg');
+  if(!r){msg.textContent='Indirizzo non valido: scrivi quattro numeri da 0 a 255 separati da punti.';msg.className='msg bad';return;}
+  const w=RT[r.best],k=r.m.filter(Boolean).length;
+  msg.className='msg';
+  msg.textContent=`${k} ${k===1?'riga corrisponde':'righe corrispondono'}. Vince ${w[0]}/${w[1]}, la più specifica → ${w[2]==='connessa'?'consegna diretta sulla LAN':'next hop '+w[2]}.`;
+}
+$('ipGo').addEventListener('click',renderRT);
+$('ipIn').addEventListener('keydown',e=>{if(e.key==='Enter')renderRT();});
+document.querySelectorAll('[data-ip]').forEach(b=>b.addEventListener('click',()=>{$('ipIn').value=b.dataset.ip;renderRT();}));
+const LPM=['10.20.30.200','10.20.99.1','10.1.2.3','172.16.0.1'];
+const HOPS=['203.0.113.1','10.0.0.1','10.0.0.2','10.0.0.3','connessa'];
+$('lpmEx').innerHTML=LPM.map((ip,i)=>`<div class="row"><label for="lpm${i}" style="width:9em;font-family:\'Space Grotesk\',Inter,sans-serif;font-weight:600">${ip}</label><select id="lpm${i}"><option value="">scegli…</option>${HOPS.map(h=>`<option>${h}</option>`).join('')}</select><span class="msg" id="lpmR${i}"></span></div>`).join('');
+$('lpmCheck').addEventListener('click',()=>{
+  let ok=0;LPM.forEach((ip,i)=>{const r=lookup(ip),want=RT[r.best][2],got=$('lpm'+i).value,el=$('lpmR'+i);
+    if(got===want){ok++;el.textContent='✓';el.className='msg good';}else{el.textContent=`✗ vince /${RT[r.best][1]} → ${want}`;el.className='msg bad';}});
+  $('lpmMsg').textContent=`${ok} su ${LPM.length} corrette`;$('lpmMsg').className='msg '+(ok===LPM.length?'good':'bad');
+});
+
+/* ---------- 3. GRAPH LAB ---------- */
+function renderEdgeInputs(){
+  $('edgeIn').innerHTML=edges.map((e,i)=>`<label for="w${i}">${e[0]}–${e[1]}<input type="number" id="w${i}" min="1" max="20" value="${e[2]}"></label>`).join('');
+  edges.forEach((e,i)=>$('w'+i).addEventListener('input',ev=>{const v=Math.round(+ev.target.value);if(v>=1&&v<=20){edges[i][2]=v;refreshAll();}}));
+}
+$('srcSel').innerHTML=NODES.map(n=>`<option ${n===src?'selected':''}>${n}</option>`).join('');
+$('srcSel').addEventListener('change',e=>{src=e.target.value;refreshAll();});
+$('resetG').addEventListener('click',()=>{edges=DEFAULT.map(e=>e.slice());src='A';$('srcSel').value='A';renderEdgeInputs();refreshAll();});
+function renderLab(){
+  const st=dijkstraSteps(src),l=st[st.length-1];
+  const lab={};NODES.forEach(n=>lab[n]=fmt(l.dist[n]));
+  drawGraph($('labFig'),{hl:treeEdges(l.pred),fill:{[src]:'var(--cob)'},lab});
+  $('rtSrc').textContent=src;
+  $('nhTable').innerHTML='<tr><th>Destinazione</th><th class="num">Costo</th><th>Next hop</th><th>Percorso</th></tr>'+NODES.filter(n=>n!==src).map(n=>{const p=pathTo(l.pred,n);return `<tr><td>${n}</td><td class="num">${fmt(l.dist[n])}</td><td>${p[1]||'–'}</td><td>${p.join(' → ')}</td></tr>`;}).join('');
+}
+
+/* ---------- 4. BELLMAN-FORD ---------- */
+let bfRounds=[],bfK=0;
+function bfCompute(){
+  const d0={},p0={};NODES.forEach(n=>{d0[n]=INF;p0[n]=null;});d0[src]=0;
+  bfRounds=[{d:d0,p:p0,chg:[]}];
+  for(let k=1;k<=NODES.length;k++){
+    const pr=bfRounds[k-1],d={...pr.d},p={...pr.p},chg=[];
+    for(const v of NODES){if(v===src)continue;for(const [u,w] of nbrs(v)){if(pr.d[u]+w<d[v]){d[v]=pr.d[u]+w;p[v]=u;}}if(d[v]!==pr.d[v])chg.push(v);}
+    bfRounds.push({d,p,chg});if(!chg.length)break;
+  }
+  bfK=0;
+}
+function renderBF(){
+  const R=bfRounds[bfK],lab={},fill={};
+  NODES.forEach(n=>{lab[n]=fmt(R.d[n]);if(R.chg.includes(n))fill[n]='var(--or)';});fill[src]='var(--cob)';
+  drawGraph($('bfFig'),{hl:treeEdges(R.p),fill,lab});
+  const last=bfRounds.length-1;
+  $('bfStat').textContent=`Giro ${bfK} di ${last}`;
+  $('bfPrev').disabled=bfK===0;$('bfNext').disabled=bfK===last;
+  let h='<tr><th class="num">Giro</th>'+NODES.map(n=>`<th class="num">${n}</th>`).join('')+'</tr>';
+  for(let k=0;k<=bfK;k++){const r=bfRounds[k];h+=`<tr><td class="num">${k}</td>`+NODES.map(n=>`<td class="num ${r.chg.includes(n)?'chg':''}">${fmt(r.d[n])}${r.p[n]?' ('+r.p[n]+')':''}</td>`).join('')+'</tr>';}
+  $('bfTable').innerHTML=h;
+  let t;
+  if(bfK===0)t=`Giro 0: ${src} conosce solo sé stesso (distanza 0), tutti gli altri sono a ∞.\nPremi "Giro successivo".`;
+  else if(!R.chg.length)t=`Giro ${bfK}: nessuna distanza è cambiata → CONVERGENZA raggiunta.\nCi sono voluti ${bfK-1} giri utili per ${NODES.length} nodi (massimo N − 1 = ${NODES.length-1}).`;
+  else t=`Giro ${bfK}: ogni nodo ricalcola con i vettori del giro ${bfK-1}.\n`+R.chg.map(v=>`${v}: nuovo minimo ${R.d[v]} passando da ${R.p[v]} (${bfRounds[bfK-1].d[R.p[v]]} + ${edges.find(e=>ekey(e[0],e[1])===ekey(v,R.p[v]))[2]})`).join('\n');
+  $('bfLog').textContent=t;
+}
+$('bfNext').addEventListener('click',()=>{if(bfK<bfRounds.length-1){bfK++;renderBF();}});
+$('bfPrev').addEventListener('click',()=>{if(bfK>0){bfK--;renderBF();}});
+$('bfReset').addEventListener('click',()=>{bfK=0;renderBF();});
+
+/* ---------- 5. COUNT TO INFINITY ---------- */
+let cti;
+function ctiInit(){cti={up:true,B:{d:1,via:'A'},C:{d:2,via:'B'},turn:'B',n:0,log:['Rete stabile. B → A: 1 (diretto), C → A: 2 (via B).']};$('ctiStep').disabled=true;$('ctiBreak').disabled=false;renderCTI();}
+function adv(from,to){/* cosa annuncia 'from' a 'to' per la rete A */const f=cti[from];if($('ctiSplit').checked&&f.via===to)return 16;return f.d;}
+function ctiStep(){
+  const me=cti.turn,other=me==='B'?'C':'B',R=cti[me];
+  const heard=adv(other,me);const viaOther=Math.min(16,heard+1);
+  let cand=[];if(me==='B'&&cti.up)cand.push([1,'A']);cand.push([viaOther,other]);
+  cand.sort((a,b)=>a[0]-b[0]);const [d,via]=cand[0];
+  const old=R.d;R.d=d;R.via=d>=16?'–':via;cti.n++;
+  cti.log.push(`${cti.n}. ${other} annuncia a ${me}: "A dista ${heard}${heard>=16?' (∞)':''}" → ${me} → A: ${d>=16?'16 = irraggiungibile':d+' via '+via}${d===old?' (invariato)':''}`);
+  cti.turn=other;
+  if(cti.B.d>=16&&cti.C.d>=16){cti.log.push($('ctiSplit').checked?`Fine dopo ${cti.n} scambi: grazie al poison reverse la rete ha capito subito che A è irraggiungibile.`:`Fine dopo ${cti.n} scambi: finalmente entrambi sanno che A è irraggiungibile. Con un timer di 30 s sono minuti di loop!`);$('ctiStep').disabled=true;}
+  renderCTI();
+}
+function renderCTI(){
+  const X={A:70,B:300,C:530},y=95;
+  let s=`<svg viewBox="0 0 600 190" xmlns="${NS}">`;
+  s+=`<line x1="70" y1="${y}" x2="300" y2="${y}" stroke="${cti.up?'var(--line)':'var(--red)'}" stroke-width="4" ${cti.up?'':'stroke-dasharray="10 8"'}/>`;
+  if(!cti.up)s+=`<text x="185" y="${y-14}" text-anchor="middle" font-size="34" font-weight="700" fill="var(--red)">✕</text>`;
+  s+=`<line x1="300" y1="${y}" x2="530" y2="${y}" stroke="var(--line)" stroke-width="4"/>`;
+  for(const n of ['A','B','C'])s+=`<circle cx="${X[n]}" cy="${y}" r="30" fill="${n==='A'?'var(--card)':'var(--cob)'}" stroke="var(--ink)" stroke-width="2.5"/><text x="${X[n]}" y="${y+8}" text-anchor="middle" font-size="24" font-weight="700" fill="${n==='A'?'var(--ink)':'#fff'}">${n}</text>`;
+  for(const n of ['B','C']){const r=cti[n],inf=r.d>=16;s+=`<text x="${X[n]}" y="${y+62}" text-anchor="middle" font-size="18" font-weight="700" fill="${inf?'var(--red)':'var(--ink)'}">→A: ${inf?'∞ (16)':r.d+' via '+r.via}</text>`;}
+  $('ctiFig').innerHTML=s+'</svg>';
+  $('ctiLog').textContent=cti.log.join('\n');$('ctiLog').scrollTop=1e5;
+}
+$('ctiBreak').addEventListener('click',()=>{cti.up=false;cti.log.push('Il link A–B si guasta!');$('ctiBreak').disabled=true;$('ctiStep').disabled=false;renderCTI();});
+$('ctiStep').addEventListener('click',ctiStep);
+$('ctiReset').addEventListener('click',ctiInit);
+$('ctiSplit').addEventListener('change',ctiInit);
+
+/* ---------- 6. DIJKSTRA ---------- */
+let djSteps=[],djK=0;
+function djCompute(){djSteps=dijkstraSteps(src);djK=0;$('djMsg').textContent='';}
+function renderDJ(){
+  const S=djSteps[djK],fill={},lab={},ex=$('djEx').checked;
+  NODES.forEach(n=>{lab[n]=S.dist[n]===INF?'∞':S.dist[n]+(S.pred[n]?' ('+S.pred[n]+')':'');if(S.fin.includes(n))fill[n]='var(--cob)';else if(S.dist[n]<INF)fill[n]='var(--or)';});
+  drawGraph($('djFig'),{hl:treeEdges(S.pred,S.fin),fill,lab,ring:ex?null:S.cur,click:ex?djGuess:null});
+  const last=djSteps.length-1;$('djPrev').disabled=djK===0;$('djNext').disabled=djK===last;
+  let h='<tr><th class="num">Passo</th><th>Scelto</th>'+NODES.filter(n=>n!==src).map(n=>`<th>${n}</th>`).join('')+'</tr>';
+  for(let k=1;k<=djK;k++){const T=djSteps[k],P=djSteps[k-1];h+=`<tr><td class="num">${k}</td><td><b>${T.cur}</b></td>`+NODES.filter(n=>n!==src).map(n=>P.fin.includes(n)?'<td>✓</td>':`<td class="${T.chg.includes(n)?'chg':''}">${fmt(T.dist[n])}${T.pred[n]?', '+T.pred[n]:''}</td>`).join('')+'</tr>';}
+  $('djTable').innerHTML=djK?h:'<tr><td>La tabella dei passi comparirà qui.</td></tr>';
+  if(!ex){const m=$('djMsg');m.className='msg';
+    if(djK===0)m.textContent=`Inizio: ${src} = 0, tutti gli altri ∞.`;
+    else if(djK===last)m.textContent=`Fine: tutti i nodi sono definitivi. I link blu formano l'albero dei cammini minimi da ${src}.`;
+    else m.textContent=`Passo ${djK}: ${S.cur} diventa definitivo (distanza ${S.dist[S.cur]}). `+(S.chg.length?'Aggiornati: '+S.chg.map(v=>`${v} = ${S.dist[v]}`).join(', ')+'.':'Nessun vicino migliora.');}
+}
+function djGuess(n){
+  const m=$('djMsg');if(djK>=djSteps.length-1){m.textContent='Hai finito! Premi Ricomincia per riprovare.';return;}
+  const want=djSteps[djK+1].cur,S=djSteps[djK];
+  if(n===want){djK++;renderDJ();m.className='msg good';m.textContent=`✓ Giusto: ${n} ha la distanza provvisoria minima (${djSteps[djK].dist[n]}).`+(djK===djSteps.length-1?' Esercizio completato!':' Qual è il prossimo?');}
+  else{m.className='msg bad';m.textContent=S.fin.includes(n)?`✗ ${n} è già definitivo.`:(S.dist[n]===INF?`✗ ${n} non è ancora stato raggiunto (distanza ∞).`:`✗ ${n} ha distanza ${S.dist[n]}, ma c'è un nodo provvisorio più vicino.`);}
+}
+$('djNext').addEventListener('click',()=>{if(djK<djSteps.length-1){djK++;renderDJ();}});
+$('djPrev').addEventListener('click',()=>{if(djK>0){djK--;renderDJ();}});
+$('djReset').addEventListener('click',()=>{djK=0;$('djMsg').textContent='';renderDJ();});
+$('djEx').addEventListener('change',()=>{djK=0;const m=$('djMsg');m.className='msg';m.textContent=$('djEx').checked?`Clicca sul nodo che diventa definitivo per primo.`:'';renderDJ();});
+
+function refreshAll(){renderLab();bfCompute();renderBF();djCompute();renderDJ();}
+
+/* ---------- 7. RIP vs OSPF ---------- */
+let proto='OSPF';
+const bwName=b=>b>=1000?(b/1000)+' Gbps':b+' Mbps';
+const ocost=(ref,b)=>Math.max(1,Math.floor(ref/b));
+function renderCost(){
+  const ref=+$('refBw').value,L=[['Ethernet',10],['FastEthernet',100],['GigabitEthernet',1000],['TenGigabitEthernet',10000]];
+  const c=L.map(l=>ocost(ref,l[1]));
+  $('costT').innerHTML='<tr><th>Interfaccia</th><th class="num">Banda</th><th class="num">Costo OSPF</th></tr>'+L.map((l,i)=>`<tr><td>${l[0]}</td><td class="num">${bwName(l[1])}</td><td class="num"><b>${c[i]}</b></td></tr>`).join('');
+  const ties=c.filter(x=>x===1).length;
+  $('costMsg').textContent=ties>1?`Attenzione: ${ties} tipi di interfaccia hanno costo 1, quindi OSPF li considera uguali.`:'Ogni velocità ha un costo diverso: OSPF può distinguerle.';
+  $('costMsg').className='msg '+(ties>1?'bad':'good');
+  renderOspf();
+}
+function renderOspf(){
+  const ref=+$('refBw').value,tb=+$('topBw').value,bb=+$('botBw').value;
+  const top={hops:2,cost:2*ocost(ref,tb)},bot={hops:3,cost:3*ocost(ref,bb)};
+  let win;
+  if(proto==='RIP')win=top.hops<bot.hops?'top':'bot';else win=top.cost<bot.cost?'top':(bot.cost<top.cost?'bot':'tie');
+  const P={R1:[60,140],R2:[300,45],R4:[560,140],R3:[200,240],R5:[420,240]};
+  const T=[['R1','R2'],['R2','R4']],B=[['R1','R3'],['R3','R5'],['R5','R4']];
+  let s=`<svg viewBox="0 0 620 290" xmlns="${NS}">`;
+  const seg=(list,on,bw)=>list.map(([a,b])=>{const [x1,y1]=P[a],[x2,y2]=P[b],mx=(x1+x2)/2,my=(y1+y2)/2;return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${on?'var(--cob)':'var(--line)'}" stroke-width="${on?8:4}"/><text x="${mx}" y="${my-10}" text-anchor="middle" font-size="15" font-weight="600" fill="var(--mute)" style="paint-order:stroke;stroke:var(--bg);stroke-width:5px">${bwName(bw)}${proto==='OSPF'?' · costo '+ocost(ref,bw):''}</text>`;}).join('');
+  s+=seg(T,win==='top'||win==='tie',tb)+seg(B,win==='bot'||win==='tie',bb);
+  for(const [n,[x,y]] of Object.entries(P))s+=`<rect x="${x-30}" y="${y-20}" width="60" height="40" rx="8" fill="${n==='R1'||n==='R4'?'var(--cob)':'var(--card)'}" stroke="var(--ink)" stroke-width="2.5"/><text x="${x}" y="${y+7}" text-anchor="middle" font-size="18" font-weight="700" fill="${n==='R1'||n==='R4'?'#fff':'var(--ink)'}">${n}</text>`;
+  $('ospfFig').innerHTML=s+'</svg>';
+  $('pRip').className=proto==='RIP'?'':'ghost';$('pOspf').className=proto==='OSPF'?'':'ghost';
+  const m=$('ospfMsg');
+  if(proto==='RIP')m.textContent=`RIP: in alto 2 hop, in basso 3 hop → sceglie il percorso in alto, anche se i link sono a ${bwName(tb)} e quelli in basso a ${bwName(bb)}.`;
+  else m.textContent=`OSPF: in alto 2 × ${ocost(ref,tb)} = ${top.cost}, in basso 3 × ${ocost(ref,bb)} = ${bot.cost} → `+(win==='tie'?'pari costo: OSPF divide il traffico su entrambi (ECMP).':`vince il percorso in ${win==='top'?'alto':'basso'}.`);
+}
+$('refBw').addEventListener('change',renderCost);$('topBw').addEventListener('change',renderOspf);$('botBw').addEventListener('change',renderOspf);
+$('pRip').addEventListener('click',()=>{proto='RIP';renderOspf();});$('pOspf').addEventListener('click',()=>{proto='OSPF';renderOspf();});
+
+/* ---------- 8. BGP ---------- */
+const BGP=[
+  ['203.0.113.0/24','65020 65030',true,'Il tuo AS (65010) non compare: nessun loop. Lo accetti e lo inoltri come 65010 65020 65030.'],
+  ['198.51.100.0/24','65020 65010 65040',false,'Contiene 65010, cioè te stesso: l\'annuncio è già passato da te. Accettarlo creerebbe un loop.'],
+  ['192.0.2.0/24','65050 65060 65070 65080',true,'Nessun loop: è valido, anche se il percorso attraversa 4 AS.'],
+  ['192.0.2.0/24','65090 65080',true,'Valido e con AS_PATH più corto (2 AS contro 4): a parità di politiche diventa il percorso preferito.'],
+  ['100.64.0.0/16','65030 65020 65030 65010',false,'Compare 65010: scartalo subito.']];
+$('bgpEx').innerHTML=BGP.map((b,i)=>`<div class="bgp" id="bg${i}"><div><b>${b[0]}</b><br><span class="lbl">AS_PATH:</span> <span class="path">${b[1].split(' ').map(a=>a==='65010'?`<b>${a}</b>`:a).join(' ')}</span><div class="lbl" id="bgw${i}"></div></div><div class="row" style="margin:0"><button class="ghost" data-b="${i}" data-v="1">Accetta</button><button class="ghost" data-b="${i}" data-v="0">Scarta</button></div></div>`).join('');
+const bgpDone={};
+document.querySelectorAll('[data-b]').forEach(btn=>btn.addEventListener('click',()=>{
+  const i=+btn.dataset.b,ok=(btn.dataset.v==='1')===BGP[i][2];bgpDone[i]=ok;
+  const w=$('bgw'+i);w.textContent=(ok?'✓ ':'✗ ')+BGP[i][3];w.style.color=ok?'var(--ok)':'var(--red)';
+  const n=Object.keys(bgpDone).length,g=Object.values(bgpDone).filter(Boolean).length;
+  $('bgpMsg').textContent=`Risposte giuste: ${g} su ${n} date (${BGP.length} annunci).`;
+}));
+
+/* ---------- 9. MPLS ---------- */
+const MST=[
+  {at:0,stack:[],t:'Il pacchetto IP arriva dalla rete del cliente, senza etichetta.'},
+  {at:1,stack:[17],t:'PUSH. L\'ELSR di ingresso assegna il pacchetto a una FEC e inserisce la label 17.'},
+  {at:2,stack:[42],t:'SWAP. Il CLSR 1 legge solo la label: in tabella trova 17 → 42 verso CLSR 2. Non apre l\'header IP.'},
+  {at:3,stack:[88],t:'SWAP. Il CLSR 2 trova in tabella 42 → 88 verso l\'ELSR di uscita.'},
+  {at:4,stack:[],t:'POP. L\'ELSR di uscita toglie la label e torna al normale routing IP.'},
+  {at:5,stack:[],t:'Consegnato alla sede di destinazione. Nel core nessuno ha letto l\'indirizzo IP.'}];
+let mK=0;
+function renderMPLS(){
+  const S=MST[mK],xs=[40,150,260,370,480,585],names=['Cliente','ELSR in','CLSR 1','CLSR 2','ELSR out','Sede'],y=70;
+  let s=`<svg viewBox="0 0 630 230" xmlns="${NS}"><rect x="110" y="20" width="410" height="100" rx="40" fill="var(--zone)" stroke="var(--line)" stroke-dasharray="6 6"/><text x="315" y="40" text-anchor="middle" font-size="14" fill="var(--mute)">dominio MPLS</text>`;
+  for(let i=0;i<5;i++)s+=`<line x1="${xs[i]}" y1="${y}" x2="${xs[i+1]}" y2="${y}" stroke="var(--line)" stroke-width="4"/>`;
+  xs.forEach((x,i)=>{const r=i>0&&i<5;s+=r?`<circle cx="${x}" cy="${y}" r="22" fill="${i===S.at?'var(--or)':'var(--cob)'}" stroke="var(--ink)" stroke-width="2"/>`:`<rect x="${x-24}" y="${y-18}" width="48" height="36" rx="6" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>`;s+=`<text x="${x}" y="${y+48}" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)">${names[i]}</text>`;});
+  const px=Math.min(Math.max(xs[S.at],95),535);
+  const parts=[['L2','var(--mute)'],...S.stack.map(l=>['label '+l,'var(--or)']),['IP','var(--cob)'],['dati','var(--line)']];
+  const ws=parts.map(p=>p[0].length*9+18),tot=ws.reduce((a,b)=>a+b,0);let x0=Math.min(Math.max(px-tot/2,6),624-tot);
+  s+=`<line x1="${xs[S.at]}" y1="${y+24}" x2="${xs[S.at]}" y2="160" stroke="var(--ink)" stroke-width="1.5"/>`;
+  parts.forEach((p,i)=>{s+=`<rect x="${x0}" y="160" width="${ws[i]}" height="36" fill="${p[1]}" stroke="var(--ink)" stroke-width="1.5"/><text x="${x0+ws[i]/2}" y="183" text-anchor="middle" font-size="14" font-weight="700" fill="${p[1]==='var(--line)'?'var(--ink)':'#fff'}">${p[0]}</text>`;x0+=ws[i];});
+  $('mplsFig').innerHTML=s+'</svg>';
+  $('mMsg').textContent=S.t;$('mPrev').disabled=mK===0;$('mNext').disabled=mK===MST.length-1;
+}
+$('mNext').addEventListener('click',()=>{if(mK<MST.length-1){mK++;renderMPLS();}});
+$('mPrev').addEventListener('click',()=>{if(mK>0){mK--;renderMPLS();}});
+
+/* ---------- 10. QUIZ ---------- */
+const QZ=[
+  ['Qual è la differenza tra algoritmo e protocollo di routing?',['L\'algoritmo calcola il percorso migliore, il protocollo fa scambiare le informazioni tra router','Sono sinonimi','Il protocollo calcola il percorso, l\'algoritmo cifra i pacchetti'],0,'Esempio: Dijkstra è un algoritmo, OSPF è il protocollo che lo usa.'],
+  ['Un pacchetto per 10.20.30.9 trova in tabella 10.0.0.0/8, 10.20.0.0/16 e 10.20.30.0/24. Quale riga vince?',['10.0.0.0/8','10.20.0.0/16','10.20.30.0/24','la default route'],2,'Longest prefix match: vince il prefisso più lungo, cioè la riga più specifica.'],
+  ['Quale algoritmo usa un protocollo Distance Vector come RIP?',['Dijkstra','Bellman-Ford','Flooding'],1,'I router si scambiano vettori di distanze: è Bellman-Ford eseguito in modo distribuito.'],
+  ['Perché Dijkstra non può essere usato nel Distance Vector?',['Perché richiede di conoscere l\'intero grafo della rete','Perché è troppo lento','Perché funziona solo con pesi negativi'],0,'Nel Distance Vector ogni router conosce solo i vicini. Dijkstra richiede la mappa completa, che è proprio ciò che fornisce il Link State.'],
+  ['Che cosa evita lo split horizon?',['Che un router rimandi a un vicino una rotta imparata proprio da quel vicino','Che i pacchetti superino il TTL','Che OSPF divida la rete in aree'],0,'Così si spezza il ciclo di "fiducia reciproca" che genera il count to infinity.'],
+  ['Con banda di riferimento 100 Mbps, quanto costa in OSPF un link Gigabit?',['10','1','0,1'],1,'100/1000 = 0,1, ma il costo minimo è 1: Gigabit e FastEthernet risultano uguali. Per questo si alza il reference bandwidth.'],
+  ['Il router dell\'AS 65010 riceve un annuncio con AS_PATH 65020 65010 65040. Che cosa fa?',['Lo accetta perché è corto','Lo scarta perché contiene il proprio AS','Lo inoltra togliendo 65010'],1,'Il Path Vector rileva il loop: il proprio AS è già nel percorso.'],
+  ['In MPLS, che cosa fa un CLSR di transito sulla label?',['Push','Swap','Pop'],1,'L\'ELSR di ingresso fa push, i CLSR del core fanno swap, l\'ELSR di uscita fa pop.'],
+  ['Qual è la porta e il trasporto di BGP?',['UDP 520','TCP 179','IP protocollo 89'],1,'UDP 520 è RIP, il protocollo IP 89 è OSPF, TCP 179 è BGP.'],
+  ['In OSPF, per passare da un\'area a un\'altra il traffico deve sempre attraversare…',['l\'area 0 (backbone)','un ASBR','un router RIP'],0,'Tutte le aree si collegano tramite la backbone. Se un\'area non vi è collegata fisicamente si usa un virtual link.']];
+function renderQuiz(){
+  $('quizBox').innerHTML=QZ.map((q,i)=>`<div class="q" id="q${i}"><b>${i+1}. ${q[0]}</b><div class="opts">${q[1].map((o,j)=>`<label id="q${i}o${j}"><input type="radio" name="q${i}" value="${j}"> ${o}</label>`).join('')}</div><div class="why">${q[3]}</div></div>`).join('');
+  $('quizScore').textContent='';
+}
+$('quizCheck').addEventListener('click',()=>{
+  let ok=0;QZ.forEach((q,i)=>{const sel=document.querySelector(`input[name=q${i}]:checked`);$('q'+i).classList.add('done');
+    q[1].forEach((_,j)=>{$(`q${i}o${j}`).classList.remove('ok','ko');});
+    $(`q${i}o${q[2]}`).classList.add('ok');
+    if(sel){if(+sel.value===q[2])ok++;else $(`q${i}o${sel.value}`).classList.add('ko');}});
+  $('quizScore').textContent=`${ok} / ${QZ.length}`;
+});
+$('quizReset').addEventListener('click',renderQuiz);
+
+/* ---------- BOOT ---------- */
+hero();renderRT();renderEdgeInputs();refreshAll();ctiInit();renderCost();renderMPLS();renderQuiz();
+}
+</script>
+</body>
+</html>
