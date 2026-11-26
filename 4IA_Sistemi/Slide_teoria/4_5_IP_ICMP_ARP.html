@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Header IPv4 interattivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* VOICE everyday learning, precise and technical: a lab notebook for a 4th-year networking class
+   IDEA the RFC 791 header diagram turned into a live datasheet: 32 bits per row, every field a clickable cell
+   PICTURE the IPv4 header itself, full width, filled with the values of a real packet that the student loads or builds
+   COLOUR white ground, cobalt title strip and selected field, pale cobalt zones, orange for highlights, red for errors
+   TYPE Space Grotesk 600 for titles, bits and numbers + Inter for text
+   LAYOUT laptop: title then header grid full width, detail + controls under it; sections text left, tool right; phone stacked */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0a0d18);--ink:light-dark(#0b0f1a,#e8ecf8);--mute:light-dark(#4a5268,#9aa3bd);--cob:light-dark(#1240e0,#5b7cff);--zone:light-dark(#eef2ff,#141a33);--line:light-dark(#c9d2ee,#2a3358);--or:#ff9f1c;--red:#e8251a;--ok:light-dark(#0b7a3e,#4fd18b);--card:light-dark(#ffffff,#10152a)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:64px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:'Space Grotesk',Inter,sans-serif;letter-spacing:-.02em;line-height:1.08;text-wrap:balance;margin:0 0 .4em}
+h1{font-size:clamp(34px,5vw,52px)}
+h2{font-size:clamp(26px,3.4vw,36px)}
+h3{font-size:20px;margin-top:1em}
+p{margin:.4em 0 .8em;max-width:68ch}
+code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+code{background:var(--zone);padding:1px 5px;border-radius:4px;font-size:.92em;overflow-wrap:anywhere}
+.band{padding-block:clamp(28px,4vw,60px);padding-inline:max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+.hero{background:var(--cob);color:#fff}
+.hero p{color:#dfe6ff;font-size:17px}
+.hero .hdrbox p{color:var(--ink);font-size:16px}
+.hero .hdrbox p.lbl{color:var(--mute);font-size:14px}
+.hero .top{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(16px,4vw,48px);align-items:end;margin-bottom:18px}
+.hero .presets{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.hero .presets button{background:#fff;color:#0b2aa0;border-color:#fff}
+.hero .presets button.on{background:#ffd23f;border-color:#ffd23f;color:#0b0f1a}
+nav.toc{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav.toc .scroll{display:flex;gap:4px;padding:8px max(5vw,16px);max-width:1240px;margin:0 auto}
+nav.toc a{flex:none;color:var(--ink);text-decoration:none;font-weight:500;font-size:14px;padding:8px 12px;border-radius:8px}
+nav.toc a:hover,nav.toc a:focus-visible{background:var(--zone);color:var(--cob)}
+.scroll{overflow-x:auto}
+.alt{background:var(--zone)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:clamp(20px,3.5vw,48px);align-items:start}
+.panel{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:16px}
+.note{border-left:5px solid var(--or);background:color-mix(in srgb,var(--or) 12%,var(--bg));padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;max-width:68ch}
+.note b{color:light-dark(#9a5200,#ffc06a)}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-family:'Space Grotesk',sans-serif;font-weight:600;color:var(--cob)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.wrapc{white-space:normal}
+tr.sel td{background:color-mix(in srgb,var(--cob) 14%,transparent)}
+button,select,input,textarea{font:inherit;font-size:16px}
+button{min-height:44px;padding:0 16px;border-radius:9px;border:1.5px solid var(--cob);background:var(--cob);color:#fff;font-weight:600;cursor:pointer}
+button.ghost{background:transparent;color:var(--cob)}
+button:hover{filter:brightness(1.08)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+button:disabled{opacity:.4;cursor:default}
+select,input[type=text],input[type=number]{min-height:44px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);padding:0 10px}
+input[type=number]{width:6em}
+textarea{width:100%;min-height:96px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.lbl{font-size:14px;color:var(--mute)}
+.msg{min-height:1.6em;font-weight:500}
+.good{color:var(--ok)}
+.bad{color:var(--red)}
+/* header grid */
+.hdrbox{background:var(--card);color:var(--ink);border-radius:14px;padding:14px;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+.hdr{display:grid;grid-template-columns:repeat(32,minmax(0,1fr));gap:3px}
+.ruler{font:600 11px 'Space Grotesk',sans-serif;color:var(--mute);text-align:center;padding-bottom:2px}
+.f{border:1.5px solid var(--line);background:var(--zone);color:var(--ink);border-radius:6px;min-height:64px;padding:6px 4px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;font-weight:400;overflow:hidden}
+.f .n{font:600 13px 'Space Grotesk',sans-serif;color:var(--mute);line-height:1.15}
+.f .v{font:700 clamp(13px,1.6vw,18px) 'Space Grotesk',sans-serif;line-height:1.2;overflow-wrap:anywhere}
+.f:hover{border-color:var(--cob)}
+.f.on{background:var(--cob);border-color:var(--cob)}
+.f.on .n,.f.on .v{color:#fff}
+.f.err{border-color:var(--red)}
+.f.err .v{color:var(--red)}
+.f.on.err .v{color:#ffd0cc}
+.sn{display:none}
+.detail{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;margin-top:14px}
+.detail h3{margin-top:0;color:var(--cob)}
+.bits{display:flex;flex-wrap:wrap;gap:3px;margin:6px 0}
+.bits span{font:700 15px ui-monospace,Menlo,monospace;width:22px;height:28px;display:grid;place-items:center;border-radius:4px;background:var(--zone);border:1px solid var(--line)}
+.bits span.one{background:var(--cob);color:#fff;border-color:var(--cob)}
+.hex{font:15px/1.9 ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere}
+.hex span{padding:1px 3px;border-radius:3px}
+.hex span.hl{background:var(--or);color:#000;font-weight:700}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(11em,1fr));gap:10px}
+.form label{display:flex;flex-direction:column;gap:3px;font-size:14px;color:var(--mute)}
+.form label.ck{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:16px}
+.form input[type=text],.form input[type=number],.form select{width:100%}
+input[type=checkbox]{width:22px;height:22px}
+.log{font:14px/1.6 ui-monospace,Menlo,Consolas,monospace;background:var(--zone);border-radius:8px;padding:10px 12px;max-height:280px;overflow:auto;white-space:pre-wrap}
+.alt .log{background:var(--card);border:1px solid var(--line)}
+.svgbox svg{width:100%;height:auto;display:block}
+.svgbox text{font-family:'Space Grotesk',Inter,sans-serif}
+.frag{display:flex;gap:3px;margin:10px 0;height:56px}
+.frag div{background:var(--cob);color:#fff;border-radius:6px;display:flex;flex-direction:column;justify-content:center;align-items:center;font:600 13px 'Space Grotesk',sans-serif;overflow:hidden;white-space:nowrap}
+.frag div.h{background:var(--or);color:#000;flex:none}
+.tbits{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;max-width:520px}
+.tbits button{min-height:52px;font:700 20px 'Space Grotesk',sans-serif;padding:0;background:var(--zone);color:var(--ink);border-color:var(--line)}
+.tbits button.one{background:var(--cob);color:#fff;border-color:var(--cob)}
+.tbits button.ecn{border-style:dashed}
+.big{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,3.6vw,38px);font-weight:700;color:var(--cob);font-variant-numeric:tabular-nums}
+.ex{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.ex:first-child{border-top:0}
+.ex input{width:12em}
+.q{border-top:1px solid var(--line);padding:12px 0}
+.q:first-child{border-top:0}
+.q .opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.q .opts label{display:flex;gap:8px;align-items:center;border:1.5px solid var(--line);border-radius:8px;padding:8px 12px;min-height:44px;cursor:pointer;background:var(--card)}
+.q .opts label.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--card))}
+.q .opts label.ko{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,var(--card))}
+.q .why{display:none;font-size:15px;color:var(--mute);margin-top:6px}
+.q.done .why{display:block}
+footer{padding:28px max(5vw,16px);color:var(--mute);font-size:14px;border-top:1px solid var(--line)}
+@media(max-width:860px){.two,.detail,.hero .top{grid-template-columns:minmax(0,1fr)}.hero .presets{justify-content:flex-start}}
+@media(max-width:640px){.f{min-height:56px;padding:4px 1px}.f .n{font-size:11px}.ln{display:none}.sn{display:inline}.ruler.mid{visibility:hidden}.hdr{gap:2px}table{font-size:13px}th,td{padding:6px 5px}.ex{grid-template-columns:minmax(0,1fr) auto}.ex input{width:100%;grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="band hero">
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>L'header IPv4, campo per campo</h1>
+        <p>Ogni pacchetto che attraversa Internet porta davanti a sé questi 20 byte. <b>Clicca un campo</b> per scoprire a cosa serve, oppure carica uno dei pacchetti di esempio.</p>
+      </div>
+      <div class="presets" id="presets" aria-label="Pacchetti di esempio"></div>
+    </div>
+    <div class="hdrbox">
+      <div class="hdr" id="ruler" aria-hidden="true"></div>
+      <div class="hdr" id="hdr" role="group" aria-label="Header IPv4"></div>
+      <div class="detail">
+        <div id="det" aria-live="polite"></div>
+        <div>
+          <div class="lbl">Byte dell'header in esadecimale (in arancione il campo selezionato)</div>
+          <div class="hex" id="hexView"></div>
+          <div class="msg" id="csumState"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sezioni"><div class="scroll">
+  <a href="#costruisci">Costruisci un pacchetto</a><a href="#decodifica">Decodifica esadecimale</a><a href="#checksum">Checksum</a><a href="#ttl">TTL e traceroute</a><a href="#frammenti">Frammentazione</a><a href="#qos">DSCP ed ECN</a><a href="#protocolli">Protocol</a><a href="#icmp">ICMP</a><a href="#arp">ARP</a><a href="#quiz">Quiz finale</a>
+</div></nav>
+
+<main>
+<!-- BUILDER -->
+<section class="band" id="costruisci"><div class="wrap two">
+  <div>
+    <h2>Costruisci un pacchetto e guarda cambiare l'header</h2>
+    <p>Ogni modifica aggiorna subito il disegno in alto, i byte in esadecimale e il checksum. Prova per esempio a cambiare il protocollo da TCP a UDP: cambia un solo byte, ma il checksum va ricalcolato.</p>
+    <p>L'header base è lungo <b>20 byte</b>, cioè 5 righe da 32 bit, e per questo IHL vale 5. Le opzioni possono aggiungere fino a 40 byte (IHL massimo 15), ma oggi si usano raramente.</p>
+    <div class="note"><b>Sul lavoro:</b> in Wireshark selezioni un pacchetto e apri "Internet Protocol Version 4": trovi esattamente questi campi. Da terminale puoi usare <code>sudo tcpdump -n -v -i eth0 icmp</code>, che stampa TTL, ID, flag e lunghezza di ogni pacchetto.</div>
+  </div>
+  <div class="panel">
+    <div class="form" id="form">
+      <label>Indirizzo sorgente<input type="text" id="fSrc"></label>
+      <label>Indirizzo destinazione<input type="text" id="fDst"></label>
+      <label>Protocol<select id="fProto"></select></label>
+      <label>TTL<input type="number" id="fTtl" min="0" max="255"></label>
+      <label>Total Length (byte)<input type="number" id="fLen" min="20" max="65535"></label>
+      <label>Identification<input type="number" id="fId" min="0" max="65535"></label>
+      <label>DSCP<input type="number" id="fDscp" min="0" max="63"></label>
+      <label>ECN<input type="number" id="fEcn" min="0" max="3"></label>
+      <label>Fragment Offset (× 8 byte)<input type="number" id="fOff" min="0" max="8191"></label>
+      <label class="ck"><input type="checkbox" id="fDf"> DF (Don't Fragment)</label>
+      <label class="ck"><input type="checkbox" id="fMf"> MF (More Fragments)</label>
+    </div>
+    <p class="msg" id="formMsg" aria-live="polite"></p>
+  </div>
+</div></section>
+
+<!-- DECODER -->
+<section class="band alt" id="decodifica"><div class="wrap two">
+  <div>
+    <h2>Decodifica un header scritto in esadecimale</h2>
+    <p>Incolla i byte di un header, ad esempio copiati da Wireshark con "Copy as Hex Stream". Spazi, a capo e due punti vengono ignorati. La pagina divide i byte nei campi e controlla il checksum.</p>
+    <p>Prova anche a cambiare a mano una cifra: il checksum non tornerà più e il campo diventerà rosso. È così che un router si accorge che l'header si è rovinato in transito, e in quel caso scarta il pacchetto.</p>
+    <h3>Esercizio: decodifica a mano</h3>
+    <p>Questo header è stato catturato su un PC di casa. Rispondi senza usare il decodificatore, poi controlla.</p>
+    <div class="hex panel" id="exHex"></div>
+  </div>
+  <div class="panel">
+    <label class="lbl" for="hexIn">Header in esadecimale</label>
+    <textarea id="hexIn" spellcheck="false"></textarea>
+    <div class="row"><button id="hexGo">Decodifica</button><button class="ghost" id="hexCopy">Copia l'header attuale</button><span class="msg" id="hexMsg" aria-live="polite"></span></div>
+    <div class="scroll"><table id="decT"></table></div>
+    <h3>Le tue risposte</h3>
+    <div id="exQ"></div>
+    <div class="row"><button id="exCheck">Correggi</button><span class="msg" id="exMsg" aria-live="polite"></span></div>
+  </div>
+</div></section>
+
+<!-- CHECKSUM -->
+<section class="band" id="checksum"><div class="wrap two">
+  <div>
+    <h2>Il checksum: una somma che ogni router deve rifare</h2>
+    <p>L'<b>Header Checksum</b> protegge solo l'header, non i dati. Si calcola così:</p>
+    <ol>
+      <li>si mette a 0 il campo checksum;</li>
+      <li>si divide l'header in <b>parole da 16 bit</b>, cioè 4 cifre esadecimali;</li>
+      <li>si sommano tutte le parole;</li>
+      <li>se la somma supera 16 bit, il riporto si <b>riaggiunge</b> in fondo (somma in complemento a uno);</li>
+      <li>si fa il <b>complemento</b> del risultato, invertendo tutti i bit.</li>
+    </ol>
+    <p>Chi riceve somma tutte le parole, checksum compreso: se il risultato è <code>FFFF</code> l'header è integro.</p>
+    <div class="note"><b>Perché ogni router lo ricalcola?</b> Perché a ogni salto il TTL diminuisce di 1, quindi l'header cambia. Premi "Il router decrementa il TTL" e guarda quale parola cambia. È uno dei motivi per cui IPv6 ha eliminato il checksum dall'header.</div>
+  </div>
+  <div class="panel">
+    <div class="row"><button id="ttlDec">Il router decrementa il TTL</button><button class="ghost" id="csReset">Ripristina</button></div>
+    <div class="scroll"><table id="csT"></table></div>
+    <div class="log" id="csLog"></div>
+  </div>
+</div></section>
+
+<!-- TTL -->
+<section class="band alt" id="ttl"><div class="wrap two">
+  <div>
+    <h2>TTL: ogni router toglie 1, a zero il pacchetto muore</h2>
+    <p>Il <b>Time To Live</b> evita che un pacchetto intrappolato in un routing loop giri per sempre. Ogni router lo decrementa. Il router che lo porta a <b>0</b> scarta il pacchetto e manda al mittente un messaggio <b>ICMP Time Exceeded</b> (tipo 11).</p>
+    <p><b>traceroute</b> sfrutta proprio questo meccanismo. Invia pacchetti con TTL 1, 2, 3 e così via: ogni router lungo il percorso "muore" a turno e rivela il proprio indirizzo con l'ICMP di risposta.</p>
+    <div class="note"><b>Trucco da sistemista:</b> il TTL iniziale dipende dal sistema operativo: 64 per Linux, macOS, Android e iOS, 128 per Windows, 255 per molti apparati di rete. Se un <code>ping</code> risponde con TTL=116, probabilmente dall'altra parte c'è un Windows a 128 − 116 = 12 salti.</div>
+  </div>
+  <div class="panel">
+    <div class="row"><label class="lbl" for="ttlStart">TTL iniziale</label><input type="range" id="ttlStart" min="1" max="8" value="3" style="width:180px"><b id="ttlVal" class="big" style="font-size:28px">3</b></div>
+    <div class="svgbox" id="ttlFig"></div>
+    <div class="row"><button id="ttlStep">Salto successivo</button><button class="ghost" id="ttlReset">Ricomincia</button><button class="ghost" id="trGo">Esegui traceroute</button></div>
+    <div class="log" id="ttlLog" aria-live="polite"></div>
+    <h3>Esercizio: chi c'è dall'altra parte?</h3>
+    <div id="osQ"></div>
+    <div class="row"><button id="osCheck">Correggi</button><span class="msg" id="osMsg" aria-live="polite"></span></div>
+  </div>
+</div></section>
+
+<!-- FRAGMENTATION -->
+<section class="band" id="frammenti"><div class="wrap two">
+  <div>
+    <h2>Frammentazione: quando il pacchetto non passa dal link</h2>
+    <p>Ogni link ha una <b>MTU</b> (Maximum Transmission Unit), cioè il pacchetto IP più grande che può trasportare: per Ethernet sono 1500 byte. Se un datagramma è più grande, il router lo divide in <b>frammenti</b>:</p>
+    <ul>
+      <li>tutti i frammenti hanno lo <b>stesso Identification</b> del datagramma originale;</li>
+      <li>i dati di ogni frammento, tranne l'ultimo, sono un <b>multiplo di 8 byte</b>;</li>
+      <li>il <b>Fragment Offset</b> indica, in unità da 8 byte, dove vanno i dati del frammento;</li>
+      <li><b>MF = 1</b> in tutti i frammenti tranne l'ultimo.</li>
+    </ul>
+    <p>Il riassemblaggio lo fa solo la <b>destinazione finale</b>, mai i router intermedi.</p>
+    <div class="note"><b>Sul lavoro:</b> se c'è il flag DF, il router scarta il pacchetto e risponde con ICMP "Fragmentation Needed". Su un tunnel VPN o un collegamento PPPoE (MTU 1492) questo può far "bloccare" alcuni siti. Si diagnostica con <code>ping -M do -s 1472 8.8.8.8</code> su Linux o <code>ping -f -l 1472 8.8.8.8</code> su Windows: 1472 byte di dati + 8 di ICMP + 20 di IP fanno 1500.</div>
+  </div>
+  <div class="panel">
+    <div class="form">
+      <label>Datagramma, Total Length (byte)<input type="number" id="frLen" value="4000" min="21" max="65535"></label>
+      <label>MTU del link (byte)<select id="frMtu"><option>576</option><option>1006</option><option>1280</option><option>1492</option><option selected>1500</option><option>9000</option></select></label>
+      <label class="ck"><input type="checkbox" id="frDf"> DF (Don't Fragment)</label>
+    </div>
+    <div class="frag" id="frBar"></div>
+    <div class="scroll"><table id="frT"></table></div>
+    <p class="msg" id="frMsg" aria-live="polite"></p>
+    <h3>Esercizio</h3>
+    <p>Un datagramma con Total Length 2400 byte (header 20) deve attraversare un link con MTU 1000.</p>
+    <div id="frQ"></div>
+    <div class="row"><button id="frCheck">Correggi</button><span class="msg" id="frExMsg" aria-live="polite"></span></div>
+  </div>
+</div></section>
+
+<!-- QOS -->
+<section class="band alt" id="qos"><div class="wrap two">
+  <div>
+    <h2>DSCP ed ECN: il byte che decide la priorità</h2>
+    <p>Il secondo byte dell'header si chiamava <b>Type of Service</b> (TOS). Oggi è diviso in due parti:</p>
+    <ul>
+      <li><b>DSCP</b>, 6 bit: la classe di servizio per la <b>QoS</b>. I router e gli switch configurati possono dare la precedenza al traffico più delicato;</li>
+      <li><b>ECN</b>, 2 bit: un router congestionato può <b>segnalare</b> la congestione (valore 11) invece di scartare il pacchetto.</li>
+    </ul>
+    <p>Clicca i bit per accenderli e spegnerli, oppure scegli un preset.</p>
+    <div class="note"><b>Sul lavoro:</b> nelle reti aziendali i telefoni VoIP marcano i pacchetti della voce con DSCP 46 (EF, Expedited Forwarding). Gli switch li mettono nella coda prioritaria e la telefonata non "gracchia" mentre qualcuno scarica un file pesante. OSPF e gli altri protocolli di routing usano CS6 (48).</div>
+  </div>
+  <div class="panel">
+    <div class="tbits" id="tbits"></div>
+    <div class="row lbl"><span>bit 0–5: DSCP · bit 6–7: ECN (bordo tratteggiato)</span></div>
+    <div class="row"><span class="big" id="tosHex"></span></div>
+    <p id="tosTxt"></p>
+    <div class="row"><button class="ghost" data-tos="46">Voce VoIP (EF)</button><button class="ghost" data-tos="34">Videoconferenza (AF41)</button><button class="ghost" data-tos="48">Routing (CS6)</button><button class="ghost" data-tos="0">Best effort</button></div>
+    <div class="row"><button id="tosApply">Applica all'header in alto</button></div>
+  </div>
+</div></section>
+
+<!-- PROTOCOL -->
+<section class="band" id="protocolli"><div class="wrap two">
+  <div>
+    <h2>Il campo Protocol dice a chi consegnare i dati</h2>
+    <p>IP trasporta dati per molti protocolli diversi. Il campo <b>Protocol</b>, 8 bit, dice al destinatario a quale modulo passare il contenuto del pacchetto: è il <b>demultiplexing</b> verso il livello superiore. I numeri li assegna IANA.</p>
+    <p>Notate che non tutto viaggia su TCP o UDP. ICMP, OSPF ed ESP sono incapsulati <b>direttamente in IP</b>.</p>
+    <div class="note"><b>Sul lavoro:</b> nelle ACL dei firewall il protocollo si indica per nome o per numero. Per esempio <code>permit 89 any any</code> su Cisco lascia passare OSPF. Se dimentichi ESP (50), la VPN IPsec non si alza.</div>
+  </div>
+  <div class="panel scroll"><table id="protoT"></table></div>
+</div></section>
+
+<!-- ICMP -->
+<section class="band" id="icmp"><div class="wrap two">
+  <div>
+    <h2>ICMP: il protocollo che riporta gli errori della rete</h2>
+    <p>IP consegna i pacchetti "al meglio", senza garanzie. Quando qualcosa va storto (destinazione irraggiungibile, TTL esaurito, pacchetto troppo grande) un router o l'host di destinazione avvisa il mittente con un messaggio <b>ICMP</b>. ICMP viaggia dentro un pacchetto IP con <b>Protocol = 1</b> e serve anche per la diagnostica: <code>ping</code> e <code>traceroute</code> si basano su di lui.</p>
+    <p>Ogni messaggio ICMP inizia con <b>Type</b> (8 bit), <b>Code</b> (8 bit) e <b>Checksum</b> (16 bit). Il tipo dice la categoria, il codice il dettaglio. Nel ping, per esempio, il tipo 8 è la richiesta e il tipo 0 la risposta.</p>
+    <div class="hdrbox panel">
+      <div class="hdr"><div class="f" style="grid-column:1/span 8"><span class="n">Type</span><span class="v">8</span></div><div class="f" style="grid-column:9/span 8"><span class="n">Code</span><span class="v">0</span></div><div class="f" style="grid-column:17/span 16"><span class="n">Checksum</span><span class="v">0x4D5A</span></div><div class="f" style="grid-column:1/span 16"><span class="n">Identifier</span><span class="v">0x0001</span></div><div class="f" style="grid-column:17/span 16"><span class="n">Sequence</span><span class="v">1</span></div><div class="f" style="grid-column:1/span 32"><span class="n">Dati</span><span class="v">32 byte (abcdefgh… in Windows)</span></div></div>
+      <p class="lbl" style="margin-bottom:0">Un Echo Request (ping): l'Identifier e il Sequence servono ad abbinare ogni risposta alla sua richiesta. Valori di esempio.</p>
+    </div>
+    <div class="scroll"><table id="icmpT"></table></div>
+    <div class="note"><b>Sul lavoro:</b> non bloccare <i>tutto</i> ICMP sul firewall. Il ping si può anche filtrare, ma i messaggi "Fragmentation Needed" (3/4) e "Time Exceeded" (11) servono al buon funzionamento della rete. Senza di loro alcune connessioni si bloccano senza un motivo apparente e il troubleshooting diventa cieco.</div>
+  </div>
+  <div class="panel">
+    <div class="row" id="icmpBtns" aria-label="Scenari"></div>
+    <div class="svgbox" id="icmpFig"></div>
+    <div class="row"><span class="lbl">Tipo/codice ICMP:</span><span class="big" id="icmpTC" style="font-size:26px"></span></div>
+    <div class="log" id="icmpOut"></div>
+    <p id="icmpTxt"></p>
+    <h3>Esercizio: che ICMP è arrivato?</h3>
+    <p class="lbl">Per ogni riga stampata da <code>ping</code> scegli il tipo/codice ICMP ricevuto. Le righe in inglese vengono da Linux, le altre da Windows in italiano.</p>
+    <div id="icmpQ"></div>
+    <div class="row"><button id="icmpCheck">Correggi</button><span class="msg" id="icmpMsg" aria-live="polite"></span></div>
+  </div>
+</div></section>
+
+<!-- ARP -->
+<section class="band alt" id="arp"><div class="wrap two">
+  <div>
+    <h2>ARP: dall'indirizzo IP all'indirizzo MAC</h2>
+    <p>Per spedire un pacchetto su Ethernet o Wi-Fi non basta l'indirizzo IP: il frame deve contenere il <b>MAC</b> della scheda di rete che lo deve ricevere. <b>ARP</b> (Address Resolution Protocol) trova questo MAC. Funziona solo <b>dentro la stessa LAN</b> e non viaggia dentro IP: è incapsulato direttamente in Ethernet, con EtherType 0x0806.</p>
+    <ol>
+      <li>Il PC fa l'AND tra la destinazione e la propria subnet mask: se la destinazione è nella sua rete, cerca il MAC del destinatario; altrimenti cerca il MAC del <b>gateway</b>.</li>
+      <li>Prima guarda nella <b>cache ARP</b>. Se trova il MAC, non serve chiedere.</li>
+      <li>Altrimenti manda un <b>ARP Request in broadcast</b> (FF:FF:FF:FF:FF:FF): "Chi ha 192.168.1.1? Rispondi a 192.168.1.42".</li>
+      <li>Risponde solo l'interessato, con un <b>ARP Reply in unicast</b>. Gli altri ignorano la richiesta.</li>
+      <li>Il PC salva l'associazione in cache, per qualche minuto, e spedisce il frame.</li>
+    </ol>
+    <div class="note"><b>Il punto chiave:</b> quando invii a 8.8.8.8, il frame ha come MAC di destinazione quello del <b>router</b>, ma l'IP di destinazione resta 8.8.8.8. Il MAC cambia a ogni salto, l'IP resta lo stesso dall'inizio alla fine.</div>
+    <div class="note"><b>Sul lavoro:</b> la cache si vede con <code>arp -a</code> (Windows) o <code>ip neigh</code> (Linux) e si svuota con <code>arp -d *</code> o <code>ip neigh flush all</code>. Se due PC hanno lo stesso IP, la cache "salta" tra due MAC diversi. ARP non ha autenticazione, quindi un attaccante può spacciarsi per il gateway (<b>ARP spoofing</b>). Gli switch gestiti si difendono con la <b>Dynamic ARP Inspection</b>.</div>
+  </div>
+  <div class="panel">
+    <div class="row"><span class="lbl">PC A vuole inviare a:</span><button class="ghost" data-arp="192.168.1.20">PC B</button><button class="ghost" data-arp="192.168.1.50">Stampante</button><button class="ghost" data-arp="8.8.8.8">8.8.8.8 (Internet)</button><button class="ghost" data-arp="192.168.1.99">192.168.1.99</button></div>
+    <div class="row"><input type="text" id="arpIn" value="192.168.1.20" aria-label="IP di destinazione" style="width:11em"><button id="arpGo">Avvia</button><button class="ghost" id="arpNext">Passo successivo</button><button class="ghost" id="arpFlush">Svuota cache</button></div>
+    <div class="svgbox" id="arpFig"></div>
+    <p class="msg" id="arpMsg" aria-live="polite"></p>
+    <div class="scroll"><table id="arpPkt"></table></div>
+    <h3>Cache ARP di PC A</h3>
+    <div class="scroll"><table id="arpCache"></table></div>
+    <h3>Esercizio: per quale IP chiede l'ARP?</h3>
+    <p class="lbl">PC A ha IP 192.168.1.42/24 e gateway 192.168.1.1. Per ogni destinazione scrivi di quale IP cercherà il MAC.</p>
+    <div id="arpQ"></div>
+    <div class="row"><button id="arpCheck">Correggi</button><span class="msg" id="arpExMsg" aria-live="polite"></span></div>
+  </div>
+</div></section>
+
+<!-- QUIZ -->
+<section class="band alt" id="quiz"><div class="wrap">
+  <h2>Quiz finale: header IPv4, ICMP e ARP</h2>
+  <div class="panel" id="quizBox"></div>
+  <div class="row"><button id="quizCheck">Correggi il quiz</button><button class="ghost" id="quizReset">Ricomincia</button><span class="big" id="quizScore"></span></div>
+</div></section>
+</main>
+
+<footer>Sistemi e Reti · Classe 4ª · L'header IPv4 (RFC 791), ICMP (RFC 792) e ARP (RFC 826). Gli indirizzi negli esempi sono privati o riservati alla documentazione.</footer>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const h2=(n,d)=>n.toString(16).toUpperCase().padStart(d,'0');
+const bin=(n,d)=>n.toString(2).padStart(d,'0');
+
+/* ---------- DATA ---------- */
+const PROTO={1:'ICMP',2:'IGMP',6:'TCP',17:'UDP',41:'IPv6 (tunnel)',47:'GRE',50:'ESP (IPsec)',51:'AH (IPsec)',89:'OSPF',112:'VRRP',132:'SCTP'};
+const PROTO_USE={1:'ping, traceroute, messaggi di errore',2:'gestione dei gruppi multicast',6:'web (HTTP/HTTPS), SSH, posta',17:'DNS, DHCP, VoIP, streaming, giochi online',41:'IPv6 incapsulato in IPv4',47:'tunnel tra router',50:'VPN IPsec (dati cifrati)',51:'IPsec, solo autenticazione',89:'routing OSPF tra router',112:'gateway ridondanti',132:'reti telefoniche mobili'};
+const DSCPN={0:'CS0 · best effort, traffico normale',8:'CS1 · bassa priorità (backup, download)',10:'AF11 · dati ad alta priorità, classe 1',18:'AF21 · dati transazionali',24:'CS3 · segnalazione delle chiamate',26:'AF31 · streaming',34:'AF41 · videoconferenza',40:'CS5 · broadcast video',46:'EF · voce (VoIP), coda prioritaria',48:'CS6 · controllo di rete (OSPF, BGP)',56:'CS7 · riservato'};
+const ECNN=['00 · Not-ECT: il mittente non supporta ECN','01 · ECT(1): supporta ECN','10 · ECT(0): supporta ECN','11 · CE: congestione rilevata da un router'];
+
+const FIELDS=[
+ ['ver','Version','Ver',0,4],['ihl','IHL','IHL',4,4],['dscp','DSCP','DSCP',8,6],['ecn','ECN','ECN',14,2],['len','Total Length','Tot. Length',16,16],
+ ['id','Identification','Identification',32,16],['flags','Flags','Flg',48,3],['off','Fragment Offset','Offset',51,13],
+ ['ttl','Time To Live','TTL',64,8],['proto','Protocol','Proto',72,8],['csum','Header Checksum','Checksum',80,16],
+ ['src','Source Address','Source Address',96,32],['dst','Destination Address','Destination Address',128,32]];
+const INFO={
+ ver:['Indica la versione del protocollo. In IPv4 vale sempre <b>4</b>, in IPv6 vale 6. È il primo campo che il ricevitore legge, perché dice come interpretare tutto il resto.','In Wireshark compare come "Version: 4". Un pacchetto con un valore diverso viene scartato.'],
+ ihl:['<b>Internet Header Length</b>: è la lunghezza dell\'header contata in parole da 32 bit (4 byte). Il minimo è 5 (20 byte), il massimo 15 (60 byte, con 40 byte di opzioni). Serve a capire dove finisce l\'header e dove iniziano i dati.','Se vedi IHL maggiore di 5, il pacchetto ha delle opzioni IP: è raro, e molti firewall le bloccano per sicurezza.'],
+ dscp:['<b>Differentiated Services Code Point</b>: sono i 6 bit più alti dell\'ex campo Type of Service. Indicano la classe di servizio per la QoS: per esempio 46 (EF) per la voce, 0 per il traffico normale.','Gli switch e i router aziendali usano il DSCP per mettere la voce nella coda prioritaria. Il campo si configura sui telefoni VoIP o sulle policy QoS.'],
+ ecn:['<b>Explicit Congestion Notification</b>: sono gli ultimi 2 bit del secondo byte. Permettono a un router congestionato di avvisare (valore 11) invece di scartare il pacchetto.','Lo usano TCP e i protocolli moderni per rallentare prima di perdere pacchetti.'],
+ len:['<b>Total Length</b>: è la lunghezza totale del datagramma in byte, header più dati. Con 16 bit il massimo è 65.535 byte. Su Ethernet un pacchetto non supera di solito i 1500 byte, cioè la MTU.','I dati trasportati si calcolano come Total Length − IHL × 4.'],
+ id:['<b>Identification</b>: è un numero scelto dal mittente per riconoscere il datagramma. Tutti i frammenti dello stesso datagramma hanno lo stesso ID, così la destinazione sa quali rimettere insieme.','In una cattura, frammenti con lo stesso ID appartengono allo stesso pacchetto originale.'],
+ flags:['Sono 3 bit. Il primo è <b>riservato</b> e vale sempre 0. <b>DF</b> (Don\'t Fragment) vale 1 quando è vietato frammentare: se il pacchetto non passa, il router lo scarta e risponde con ICMP "Fragmentation Needed". <b>MF</b> (More Fragments) vale 1 in tutti i frammenti tranne l\'ultimo.','Quasi tutto il traffico TCP moderno ha DF = 1, perché usa il Path MTU Discovery per scoprire la MTU minima del percorso.'],
+ off:['<b>Fragment Offset</b>: indica la posizione dei dati di questo frammento nel datagramma originale, in <b>unità da 8 byte</b>. Il primo frammento ha offset 0. Offset 185, per esempio, significa che i dati partono dal byte 185 × 8 = 1480.','Un pacchetto non frammentato ha offset 0 e MF = 0.'],
+ ttl:['<b>Time To Live</b>: ogni router lo decrementa di 1. Il router che lo porta a 0 scarta il pacchetto e invia al mittente un ICMP Time Exceeded. Così i pacchetti non girano per sempre nei routing loop.','Valori iniziali tipici: 64 per Linux e macOS, 128 per Windows, 255 per molti router. Su questo meccanismo si basa traceroute.'],
+ proto:['<b>Protocol</b>: indica a quale protocollo consegnare i dati contenuti nel pacchetto, per esempio 1 ICMP, 6 TCP, 17 UDP, 89 OSPF.','Nelle ACL di firewall e router si filtra spesso proprio su questo campo.'],
+ csum:['<b>Header Checksum</b>: è un controllo d\'errore che copre solo l\'header. È la somma in complemento a uno delle parole da 16 bit, poi complementata. Visto che il TTL cambia a ogni salto, ogni router deve ricalcolarlo.','Se il checksum non torna il pacchetto viene scartato senza avvisare nessuno. In Wireshark lo vedi come "Header checksum status".'],
+ src:['<b>Source Address</b>: è l\'indirizzo IP del mittente, 32 bit. A casa il router lo sostituisce con il proprio IP pubblico (NAT) prima di mandare il pacchetto su Internet.','In una cattura fatta dietro un NAT vedrai indirizzi privati (10.x, 172.16–31.x, 192.168.x).'],
+ dst:['<b>Destination Address</b>: è l\'indirizzo IP del destinatario, 32 bit. È il campo che ogni router confronta con la routing table, con il longest prefix match, per scegliere il next hop.','Un indirizzo come 224.0.0.5 è multicast: per esempio, tutti i router OSPF di una LAN.']};
+
+const PRESETS=[
+ ['Ping verso 8.8.8.8',{dscp:0,ecn:0,len:84,id:0x3a1f,df:1,mf:0,off:0,ttl:64,proto:1,src:'192.168.1.42',dst:'8.8.8.8'}],
+ ['Apertura pagina web (TCP)',{dscp:0,ecn:0,len:60,id:0x8c21,df:1,mf:0,off:0,ttl:64,proto:6,src:'192.168.1.42',dst:'203.0.113.10'}],
+ ['Chiamata VoIP (UDP)',{dscp:46,ecn:0,len:200,id:0x0042,df:0,mf:0,off:0,ttl:64,proto:17,src:'10.0.5.20',dst:'10.0.9.7'}],
+ ['Frammento',{dscp:0,ecn:0,len:1500,id:0x1234,df:0,mf:1,off:185,ttl:63,proto:17,src:'192.168.1.42',dst:'198.51.100.7'}],
+ ['OSPF Hello',{dscp:48,ecn:0,len:64,id:0x0b7e,df:0,mf:0,off:0,ttl:1,proto:89,src:'10.0.12.1',dst:'224.0.0.5'}]];
+
+/* ---------- MODEL ---------- */
+let pkt={...PRESETS[0][1],opts:[]},stored=null,sel='ttl',presetOn=0;
+function ip2b(s){const p=String(s).trim().split('.');if(p.length!==4)return null;const r=[];for(const x of p){if(!/^\d{1,3}$/.test(x)||+x>255)return null;r.push(+x);}return r;}
+function build(p,cs){
+  const ihl=5+p.opts.length/4,b=[];
+  b.push(0x40|ihl,(p.dscp<<2)|p.ecn,p.len>>8,p.len&255,p.id>>8,p.id&255,(p.df<<6)|(p.mf<<5)|(p.off>>8),p.off&255,p.ttl,p.proto,0,0,...ip2b(p.src),...ip2b(p.dst),...p.opts);
+  const c=cs===undefined?checksum(b):cs;b[10]=c>>8;b[11]=c&255;return b;
+}
+function words(b){const w=[];for(let i=0;i<b.length;i+=2)w.push((b[i]<<8)|(b[i+1]||0));return w;}
+function fold(s){while(s>0xffff)s=(s&0xffff)+(s>>>16);return s;}
+function checksum(b){const c=b.slice();c[10]=0;c[11]=0;return (~fold(words(c).reduce((a,x)=>a+x,0)))&0xffff;}
+function parse(hex){
+  const h=hex.replace(/0x/gi,'').replace(/[\s:,.-]/g,'');
+  if(!/^[0-9a-fA-F]*$/.test(h))return {err:'Ci sono caratteri che non sono cifre esadecimali (0–9, A–F).'};
+  if(h.length%2)return {err:'Il numero di cifre è dispari: ogni byte richiede 2 cifre.'};
+  const b=[];for(let i=0;i<h.length;i+=2)b.push(parseInt(h.substr(i,2),16));
+  if(b.length<20)return {err:`Servono almeno 20 byte, ne hai scritti ${b.length}.`};
+  const ver=b[0]>>4,ihl=b[0]&15;
+  if(ver!==4)return {err:`Version vale ${ver}: questo non è un header IPv4.`};
+  if(ihl<5)return {err:`IHL vale ${ihl}: il minimo valido è 5.`};
+  if(b.length<ihl*4)return {err:`IHL = ${ihl} vuol dire ${ihl*4} byte di header, ma ne hai scritti solo ${b.length}.`};
+  const p={dscp:b[1]>>2,ecn:b[1]&3,len:(b[2]<<8)|b[3],id:(b[4]<<8)|b[5],df:(b[6]>>6)&1,mf:(b[6]>>5)&1,off:((b[6]&31)<<8)|b[7],ttl:b[8],proto:b[9],src:b.slice(12,16).join('.'),dst:b.slice(16,20).join('.'),opts:b.slice(20,ihl*4)};
+  return {p,cs:(b[10]<<8)|b[11],extra:b.length-ihl*4};
+}
+const cur=()=>build(pkt,stored===null?undefined:stored);
+const csOk=()=>stored===null||stored===checksum(cur());
+
+/* ---------- HEADER GRID ---------- */
+function fval(k,p,b){
+  const cs=(b[10]<<8)|b[11];
+  switch(k){
+    case 'ver':return '4';case 'ihl':return `${5+p.opts.length/4}`;case 'dscp':return String(p.dscp);case 'ecn':return bin(p.ecn,2);
+    case 'len':return String(p.len);case 'id':return '0x'+h2(p.id,4);
+    case 'flags':return `0${p.df}${p.mf}`;case 'off':return String(p.off);case 'ttl':return String(p.ttl);
+    case 'proto':return `${p.proto} ${PROTO[p.proto]||''}`.trim();case 'csum':return '0x'+h2(cs,4)+(csOk()?' ✓':' ✗');
+    case 'src':return p.src;case 'dst':return p.dst;case 'opts':return p.opts.length+' byte';}
+}
+function rawVal(k,b){const f=FIELDS.find(x=>x[0]===k)||['opts','','',160,b.length*8-160];let v=0;for(let i=f[3];i<f[3]+f[4];i++)v=v*2+((b[i>>3]>>(7-(i&7)))&1);return [v,f[4]];}
+function renderHeader(){
+  const b=cur(),p=pkt;
+  $('ruler').innerHTML=Array.from({length:32},(_,i)=>`<div class="ruler ${i%8===0||i===31?'':'mid'}">${i}</div>`).join('');
+  const fs=FIELDS.slice();if(p.opts.length)fs.push(['opts','Options','Options',160,p.opts.length*8]);
+  $('hdr').innerHTML=fs.map(f=>{
+    const row=Math.floor(f[3]/32)+1,col=f[3]%32+1,span=Math.min(f[4],32);
+    return `<button class="f ${sel===f[0]?'on':''} ${f[0]==='csum'&&!csOk()?'err':''}" style="grid-row:${row};grid-column:${col}/span ${span}" data-f="${f[0]}" aria-pressed="${sel===f[0]}"><span class="n"><span class="ln">${f[1]}</span><span class="sn">${f[2]}</span></span><span class="v">${esc(fval(f[0],p,b))}</span></button>`;}).join('');
+  $('hdr').querySelectorAll('[data-f]').forEach(el=>el.addEventListener('click',()=>{sel=el.dataset.f;renderHeader();}));
+  /* detail */
+  const f=fs.find(x=>x[0]===sel)||fs[8];const [v,n]=rawVal(f[0],b);
+  const bitsStr=n<=32?bin(v,n):'';
+  const inf=INFO[f[0]]||['Opzioni IP: campi facoltativi (record route, timestamp…), oggi usati raramente.','Molti firewall scartano i pacchetti con opzioni IP.'];
+  $('det').innerHTML=`<h3>${f[1]} · ${f[4]} bit · bit ${f[3]}–${f[3]+f[4]-1}</h3><p>${inf[0]}</p>${bitsStr?`<div class="bits" aria-label="bit del campo">${[...bitsStr].map(c=>`<span class="${c==='1'?'one':''}">${c}</span>`).join('')}</div>`:''}<p class="lbl">Valore: <b>${esc(fval(f[0],p,b))}</b>${n<=32?` · decimale ${v} · esadecimale 0x${h2(v,Math.ceil(n/4))}`:''}</p><div class="note"><b>Sul lavoro:</b> ${inf[1]}</div>`;
+  /* hex */
+  const b0=f[3]>>3,b1=(f[3]+f[4]-1)>>3;
+  $('hexView').innerHTML=b.map((x,i)=>`<span class="${i>=b0&&i<=b1?'hl':''}">${h2(x,2)}</span>${i%4===3?'<br>':' '}`).join('');
+  const st=$('csumState');
+  if(csOk()){st.textContent='Checksum corretto: l\'header è integro.';st.className='msg good';}
+  else{st.textContent=`Checksum errato: nel pacchetto c'è 0x${h2(stored,4)}, ma il valore giusto è 0x${h2(checksum(b),4)}. Un router lo scarterebbe.`;st.className='msg bad';}
+  syncForm();renderDec();renderCs();
+}
+
+/* ---------- PRESETS ---------- */
+function renderPresets(){
+  $('presets').innerHTML=PRESETS.map((p,i)=>`<button class="${presetOn===i?'on':''}" data-p="${i}">${p[0]}</button>`).join('')+`<button class="${presetOn===-2?'on':''}" data-p="-2">Header danneggiato</button>`;
+  $('presets').querySelectorAll('[data-p]').forEach(el=>el.addEventListener('click',()=>{
+    const i=+el.dataset.p;presetOn=i;
+    if(i>=0){pkt={...PRESETS[i][1],opts:[]};stored=null;}
+    else{pkt={...PRESETS[0][1],opts:[]};const c=checksum(build(pkt));stored=c^0x0100;}
+    renderPresets();renderHeader();$('hexIn').value=hexStr(cur());}));
+}
+const hexStr=b=>b.map((x,i)=>h2(x,2)+(i%4===3?'\n':' ')).join('').trim();
+
+/* ---------- BUILDER FORM ---------- */
+const PR=Object.keys(PROTO).map(Number);
+$('fProto').innerHTML=PR.map(n=>`<option value="${n}">${n} · ${PROTO[n]}</option>`).join('');
+const FM={fSrc:'src',fDst:'dst',fProto:'proto',fTtl:'ttl',fLen:'len',fId:'id',fDscp:'dscp',fEcn:'ecn',fOff:'off',fDf:'df',fMf:'mf'};
+const LIM={ttl:255,len:65535,id:65535,dscp:63,ecn:3,off:8191};
+function syncForm(){for(const [id,k] of Object.entries(FM)){const el=$(id);if(document.activeElement===el)continue;if(el.type==='checkbox')el.checked=!!pkt[k];else el.value=pkt[k];}}
+for(const [id,k] of Object.entries(FM)){
+  $(id).addEventListener(id==='fProto'||$(id).type==='checkbox'?'change':'input',()=>{
+    const el=$(id),m=$('formMsg');
+    if(el.type==='checkbox'){pkt[k]=el.checked?1:0;}
+    else if(k==='src'||k==='dst'){if(!ip2b(el.value)){m.textContent='Indirizzo non valido: servono quattro numeri da 0 a 255.';m.className='msg bad';return;}pkt[k]=el.value.trim();}
+    else{const v=Math.round(+el.value);const lo=k==='len'?20:0;if(!(v>=lo&&v<=(LIM[k]||255))){m.textContent=`${k.toUpperCase()}: valore fuori intervallo (${lo}–${LIM[k]||255}).`;m.className='msg bad';return;}pkt[k]=v;}
+    m.textContent='Header aggiornato, checksum ricalcolato.';m.className='msg good';
+    stored=null;presetOn=-1;sel=k==='df'||k==='mf'?'flags':k;renderPresets();renderHeader();$('hexIn').value=hexStr(cur());
+  });
+}
+
+/* ---------- DECODER ---------- */
+function renderDec(){
+  const b=cur(),p=pkt;
+  const rows=[['Version','4 bit','4'],['IHL','4 bit',`${5+p.opts.length/4} → ${(5+p.opts.length/4)*4} byte di header`],['DSCP','6 bit',`${p.dscp} · ${(DSCPN[p.dscp]||'valore non standard').split(' · ')[0]}`],['ECN','2 bit',ECNN[p.ecn].split(':')[0]],['Total Length','16 bit',`${p.len} byte (${p.len-(5+p.opts.length/4)*4} di dati)`],['Identification','16 bit',`0x${h2(p.id,4)} (${p.id})`],['Flags','3 bit',`DF = ${p.df}, MF = ${p.mf}`],['Fragment Offset','13 bit',`${p.off} → byte ${p.off*8}`],['TTL','8 bit',String(p.ttl)],['Protocol','8 bit',`${p.proto} · ${PROTO[p.proto]||'altro'}`],['Header Checksum','16 bit',`0x${h2((b[10]<<8)|b[11],4)} ${csOk()?'✓ corretto':'✗ errato'}`],['Source','32 bit',p.src],['Destination','32 bit',p.dst]];
+  $('decT').innerHTML='<tr><th>Campo</th><th>Bit</th><th>Valore</th></tr>'+rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="wrapc">${esc(r[2])}</td></tr>`).join('');
+}
+$('hexGo').addEventListener('click',()=>{
+  const r=parse($('hexIn').value),m=$('hexMsg');
+  if(r.err){m.textContent=r.err;m.className='msg bad';return;}
+  pkt=r.p;stored=r.cs;presetOn=-1;renderPresets();renderHeader();
+  m.textContent=(csOk()?'Decodificato, checksum corretto.':'Decodificato, ma il checksum è sbagliato!')+(r.extra>0?` Dopo l'header ci sono altri ${r.extra} byte di dati, ignorati.`:'');m.className='msg '+(csOk()?'good':'bad');
+});
+$('hexCopy').addEventListener('click',()=>{$('hexIn').value=hexStr(cur());$('hexMsg').textContent='Ho copiato qui l\'header attuale: ora puoi modificarlo.';$('hexMsg').className='msg';});
+
+/* manual decode exercise */
+const EXP={dscp:0,ecn:0,len:52,id:0xa1b2,df:1,mf:0,off:0,ttl:117,proto:6,src:'203.0.113.50',dst:'192.168.1.10',opts:[]};
+$('exHex').textContent=hexStr(build(EXP)).replace(/\n/g,'   ');
+const EXQ=[['Lunghezza dell\'header in byte','20'],['Lunghezza dei dati trasportati in byte','32'],['TTL (in decimale)','117'],['Protocollo trasportato (nome)','tcp'],['Indirizzo sorgente','203.0.113.50'],['Il pacchetto è frammentato? (sì/no)','no']];
+const HINT=['IHL = 5 → 5 × 4 = 20 byte.','Total Length 0x0034 = 52, meno 20 di header = 32.','Nono byte: 0x75 = 117. Probabilmente un Windows a 11 salti.','Decimo byte: 0x06 = 6 = TCP.','Byte 13–16: CB 00 71 32 = 203.0.113.50.','Flags/offset 0x4000: DF = 1, MF = 0, offset 0 → no.'];
+$('exQ').innerHTML=EXQ.map((q,i)=>`<div class="ex"><label for="ex${i}">${q[0]}</label><input type="text" id="ex${i}" autocomplete="off"><span class="msg" id="exR${i}"></span></div>`).join('');
+const norm=s=>s.trim().toLowerCase().replace(/^si$/,'sì').replace(/\s+byte$/,'');
+$('exCheck').addEventListener('click',()=>{let ok=0;EXQ.forEach((q,i)=>{const g=norm($('ex'+i).value),r=$('exR'+i);const good=g===q[1]||(q[1]==='no'&&g==='no');if(good){ok++;r.textContent='✓';r.className='msg good';}else{r.textContent='✗ '+HINT[i];r.className='msg bad';}});$('exMsg').textContent=`${ok} su ${EXQ.length} corrette`;$('exMsg').className='msg '+(ok===EXQ.length?'good':'bad');});
+
+/* ---------- CHECKSUM ---------- */
+let csLast=null;
+function renderCs(){
+  const b=cur().slice();b[10]=0;b[11]=0;const w=words(b);const names=['Ver/IHL/DSCP/ECN','Total Length','Identification','Flags/Offset','TTL/Protocol','Checksum (a 0)','Source (1ª metà)','Source (2ª metà)','Dest. (1ª metà)','Dest. (2ª metà)'];
+  let s=0;const rows=w.map((x,i)=>{s+=x;return `<tr class="${csLast!==null&&csLast[i]!==x?'sel':''}"><td>${names[i]||'Opzioni'}</td><td class="num mono">${h2(x,4)}</td><td class="num mono">${h2(s,5)}</td></tr>`;});
+  $('csT').innerHTML='<tr><th>Parola da 16 bit</th><th class="num">Valore</th><th class="num">Somma progressiva</th></tr>'+rows.join('');
+  const f=fold(s),c=(~f)&0xffff;
+  let log=`Somma totale: 0x${h2(s,5)}\n`;
+  if(s>0xffff)log+=`Riporto: 0x${h2(s&0xffff,4)} + 0x${h2(s>>>16,1)} = 0x${h2(f,4)}\n`;
+  log+=`Complemento: ~0x${h2(f,4)} = 0x${h2(c,4)}  ← Header Checksum\n\nVerifica di chi riceve: somma di tutte le parole, checksum compreso → 0x${h2(fold(s+c),4)}${fold(s+c)===0xffff?' = FFFF ✓':''}`;
+  $('csLog').textContent=log;
+}
+$('ttlDec').addEventListener('click',()=>{
+  const b=cur().slice();b[10]=0;b[11]=0;csLast=words(b);
+  if(pkt.ttl<=1){$('csLog').textContent=`TTL = ${pkt.ttl}: decrementandolo arriverebbe a 0. Il router scarta il pacchetto e invia un ICMP Time Exceeded!`;return;}
+  const old=checksum(cur());pkt.ttl--;stored=null;presetOn=-1;sel='ttl';renderPresets();renderHeader();
+  $('csLog').textContent=`TTL ${pkt.ttl+1} → ${pkt.ttl}: cambia solo la parola TTL/Protocol (evidenziata).\nChecksum: 0x${h2(old,4)} → 0x${h2(checksum(cur()),4)}\n\n`+$('csLog').textContent;
+  csLast=null;
+});
+$('csReset').addEventListener('click',()=>{csLast=null;pkt={...PRESETS[0][1],opts:[]};stored=null;presetOn=0;renderPresets();renderHeader();});
+
+/* ---------- TTL / TRACEROUTE ---------- */
+const HOPS=[['PC','192.168.1.42'],['R1 casa','192.168.1.1'],['R2 provider','100.64.0.1'],['R3','198.51.100.1'],['R4','198.51.100.77'],['R5','203.0.113.1'],['Server','203.0.113.10']];
+let tt={pos:0,ttl:3,dead:false,done:false,log:[]};
+function ttlInit(){const t=+$('ttlStart').value;$('ttlVal').textContent=t;tt={pos:0,ttl:t,dead:false,done:false,log:[`Il PC invia il pacchetto con TTL = ${t}.`]};renderTTL();}
+function renderTTL(){
+  const W=640,n=HOPS.length,x=i=>40+i*(W-80)/(n-1),y=70;
+  let s=`<svg viewBox="0 0 ${W} 170" xmlns="${NS}">`;
+  for(let i=0;i<n-1;i++)s+=`<line x1="${x(i)}" y1="${y}" x2="${x(i+1)}" y2="${y}" stroke="var(--line)" stroke-width="4"/>`;
+  HOPS.forEach((h,i)=>{const end=i===0||i===n-1,dead=tt.dead&&i===tt.pos;
+    s+=end?`<rect x="${x(i)-22}" y="${y-17}" width="44" height="34" rx="6" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>`:`<circle cx="${x(i)}" cy="${y}" r="19" fill="${dead?'var(--red)':'var(--cob)'}" stroke="var(--ink)" stroke-width="2"/>`;
+    s+=`<text x="${x(i)}" y="${y+44}" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink)">${h[0]}</text>`;});
+  const px=x(tt.pos);
+  if(!tt.dead){s+=`<rect x="${px-26}" y="${y-58}" width="52" height="28" rx="5" fill="var(--or)" stroke="#000" stroke-width="1.5"/><text x="${px}" y="${y-39}" text-anchor="middle" font-size="14" font-weight="700" fill="#000">TTL ${tt.ttl}</text>`;}
+  else{s+=`<text x="${px}" y="${y-36}" text-anchor="middle" font-size="15" font-weight="700" fill="var(--red)">TTL 0 · scartato</text><path d="M${px-10},${y+70} L${x(0)+10},${y+70}" stroke="var(--red)" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ar)"/><text x="${(px+x(0))/2}" y="${y+90}" text-anchor="middle" font-size="13" fill="var(--red)">ICMP Time Exceeded</text>`;}
+  s+=`<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="var(--red)"/></marker></defs>`;
+  $('ttlFig').innerHTML=s+'</svg>';
+  $('ttlLog').textContent=tt.log.join('\n');$('ttlLog').scrollTop=1e5;
+  $('ttlStep').disabled=tt.dead||tt.done;
+}
+$('ttlStep').addEventListener('click',()=>{
+  if(tt.dead||tt.done)return;tt.pos++;const h=HOPS[tt.pos];
+  if(tt.pos===HOPS.length-1){tt.done=true;tt.log.push(`Il server ${h[1]} riceve il pacchetto con TTL = ${tt.ttl}. Consegnato!`);}
+  else{tt.ttl--;if(tt.ttl===0){tt.dead=true;tt.log.push(`${h[0]} (${h[1]}) decrementa il TTL a 0 → scarta il pacchetto e invia al PC un ICMP Time Exceeded (tipo 11, codice 0).`);}
+  else tt.log.push(`${h[0]} (${h[1]}) decrementa il TTL → ${tt.ttl} e inoltra.`);}
+  renderTTL();
+});
+$('ttlReset').addEventListener('click',ttlInit);$('ttlStart').addEventListener('input',ttlInit);
+$('trGo').addEventListener('click',()=>{
+  const ms=[1.1,8.4,9.2,14.6,15.1,15.8];
+  const lines=['$ traceroute 203.0.113.10'];
+  for(let t=1;t<HOPS.length;t++){const h=HOPS[t];lines.push(` ${t}  ${h[1].padEnd(15)} ${ms[t-1].toFixed(1)} ms   ← ${t===HOPS.length-1?'risponde il server: arrivato':'Time Exceeded da '+h[0]} (TTL inviato = ${t})`);}
+  tt={pos:0,ttl:+$('ttlStart').value,dead:false,done:true,log:lines};renderTTL();
+});
+const OSQ=[[116,'windows',12],[52,'linux',12],[249,'router',6]];
+$('osQ').innerHTML=OSQ.map((q,i)=>`<div class="ex"><span>Un <code>ping</code> risponde con <b>TTL=${q[0]}</b></span><select id="os${i}" aria-label="sistema"><option value="">sistema…</option><option value="linux">Linux/macOS (64)</option><option value="windows">Windows (128)</option><option value="router">Apparato di rete (255)</option></select><input type="number" id="oh${i}" placeholder="salti" min="0" max="64" aria-label="numero di salti" style="width:6em"></div>`).join('');
+$('osCheck').addEventListener('click',()=>{let ok=0;OSQ.forEach((q,i)=>{if($('os'+i).value===q[1]&&+$('oh'+i).value===q[2])ok++;});const m=$('osMsg');m.textContent=ok===OSQ.length?'Tutte giuste! Il TTL iniziale è il valore tipico più vicino sopra quello ricevuto.':`${ok} su ${OSQ.length}. Suggerimento: prendi il valore iniziale tipico (64, 128, 255) appena sopra il TTL ricevuto e fai la differenza.`;m.className='msg '+(ok===OSQ.length?'good':'bad');});
+
+/* ---------- FRAGMENTATION ---------- */
+function frags(len,mtu,hl){const data=len-hl,per=Math.floor((mtu-hl)/8)*8,r=[];let o=0;while(o<data){const d=Math.min(per,data-o);r.push({d,off:o/8,mf:o+d<data?1:0,len:d+hl});o+=d;}return r;}
+function renderFrag(){
+  const len=Math.round(+$('frLen').value),mtu=+$('frMtu').value,df=$('frDf').checked,hl=20,m=$('frMsg');
+  if(!(len>hl&&len<=65535)){m.textContent='Total Length deve stare tra 21 e 65.535 byte.';m.className='msg bad';$('frT').innerHTML='';$('frBar').innerHTML='';return;}
+  if(len<=mtu){m.textContent=`${len} ≤ MTU ${mtu}: il pacchetto passa intero, nessuna frammentazione.`;m.className='msg good';$('frT').innerHTML='';$('frBar').innerHTML=`<div class="h" style="width:40px">IP</div><div style="flex:1">${len-hl} byte di dati</div>`;return;}
+  if(df){m.textContent=`DF = 1 e ${len} > ${mtu}: il router scarta il pacchetto e invia ICMP tipo 3 codice 4 "Fragmentation Needed" con MTU ${mtu}. Il mittente dovrà mandare pacchetti più piccoli (Path MTU Discovery).`;m.className='msg bad';$('frT').innerHTML='';$('frBar').innerHTML=`<div style="flex:1;background:var(--red)">scartato</div>`;return;}
+  const F=frags(len,mtu,hl);
+  $('frBar').innerHTML=F.map(f=>`<div style="flex:${f.d}" title="offset ${f.off}">${F.length<=8?'off '+f.off:''}</div>`).join('');
+  $('frT').innerHTML='<tr><th class="num">#</th><th class="num">Total Length</th><th class="num">Dati</th><th class="num">Offset</th><th class="num">Byte iniziale</th><th class="num">MF</th></tr>'+F.map((f,i)=>`<tr><td class="num">${i+1}</td><td class="num">${f.len}</td><td class="num">${f.d}</td><td class="num">${f.off}</td><td class="num">${f.off*8}</td><td class="num">${f.mf}</td></tr>`).join('');
+  const per=Math.floor((mtu-hl)/8)*8;
+  m.textContent=`${len-hl} byte di dati. Ogni frammento ne porta al massimo ${per}: (${mtu} − 20) arrotondato per difetto a un multiplo di 8. Risultato: ${F.length} frammenti, tutti con lo stesso Identification.`;m.className='msg';
+}
+['frLen','frMtu','frDf'].forEach(id=>$(id).addEventListener(id==='frLen'?'input':'change',renderFrag));
+const FRQ=[['Quanti frammenti si ottengono?','3'],['Quanti byte di dati porta ogni frammento tranne l\'ultimo?','976'],['Fragment Offset del terzo frammento?','244'],['Byte di dati nell\'ultimo frammento?','428']];
+$('frQ').innerHTML=FRQ.map((q,i)=>`<div class="ex"><label for="fq${i}">${q[0]}</label><input type="number" id="fq${i}"><span class="msg" id="fqR${i}"></span></div>`).join('');
+$('frCheck').addEventListener('click',()=>{let ok=0;FRQ.forEach((q,i)=>{const r=$('fqR'+i);if($('fq'+i).value.trim()===q[1]){ok++;r.textContent='✓';r.className='msg good';}else{r.textContent='✗';r.className='msg bad';}});const m=$('frExMsg');m.textContent=ok===4?'Perfetto!':`${ok} su 4. Metodo: dati = 2400 − 20 = 2380; per frammento al massimo (1000 − 20) = 980, arrotondato a multiplo di 8 → 976. Gli offset si contano in blocchi da 8 byte.`;m.className='msg '+(ok===4?'good':'bad');});
+
+/* ---------- DSCP / ECN ---------- */
+let tos=0;
+function renderTos(){
+  $('tbits').innerHTML=Array.from({length:8},(_,i)=>{const on=(tos>>(7-i))&1;return `<button class="${on?'one':''} ${i>=6?'ecn':''}" data-b="${i}" aria-label="bit ${i}" aria-pressed="${!!on}">${on}</button>`;}).join('');
+  $('tbits').querySelectorAll('[data-b]').forEach(el=>el.addEventListener('click',()=>{tos^=1<<(7-+el.dataset.b);renderTos();}));
+  const d=tos>>2,e=tos&3;
+  $('tosHex').textContent=`TOS 0x${h2(tos,2)} · DSCP ${d} · ECN ${bin(e,2)}`;
+  $('tosTxt').innerHTML=`<b>DSCP ${d}:</b> ${esc(DSCPN[d]||'valore non standard: lo tratta come la rete è configurata')}<br><b>ECN:</b> ${esc(ECNN[e])}`;
+}
+document.querySelectorAll('[data-tos]').forEach(el=>el.addEventListener('click',()=>{tos=(+el.dataset.tos<<2)|(tos&3);renderTos();}));
+$('tosApply').addEventListener('click',()=>{pkt.dscp=tos>>2;pkt.ecn=tos&3;stored=null;presetOn=-1;sel='dscp';renderPresets();renderHeader();document.querySelector('header').scrollIntoView();});
+
+/* ---------- PROTOCOL TABLE ---------- */
+$('protoT').innerHTML='<tr><th class="num">Numero</th><th>Protocollo</th><th>Dove lo incontri</th></tr>'+PR.map(n=>`<tr><td class="num"><b>${n}</b></td><td>${PROTO[n]}</td><td class="wrapc">${PROTO_USE[n]}</td></tr>`).join('');
+
+/* ---------- ICMP ---------- */
+const ICMPT=[[0,'0','Echo Reply','risposta al ping'],[3,'0','Destination Unreachable','rete non raggiungibile'],[3,'1','Destination Unreachable','host non raggiungibile'],[3,'3','Destination Unreachable','porta non raggiungibile'],[3,'4','Destination Unreachable','serve frammentare ma DF = 1'],[3,'13','Destination Unreachable','bloccato da un filtro (amministrativamente)'],[5,'0–3','Redirect','"usa un altro gateway"'],[8,'0','Echo Request','richiesta di ping'],[11,'0','Time Exceeded','TTL scaduto durante il transito'],[11,'1','Time Exceeded','tempo di riassemblaggio dei frammenti scaduto'],[12,'0','Parameter Problem','header IP non valido']];
+$('icmpT').innerHTML='<tr><th class="num">Type</th><th class="num">Code</th><th>Nome</th><th>Significato</th></tr>'+ICMPT.map(r=>`<tr><td class="num"><b>${r[0]}</b></td><td class="num">${r[1]}</td><td>${r[2]}</td><td class="wrapc">${r[3]}</td></tr>`).join('');
+const SC=[
+ {n:'Ping riuscito',m:[['PC','S','Echo Request · tipo 8','c'],['S','PC','Echo Reply · tipo 0','g']],t:'8 → 0',out:'Risposta da 203.0.113.10: byte=32 durata=15ms TTL=52',d:'Il server risponde. Dal TTL ricevuto (52) capisci anche che probabilmente è un Linux a 64 − 52 = 12 salti.'},
+ {n:'Host spento',m:[['PC','R1','Echo Request','c'],['R1','R2','Echo Request','c'],['R2',null,'ARP per .99: nessuna risposta','n'],['R2','PC','Dest. Unreachable · 3/1 host','r']],t:'3 / 1',out:'Risposta da 198.51.100.1: Host di destinazione non raggiungibile.',d:'L\'ultimo router conosce la rete di destinazione, ma l\'host non risponde all\'ARP, e allora avvisa il mittente. Attenzione: la "risposta" arriva dal router (198.51.100.1), non dall\'host.'},
+ {n:'Rete sconosciuta',m:[['PC','R1','Echo Request → 10.99.0.1','c'],['R1',null,'nessuna rotta e nessuna default','n'],['R1','PC','Dest. Unreachable · 3/0 net','r']],t:'3 / 0',out:'Risposta da 192.168.1.1: Rete di destinazione non raggiungibile.',d:'Il router non ha nella routing table né la rete di destinazione né una default route. È il caso visto nella lezione sul routing.'},
+ {n:'TTL scaduto',m:[['PC','R1','Echo Request · TTL 2','c'],['R1','R2','Echo Request · TTL 1','c'],['R2',null,'TTL → 0: scartato','n'],['R2','PC','Time Exceeded · 11/0','r']],t:'11 / 0',out:'Risposta da 198.51.100.1: TTL scaduto durante il transito.',d:'Lo provoca apposta traceroute. Per errore succede in un routing loop: il pacchetto gira finché il TTL si esaurisce.'},
+ {n:'Porta UDP chiusa',m:[['PC','S','UDP → porta 9999','c'],['S',null,'nessun servizio sulla 9999','n'],['S','PC','Dest. Unreachable · 3/3 port','r']],t:'3 / 3',out:'$ nc -u 203.0.113.10 9999  →  Connection refused',d:'Questa volta risponde l\'host stesso: è acceso, ma nessun programma ascolta su quella porta. I port scanner usano proprio questo messaggio per trovare le porte UDP chiuse.'},
+ {n:'Troppo grande con DF',m:[['PC','R1','IP da 1500 byte, DF = 1','c'],['R1',null,'link successivo: MTU 1400','n'],['R1','PC','Dest. Unreachable · 3/4 MTU 1400','r']],t:'3 / 4',out:'È necessario frammentare il pacchetto ma è impostato DF.',d:'Il messaggio contiene la MTU del link e il mittente riduce i pacchetti (Path MTU Discovery). Se un firewall blocca questo ICMP, alcune connessioni si bloccano: si parla di "PMTU black hole".'},
+ {n:'Firewall silenzioso',m:[['PC','R1','Echo Request','c'],['R1','R2','Echo Request','c'],['R2',null,'firewall: DROP, nessuna risposta','n']],t:'nessuno',out:'Richiesta scaduta.',d:'Non torna indietro nessun ICMP e il mittente va in timeout. Da qui non puoi sapere se l\'host è spento, se il pacchetto si è perso o se un firewall lo ha bloccato.'}];
+let scI=0;
+$('icmpBtns').innerHTML=SC.map((s,i)=>`<button class="ghost" data-sc="${i}">${s.n}</button>`).join('');
+$('icmpBtns').querySelectorAll('[data-sc]').forEach(b=>b.addEventListener('click',()=>{scI=+b.dataset.sc;renderIcmp();}));
+function renderIcmp(){
+  const s=SC[scI],X={PC:60,R1:230,R2:400,S:570},N={PC:'PC',R1:'R1',R2:scI===6?'R2 firewall':'R2',S:'Server'},H=80+s.m.length*56;
+  const col={c:'var(--cob)',g:'var(--ok)',r:'var(--red)'};
+  let g=`<svg viewBox="0 0 640 ${H}" xmlns="${NS}"><defs>${Object.entries(col).map(([k,v])=>`<marker id="m${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="${v}"/></marker>`).join('')}</defs>`;
+  for(const [k,x] of Object.entries(X))g+=`<line x1="${x}" y1="44" x2="${x}" y2="${H-8}" stroke="var(--line)" stroke-width="2" stroke-dasharray="5 5"/><rect x="${x-46}" y="10" width="92" height="32" rx="6" fill="${k==='PC'||k==='S'?'var(--card)':'var(--cob)'}" stroke="var(--ink)" stroke-width="2"/><text x="${x}" y="31" text-anchor="middle" font-size="14" font-weight="700" fill="${k==='PC'||k==='S'?'var(--ink)':'#fff'}">${N[k]}</text>`;
+  s.m.forEach((m,i)=>{const y=80+i*56;
+    if(!m[1]){g+=`<rect x="${X[m[0]]-110}" y="${y-18}" width="220" height="30" rx="6" fill="var(--zone)" stroke="var(--or)" stroke-width="1.5"/><text x="${X[m[0]]}" y="${y+2}" text-anchor="middle" font-size="13" font-weight="600" fill="var(--ink)">${m[2]}</text>`;return;}
+    const x1=X[m[0]],x2=X[m[1]],d=x2>x1?1:-1;
+    g+=`<line x1="${x1+d*4}" y1="${y}" x2="${x2-d*6}" y2="${y}" stroke="${col[m[3]]}" stroke-width="3" marker-end="url(#m${m[3]})"/><text x="${(x1+x2)/2}" y="${y-9}" text-anchor="middle" font-size="14" font-weight="700" fill="${col[m[3]]}" style="paint-order:stroke;stroke:var(--card);stroke-width:5px">${m[2]}</text>`;});
+  $('icmpFig').innerHTML=g+'</svg>';
+  $('icmpTC').textContent=s.t;$('icmpOut').textContent='> '+s.out;$('icmpTxt').textContent=s.d;
+  $('icmpBtns').querySelectorAll('[data-sc]').forEach(b=>b.className=+b.dataset.sc===scI?'':'ghost');
+}
+const ICQ=[['Risposta da 8.8.8.8: byte=32 durata=14ms TTL=117','0'],['Richiesta scaduta.','none'],['Risposta da 10.0.0.1: TTL scaduto durante il transito.','11/0'],['Risposta da 10.0.0.1: Host di destinazione non raggiungibile.','3/1'],['From 192.168.1.1 icmp_seq=1 Destination Net Unreachable','3/0'],['From 10.0.0.1 icmp_seq=1 Frag needed and DF set (mtu = 1400)','3/4']];
+const ICO=[['0','0 · Echo Reply'],['3/0','3/0 · Net Unreachable'],['3/1','3/1 · Host Unreachable'],['3/3','3/3 · Port Unreachable'],['3/4','3/4 · Fragmentation Needed'],['11/0','11/0 · Time Exceeded'],['none','nessun ICMP (timeout)']];
+$('icmpQ').innerHTML=ICQ.map((q,i)=>`<div class="ex"><code>${esc(q[0])}</code><select id="ic${i}" aria-label="tipo ICMP"><option value="">scegli…</option>${ICO.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join('')}</select><span class="msg" id="icR${i}"></span></div>`).join('');
+$('icmpCheck').addEventListener('click',()=>{let ok=0;ICQ.forEach((q,i)=>{const r=$('icR'+i);if($('ic'+i).value===q[1]){ok++;r.textContent='✓';r.className='msg good';}else{r.textContent='✗';r.className='msg bad';}});const m=$('icmpMsg');m.textContent=`${ok} su ${ICQ.length}`+(ok===ICQ.length?': ottimo!':'. Rivedi gli scenari nello schema sopra.');m.className='msg '+(ok===ICQ.length?'good':'bad');});
+
+/* ---------- ARP ---------- */
+const HOSTS={A:{n:'PC A',ip:'192.168.1.42',mac:'3c:22:fb:10:00:42',x:90,y:60},B:{n:'PC B',ip:'192.168.1.20',mac:'3c:22:fb:10:00:20',x:90,y:250},P:{n:'Stampante',ip:'192.168.1.50',mac:'00:1b:a9:00:00:50',x:550,y:250},R:{n:'Router',ip:'192.168.1.1',mac:'e4:8d:8c:00:00:01',x:550,y:60}};
+const SW={x:320,y:155};
+const ART={B:'PC B',P:'la stampante',R:'il router'};
+let arpCache=[{ip:'192.168.1.50',mac:HOSTS.P.mac}],arpSt=null;
+const ipN=s=>{const b=ip2b(s);return b?((b[0]<<24)>>>0)+(b[1]<<16)+(b[2]<<8)+b[3]:null;};
+const sameNet=(a,b)=>(ipN(a)>>>8)===(ipN(b)>>>8);
+function arpPlan(dst){
+  const local=sameNet(dst,HOSTS.A.ip),tgt=local?dst:HOSTS.R.ip;
+  const who=Object.keys(HOSTS).find(k=>HOSTS[k].ip===tgt&&k!=='A');
+  const hit=arpCache.find(c=>c.ip===tgt);
+  const S=[{t:`Passo 1. ${dst} AND 255.255.255.0 = ${dst.split('.').slice(0,3).join('.')}.0. ${local?'È la mia rete (192.168.1.0/24): cerco il MAC di '+dst+' stesso.':'Non è la mia rete: il pacchetto va al gateway, quindi cerco il MAC di '+tgt+' (il router).'}`,hl:[],pkt:null}];
+  if(dst===HOSTS.A.ip){return [{t:'Questo è l\'IP di PC A stesso: il pacchetto non esce sulla rete.',hl:[],pkt:null}];}
+  if(hit){S.push({t:`Passo 2. ${tgt} è già nella cache ARP (${hit.mac}): nessuna richiesta ARP necessaria.`,hl:[],pkt:null,cache:true});
+    S.push({t:`Passo 3. Il frame parte: MAC di destinazione ${hit.mac}, IP di destinazione ${dst}.`,hl:['A',who],col:'var(--cob)',pkt:'frame',tgt,dst,mac:hit.mac});return S;}
+  S.push({t:`Passo 2. ${tgt} non è nella cache ARP: serve una richiesta.`,hl:[],pkt:null});
+  S.push({t:`Passo 3. ARP Request in broadcast: "Chi ha ${tgt}? Rispondi a ${HOSTS.A.ip}". Lo switch lo inoltra su tutte le porte e tutti lo ricevono.`,hl:['A','B','P','R'],col:'var(--or)',pkt:'req',tgt});
+  if(!who){S.push({t:`Passo 4. Nessuno ha l'IP ${tgt}: nessuna risposta. Dopo alcuni tentativi il PC rinuncia. Il ping mostrerà "Host di destinazione non raggiungibile", generato dal PC stesso.`,hl:[],pkt:null,fail:true});return S;}
+  S.push({t:`Passo 4. Solo ${ART[who]} riconosce il proprio IP e risponde con un ARP Reply in unicast. Gli altri scartano la richiesta.`,hl:[who,'A'],col:'var(--ok)',pkt:'rep',tgt,who});
+  S.push({t:`Passo 5. PC A salva ${tgt} → ${HOSTS[who].mac} nella cache. Anche ${ART[who]} ha imparato il MAC di PC A dalla richiesta.`,hl:[],pkt:null,add:{ip:tgt,mac:HOSTS[who].mac}});
+  S.push({t:`Passo 6. Il frame parte: MAC di destinazione ${HOSTS[who].mac}, IP di destinazione ${dst}.${local?'':' Il MAC è quello del router, ma l\'IP è ancora '+dst+'!'}`,hl:['A',who],col:'var(--cob)',pkt:'frame',tgt,dst,mac:HOSTS[who].mac});
+  return S;
+}
+function arpStart(dst){const m=$('arpMsg');if(!ip2b(dst)){m.textContent='Indirizzo IP non valido.';m.className='msg bad';return;}$('arpIn').value=dst;arpSt={dst,S:arpPlan(dst),k:0};renderArp();}
+function renderArp(){
+  const st=arpSt?arpSt.S[arpSt.k]:{t:'Scegli una destinazione e premi "Passo successivo".',hl:[]};
+  if(st.add&&!arpCache.find(c=>c.ip===st.add.ip))arpCache.push(st.add);
+  let g=`<svg viewBox="0 0 640 310" xmlns="${NS}">`;
+  for(const [k,h] of Object.entries(HOSTS)){const on=st.hl.includes(k);g+=`<line x1="${h.x}" y1="${h.y}" x2="${SW.x}" y2="${SW.y}" stroke="${on?st.col:'var(--line)'}" stroke-width="${on?7:3}"/>`;}
+  g+=`<rect x="${SW.x-50}" y="${SW.y-22}" width="100" height="44" rx="8" fill="var(--ink)"/><text x="${SW.x}" y="${SW.y+6}" text-anchor="middle" font-size="16" font-weight="700" fill="var(--bg)">Switch</text>`;
+  g+=`<text x="${HOSTS.R.x}" y="16" text-anchor="middle" font-size="13" fill="var(--mute)">↑ verso Internet</text>`;
+  for(const [k,h] of Object.entries(HOSTS)){const on=st.hl.includes(k);g+=`<rect x="${h.x-62}" y="${h.y-26}" width="124" height="52" rx="8" fill="${k==='A'?'var(--cob)':'var(--card)'}" stroke="${on?st.col:'var(--ink)'}" stroke-width="${on?4:2}"/><text x="${h.x}" y="${h.y-4}" text-anchor="middle" font-size="15" font-weight="700" fill="${k==='A'?'#fff':'var(--ink)'}">${h.n}</text><text x="${h.x}" y="${h.y+15}" text-anchor="middle" font-size="12" fill="${k==='A'?'#dfe6ff':'var(--mute)'}">${h.ip}</text>`;}
+  $('arpFig').innerHTML=g+'</svg>';
+  const m=$('arpMsg');m.textContent=st.t;m.className='msg'+(st.fail?' bad':'');
+  const A=HOSTS.A;let rows=null;
+  if(st.pkt==='req')rows=[['Ethernet: MAC destinazione','ff:ff:ff:ff:ff:ff (broadcast)'],['Ethernet: EtherType','0x0806 (ARP)'],['Operation','1 = Request'],['Sender MAC / IP',`${A.mac} / ${A.ip}`],['Target MAC / IP',`00:00:00:00:00:00 (non lo so) / ${st.tgt}`]];
+  if(st.pkt==='rep'){const w=HOSTS[st.who];rows=[['Ethernet: MAC destinazione',`${A.mac} (unicast)`],['Ethernet: EtherType','0x0806 (ARP)'],['Operation','2 = Reply'],['Sender MAC / IP',`${w.mac} / ${w.ip}`],['Target MAC / IP',`${A.mac} / ${A.ip}`]];}
+  if(st.pkt==='frame')rows=[['Ethernet: MAC sorgente',A.mac],['Ethernet: MAC destinazione',st.mac],['Ethernet: EtherType','0x0800 (IPv4)'],['IP sorgente',A.ip],['IP destinazione',st.dst]];
+  $('arpPkt').innerHTML=rows?`<tr><th>${st.pkt==='frame'?'Frame inviato':'Pacchetto ARP'}</th><th>Valore</th></tr>`+rows.map(r=>`<tr><td>${r[0]}</td><td class="mono wrapc">${esc(r[1])}</td></tr>`).join(''):'';
+  $('arpCache').innerHTML='<tr><th>Indirizzo IP</th><th>Indirizzo MAC</th><th>Tipo</th></tr>'+(arpCache.length?arpCache.map(c=>`<tr class="${st.add&&st.add.ip===c.ip||st.cache&&st.tgt===c.ip?'sel':''}"><td>${c.ip}</td><td class="mono">${c.mac}</td><td>dinamico</td></tr>`).join(''):'<tr><td colspan="3">Cache vuota</td></tr>');
+  $('arpNext').disabled=!arpSt||arpSt.k>=arpSt.S.length-1;
+}
+document.querySelectorAll('[data-arp]').forEach(b=>b.addEventListener('click',()=>arpStart(b.dataset.arp)));
+$('arpGo').addEventListener('click',()=>arpStart($('arpIn').value.trim()));
+$('arpNext').addEventListener('click',()=>{if(arpSt&&arpSt.k<arpSt.S.length-1){arpSt.k++;renderArp();}});
+$('arpFlush').addEventListener('click',()=>{arpCache=[];arpSt=null;renderArp();$('arpMsg').textContent='Cache svuotata (come con arp -d * oppure ip neigh flush all).';});
+const ARQ=[['192.168.1.20','192.168.1.20'],['8.8.8.8','192.168.1.1'],['192.168.2.5','192.168.1.1'],['192.168.1.200','192.168.1.200']];
+$('arpQ').innerHTML=ARQ.map((q,i)=>`<div class="ex"><label for="aq${i}">Destinazione <b>${q[0]}</b></label><input type="text" id="aq${i}" placeholder="IP cercato" autocomplete="off"><span class="msg" id="aqR${i}"></span></div>`).join('');
+$('arpCheck').addEventListener('click',()=>{let ok=0;ARQ.forEach((q,i)=>{const r=$('aqR'+i);if($('aq'+i).value.trim()===q[1]){ok++;r.textContent='✓';r.className='msg good';}else{r.textContent='✗ '+q[1];r.className='msg bad';}});const m=$('arpExMsg');m.textContent=ok===ARQ.length?'Perfetto: fuori dalla propria rete si chiede sempre il MAC del gateway.':`${ok} su ${ARQ.length}. Fai l'AND con la maschera: se la rete è diversa da 192.168.1.0, si cerca il MAC del gateway.`;m.className='msg '+(ok===ARQ.length?'good':'bad');});
+
+/* ---------- QUIZ ---------- */
+const QZ=[
+ ['Quanto è lungo l\'header IPv4 senza opzioni?',['20 byte','40 byte','60 byte'],0,'IHL minimo 5 × 4 byte = 20 byte.'],
+ ['IHL vale 6. Quanti byte di opzioni ci sono?',['2','4','24'],1,'6 × 4 = 24 byte di header, cioè 4 byte oltre i 20 standard.'],
+ ['Che cosa fa un router quando il TTL arriva a 0?',['Lo riporta a 64','Scarta il pacchetto e invia un ICMP Time Exceeded','Lo frammenta'],1,'È il meccanismo che sfrutta traceroute.'],
+ ['Perché ogni router deve ricalcolare il checksum dell\'header?',['Perché cambia l\'indirizzo di destinazione','Perché il TTL diminuisce a ogni salto','Perché il checksum copre anche i dati'],1,'Il TTL fa parte dell\'header, quindi a ogni salto l\'header cambia.'],
+ ['Il checksum IPv4 protegge…',['solo l\'header','header e dati','solo i dati'],0,'I dati sono protetti dai checksum di TCP e UDP.'],
+ ['Fragment Offset = 185. Da quale byte partono i dati del frammento?',['185','1480','370'],1,'L\'offset è in unità da 8 byte: 185 × 8 = 1480.'],
+ ['Quale flag indica che seguiranno altri frammenti?',['DF','MF','Il bit riservato'],1,'MF = More Fragments, vale 1 in tutti i frammenti tranne l\'ultimo.'],
+ ['Chi riassembla i frammenti?',['Ogni router lungo il percorso','Solo la destinazione finale','Il primo router'],1,'I router non riassemblano: ogni frammento può anche seguire un percorso diverso.'],
+ ['Protocol = 17 indica…',['TCP','UDP','ICMP'],1,'1 ICMP, 6 TCP, 17 UDP, 89 OSPF.'],
+ ['Che DSCP usa di norma il traffico voce VoIP?',['0 (best effort)','46 (EF)','8 (CS1)'],1,'EF, Expedited Forwarding, finisce nella coda prioritaria.'],
+ ['Con che valore del campo Protocol viaggia ICMP dentro IP?',['1','6','17'],0,'ICMP = 1, TCP = 6, UDP = 17.'],
+ ['traceroute riceve da ogni router intermedio un messaggio ICMP di tipo…',['0 Echo Reply','11 Time Exceeded','3 Destination Unreachable'],1,'Ogni router che porta il TTL a 0 risponde con Time Exceeded (11/0).'],
+ ['Un ARP Request viene inviato…',['in broadcast a tutta la LAN','in unicast al destinatario','al server DNS'],0,'Il MAC del destinatario non si conosce ancora, quindi si chiede a tutti (ff:ff:ff:ff:ff:ff).'],
+ ['PC 192.168.1.42/24 invia a 8.8.8.8. Di chi cerca il MAC con ARP?',['Di 8.8.8.8','Del gateway 192.168.1.1','Dello switch'],1,'Fuori dalla propria rete il frame va al gateway: MAC del router, IP di destinazione 8.8.8.8.'],
+ ['Perché ARP non può attraversare un router?',['Perché è cifrato','Perché lavora dentro la LAN e usa il broadcast di livello 2','Perché usa TCP'],1,'ARP è incapsulato direttamente in Ethernet e i router non inoltrano i broadcast.']];
+function renderQuiz(){$('quizBox').innerHTML=QZ.map((q,i)=>`<div class="q" id="q${i}"><b>${i+1}. ${q[0]}</b><div class="opts">${q[1].map((o,j)=>`<label id="q${i}o${j}"><input type="radio" name="q${i}" value="${j}"> ${o}</label>`).join('')}</div><div class="why">${q[3]}</div></div>`).join('');$('quizScore').textContent='';}
+$('quizCheck').addEventListener('click',()=>{let ok=0;QZ.forEach((q,i)=>{const s=document.querySelector(`input[name=q${i}]:checked`);$('q'+i).classList.add('done');q[1].forEach((_,j)=>$(`q${i}o${j}`).classList.remove('ok','ko'));$(`q${i}o${q[2]}`).classList.add('ok');if(s){if(+s.value===q[2])ok++;else $(`q${i}o${s.value}`).classList.add('ko');}});$('quizScore').textContent=`${ok} / ${QZ.length}`;});
+$('quizReset').addEventListener('click',renderQuiz);
+
+/* ---------- BOOT ---------- */
+renderPresets();renderHeader();$('hexIn').value=hexStr(cur());ttlInit();renderFrag();tos=46<<2;renderTos();renderIcmp();renderArp();renderQuiz();
+}
+</script>
+</body>
+</html>
